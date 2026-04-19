@@ -6,6 +6,50 @@ description: Install Vaner, initialize a workspace, and run your first query.
 ## Install
 
 ```bash
+curl -fsSL https://vaner.ai/install.sh | bash
+```
+
+The installer supports Linux/macOS. It auto-detects `uv` or `pipx`, asks before
+installing missing prerequisites (Python 3.11+, `uv`/`pipx`), and then installs
+`vaner`.
+Windows one-liner support is planned once a Windows install asset is available.
+
+### Review script before running
+
+- Canonical source (current rollout PR): [github.com/Borgels/vaner/pull/88/files](https://github.com/Borgels/vaner/pull/88/files)
+- Hosted URL after deploy: `https://vaner.ai/install.sh`
+
+```bash
+curl -s https://raw.githubusercontent.com/Borgels/vaner/feat/install-oneliner/scripts/install.sh
+```
+
+### Installer options
+
+```bash
+# Non-interactive (CI)
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --yes
+
+# Force backend
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --backend pipx
+
+# Dry-run / verify
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --dry-run
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --verify
+```
+
+Environment variable mirrors:
+
+- `VANER_YES=1`
+- `VANER_DRY_RUN=1`
+- `VANER_VERIFY=1`
+- `VANER_BACKEND=uv|pipx`
+- `VANER_VERSION=<version>`
+- `VANER_NO_MODIFY_PATH=1`
+- `VANER_VERBOSE=1`
+
+### From source / contributors
+
+```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
