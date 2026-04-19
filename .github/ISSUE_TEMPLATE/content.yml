@@ -1,0 +1,19 @@
+name: Content request
+description: Request missing docs or improvements to existing docs
+title: "[docs] "
+labels: ["docs"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is missing or unclear?
+      description: Explain the current gap in docs.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested improvement
+      description: Describe the desired content change.
+    validations:
+      required: true

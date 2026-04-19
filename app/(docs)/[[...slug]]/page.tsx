@@ -16,11 +16,21 @@ export default async function Page({
   const { slug } = await params;
   const page = source.getPage(slug);
   if (!page) notFound();
+  const filePath = `content/docs/${slug && slug.length > 0 ? slug.join('/') : 'index'}.mdx`;
 
   const MDX = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      editOnGithub={{
+        owner: 'Borgels',
+        repo: 'vaner-docs',
+        sha: 'main',
+        path: filePath,
+      }}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
