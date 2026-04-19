@@ -1,45 +1,41 @@
 ---
 title: See It Working
-description: Verify traffic, quality signals, and latency/cost impact.
+description: Verify scenario prep, MCP pull flow, and cockpit feedback.
 ---
 
-## Live flow
+## Start the local cockpit
 
 ```bash
+vaner daemon serve-http --path .
 vaner watch
 ```
 
-You should see lines like:
+You should see scenario events like:
 
 ```text
-[hit] 214 tok • 8 files • decision abc123
+[change] score=0.885 freshness=fresh scenario scn_1a2b3c4d5e6f7g8h
 ```
 
-## Health snapshot
+## Check readiness
 
 ```bash
 vaner status
 vaner doctor
+vaner scenarios list --limit 5
 ```
 
-Use this to confirm proxy reachability, backend config, and compute limits.
+Use this to confirm cockpit reachability, MCP readiness, local runtime health, and scenario freshness.
 
-## Before/after summary
+## Pull scenarios through MCP
 
-Enable shadow sampling in `.vaner/config.toml`:
+In your MCP-capable IDE (Cursor/Claude), call:
 
-```toml
-[gateway.shadow]
-rate = 0.05
-```
+- `list_scenarios`
+- `get_scenario` with the returned `id`
+- `expand_scenario` to refresh a candidate
+- `report_outcome` with `useful|partial|irrelevant`
 
-Then run:
-
-```bash
-vaner impact
-```
-
-This reports sampled pair count, win rate, and latency delta.
+This confirms the MCP-first flow: Vaner prepares scenarios on the side and the model pulls context on demand.
 
 ## Visual cockpit
 
@@ -47,4 +43,4 @@ This reports sampled pair count, win rate, and latency delta.
 vaner show
 ```
 
-Opens the local cockpit with status, impact summary, compute controls, and latest decision event.
+Opens the local cockpit with live scenarios, compute controls, and the latest scenario updates.

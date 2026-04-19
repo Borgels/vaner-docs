@@ -1,31 +1,33 @@
 ---
 title: Architecture
-description: How Vaner combines idle-time preparation with fast prompt-time delivery.
+description: How Vaner runs beside your model and serves scenarios over MCP.
 ---
 
-Vaner has two loops:
+Vaner has two interfaces and one default stance:
 
-- **Ponder loop (idle path):** predicts likely next prompts, explores plausible branches, and pre-builds artifacts.
-- **Answer loop (hot path):** ranks and assembles the best context package for the real prompt.
+- **Human interface (cockpit):** CLI, IDE panel, and local HTTP UI for visibility and controls.
+- **Model interface (MCP):** tool-driven pull of prepared scenarios.
+- **Default stance:** side-running, local-first, not on the request hot path.
 
 ## Core components
 
-### Behavioral memory and intent modeling
+### Ponder loop and scenario builder
 
-Vaner adapts to workflow patterns over time using local history and recent interactions.
+The daemon watches repo activity, generates artifacts, and continuously builds ranked scenarios into `scenarios.db`.
 
-### Exploration frontier
+### Scenario store and scoring
 
-The planner admits and prioritizes speculative scenarios from graph signals, conversation flow, and prompt patterns.
+Each scenario stores prepared context, evidence references, freshness, expansion cost, and feedback outcome.
+Vaner re-scores scenarios so models can pick the most promising one quickly.
 
-### Artifact store and replay memory
+### MCP runtime (model pull)
 
-Vaner persists prepared context artifacts and replayable evidence so prompt-time decisions stay fast.
+MCP tools (`list_scenarios`, `get_scenario`, `expand_scenario`, `compare_scenarios`, `report_outcome`) expose the prepared cheat sheet on demand.
 
-### Prompt-time broker
+### Cockpit runtime (human controls)
 
-When a real prompt arrives, the broker scores candidate artifacts under token and privacy constraints, then returns the best package.
+Cockpit endpoints show status, freshness distribution, device configuration, and live scenario stream updates.
 
-### Safety and policy gate
+### Optional gateway capability
 
-Every package is filtered by explicit path scope, exclusion rules, and redaction policy before delivery.
+`vaner proxy` remains available for clients that only support OpenAI-compatible endpoints, but it is not required for MCP-first usage.

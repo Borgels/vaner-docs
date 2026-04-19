@@ -1,17 +1,17 @@
 ---
 title: Integrations
-description: Advanced integration paths for tools and runtimes beyond the default gateway+cockpit flow.
+description: MCP-first integration paths for IDEs, runtimes, and optional compatibility layers.
 ---
 
-Default onboarding is gateway + cockpit (`vaner proxy`, `vaner watch`, `vaner show`).
-This section covers advanced alternatives and tool-specific recipes.
+Default onboarding is MCP + cockpit (`vaner mcp`, `vaner watch`, `vaner show`).
+This section covers integration modes and tool-specific recipes.
 
-## Advanced integration modes
+## Integration modes
 
-- [Proxy mode](/integrations/proxy): OpenAI-compatible `/v1/chat/completions` endpoint.
-- [MCP mode](/integrations/mcp): native IDE integration where the IDE handles model calls.
-- [Context-only mode](/integrations/context-only): `/v1/context` for agent frameworks.
+- [MCP mode](/integrations/mcp): native IDE integration where models pull scenario context via tools.
 - [Python SDK mode](/integrations/python-sdk): direct library usage for scripts and tooling.
+- [Context-only mode](/integrations/context-only): `/v1/context` for agent frameworks.
+- [Proxy mode](/integrations/proxy): optional OpenAI-compatible `/v1/chat/completions` capability.
 
 For local multi-service setups, see [Docker](/integrations/docker).
 
