@@ -1,0 +1,31 @@
+---
+title: Architecture
+description: How Vaner combines idle-time preparation with fast prompt-time delivery.
+---
+
+Vaner has two loops:
+
+- **Ponder loop (idle path):** predicts likely next prompts, explores plausible branches, and pre-builds artifacts.
+- **Answer loop (hot path):** ranks and assembles the best context package for the real prompt.
+
+## Core components
+
+### Behavioral memory and intent modeling
+
+Vaner adapts to workflow patterns over time using local history and recent interactions.
+
+### Exploration frontier
+
+The planner admits and prioritizes speculative scenarios from graph signals, conversation flow, and prompt patterns.
+
+### Artifact store and replay memory
+
+Vaner persists prepared context artifacts and replayable evidence so prompt-time decisions stay fast.
+
+### Prompt-time broker
+
+When a real prompt arrives, the broker scores candidate artifacts under token and privacy constraints, then returns the best package.
+
+### Safety and policy gate
+
+Every package is filtered by explicit path scope, exclusion rules, and redaction policy before delivery.

@@ -1,0 +1,16 @@
+{
+  "title": "Vaner",
+  "pages": [
+    "index",
+    "getting-started",
+    "concepts",
+    "architecture",
+    "configuration",
+    "integrations",
+    "backends",
+    "cli",
+    "examples",
+    "security",
+    "changelog"
+  ]
+}

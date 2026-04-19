@@ -1,0 +1,17 @@
+---
+title: Concepts
+description: Core vocabulary used across Vaner documentation.
+---
+
+- **Signal:** observed event from filesystem or git state
+- **Artefact:** precomputed context unit (summary/index/diff)
+- **Working Set:** session-relevant subset of artefacts
+- **Context Package:** selected and compressed artefacts for a prompt
+- **Policy:** privacy and token-budget rules
+- **Model Target:** backend endpoint receiving enriched prompt
+- **Ponder Loop:** idle-time branch exploration and artifact preparation
+- **Answer Loop:** prompt-time context ranking and assembly
+- **Frontier Scenario:** one speculative branch candidate with source, priority, and depth
+- **Conversation Arc Model:** predicts likely next intent categories from priors and user history
+- **Context Key:** bucket id (for example repo/thread/workspace) for scoped replay and adaptation
+- **Pinned Facts:** explicit user steering directives that bias preparation without prompt injection

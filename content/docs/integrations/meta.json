@@ -1,0 +1,11 @@
+{
+  "title": "Integrations",
+  "pages": [
+    "index",
+    "proxy",
+    "mcp",
+    "context-only",
+    "python-sdk",
+    "docker"
+  ]
+}

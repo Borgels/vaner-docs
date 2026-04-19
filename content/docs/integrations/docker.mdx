@@ -1,0 +1,14 @@
+---
+title: Docker
+description: Run Vaner daemon and API services with Docker Compose.
+---
+
+```bash
+REPO_ROOT=. docker compose up -d
+```
+
+The default compose setup runs:
+
+- `vaner-daemon` (background preparation)
+- `vaner-proxy` (`:8471` injected completions)
+- `vaner-context` (`:8472` context-only API)

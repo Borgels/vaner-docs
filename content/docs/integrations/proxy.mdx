@@ -1,0 +1,12 @@
+---
+title: Proxy Mode
+description: Use Vaner as an OpenAI-compatible endpoint with context injection.
+---
+
+Run Vaner proxy:
+
+```bash
+vaner proxy --path . --host 127.0.0.1 --port 8471
+```
+
+Use this mode when your client expects `/v1/chat/completions` and you want context injection transparently.

@@ -1,0 +1,13 @@
+---
+title: Python SDK Mode
+description: Use Vaner directly from Python applications and automation scripts.
+---
+
+```python
+from vaner import api
+
+package = api.query("review auth middleware", ".", client_id="agent-a")
+print(package.injected_context)
+```
+
+Use SDK mode for CI jobs, tooling scripts, and custom orchestration.

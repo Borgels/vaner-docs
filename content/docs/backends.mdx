@@ -1,0 +1,41 @@
+---
+title: Backends and Multi-Agent Setup
+description: Configure multiple upstream models and route requests by backend profile.
+---
+
+Vaner supports a default backend plus named backend profiles.
+
+```toml
+[backend]
+base_url = "http://127.0.0.1:11434/v1"
+model = "qwen2.5-coder:32b"
+api_key_env = "OLLAMA_API_KEY"
+
+[backends.openai]
+base_url = "https://api.openai.com/v1"
+model = "gpt-4o"
+api_key_env = "OPENAI_API_KEY"
+
+[backends.claude]
+base_url = "https://api.anthropic.com/v1"
+model = "claude-sonnet-4-20250514"
+api_key_env = "ANTHROPIC_API_KEY"
+```
+
+Select a profile per request:
+
+```text
+X-Vaner-Backend: openai
+```
+
+Per-client isolation:
+
+- Send `X-Vaner-Client` to isolate context traces per agent.
+- Use `vaner inspect --last --client <id>` for client-specific visibility.
+
+Multi-repo override is disabled by default and should only be enabled intentionally:
+
+```toml
+[proxy]
+allow_repo_override = true
+```

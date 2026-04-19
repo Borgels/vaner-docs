@@ -1,0 +1,38 @@
+---
+title: Configuration
+description: Configure backends, privacy boundaries, and runtime limits.
+---
+
+Vaner reads configuration from `.vaner/config.toml`.
+
+## Example
+
+```toml
+[backend]
+base_url = "http://127.0.0.1:11434/v1"
+model = "qwen2.5-coder:32b"
+api_key_env = "OLLAMA_API_KEY"
+
+[proxy]
+allow_repo_override = false
+max_requests_per_minute = 120
+
+[privacy]
+allowed_paths = ["src/**", "docs/**"]
+excluded_patterns = ["*.env", "*.key", "*.pem", "credentials*", "secrets*"]
+redact_patterns = ["sk-[a-zA-Z0-9_-]{20,}"]
+
+[limits]
+max_age_seconds = 3600
+max_context_tokens = 4096
+```
+
+## Key sections
+
+- `backend`: default upstream endpoint and model.
+- `backends.<name>`: optional named backend profiles.
+- `proxy`: HTTP behavior, auth, and rate limits.
+- `privacy`: include/exclude/redaction rules.
+- `limits`: freshness and token budgets.
+
+Use `vaner init --profile minimal|advanced|multi` to scaffold configs with different detail levels.
