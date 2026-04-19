@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "prebuild": "node scripts/emit-mcp-manifest.mjs",
+    "sync:mcp-manifest": "node scripts/emit-mcp-manifest.mjs"
   },
   "dependencies": {
     "fumadocs-core": "^16",

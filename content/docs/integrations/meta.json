@@ -2,8 +2,9 @@
   "title": "Integrations",
   "pages": [
     "index",
-    "proxy",
     "mcp",
+    "tools",
+    "proxy",
     "context-only",
     "python-sdk",
     "docker"

@@ -1,0 +1,15 @@
+{
+  "title": "Per-client guides",
+  "pages": [
+    "claude-code-mcp",
+    "cursor-mcp",
+    "vscode-copilot-mcp",
+    "codex-cli-mcp",
+    "windsurf-mcp",
+    "continue-mcp",
+    "zed-mcp",
+    "claude-desktop-mcp",
+    "cline-mcp",
+    "roo-mcp"
+  ]
+}

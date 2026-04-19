@@ -1,0 +1,42 @@
+---
+title: Cline + Vaner (MCP)
+description: Connect Cline to Vaner over MCP for predictive, repo-grounded context.
+---
+
+[Cline](https://docs.cline.bot/features/mcp-servers/configuring-mcp-servers) supports the
+[Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
+Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
+agent before every prompt.
+
+## Install
+
+If you haven't installed Vaner yet:
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+vaner init --path .
+```
+
+## Connect Cline
+
+<McpClientPicker initialClient="cline" lockClient />
+
+## Verify
+
+Reload VS Code. In Cline's MCP Servers panel, toggle `vaner` on and run `list_scenarios` from the chat.
+
+If `Cline` reports the server as failed, run `vaner mcp --path .`
+manually in a terminal and read the error. The most common failure is a
+missing backend API key — confirm with `vaner config show`.
+
+## What this unlocks
+
+- Cline can auto-consult Vaner between autonomous steps to stay grounded in repo reality.
+- Toggle the server on/off from Cline’s MCP panel without restarting VS Code.
+- Feed Vaner’s ranked context into Cline’s planner for multi-file edits.
+
+## See also
+
+- The full [Connect your client](/mcp) guide.
+- [Backends](/backends) for picking the model Vaner ponders with.
+- Upstream docs: [https://docs.cline.bot/features/mcp-servers/configuring-mcp-servers](https://docs.cline.bot/features/mcp-servers/configuring-mcp-servers).
