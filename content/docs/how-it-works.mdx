@@ -1,0 +1,36 @@
+---
+title: How It Works
+description: Vaner's gateway + cockpit architecture.
+---
+
+Vaner has two surfaces:
+
+- **Gateway**: request path that enriches prompts with context while preserving your IDE model selection.
+- **Cockpit**: visibility path that shows what Vaner did and whether it helped.
+
+```mermaid
+flowchart LR
+    IDE[IDE]
+    Gateway[VanerGateway]
+    Provider[ModelProvider]
+    Cockpit[Cockpit]
+    IDE -->|OPENAI_BASE_URL localhost| Gateway
+    Gateway -->|enriched request| Provider
+    Provider -->|response| Gateway
+    Gateway -->|response| IDE
+    Gateway -->|decision stream| Cockpit
+```
+
+## Request path
+
+1. IDE sends a request to `http://127.0.0.1:8471/v1/chat/completions`.
+2. Vaner computes context from repo state.
+3. Vaner forwards to your backend provider.
+4. Response returns in OpenAI-compatible shape.
+
+## Visibility path
+
+- `vaner watch`: live request/decision feed.
+- `vaner impact`: sampled shadow comparison summary.
+- `vaner show`: local cockpit UI at `/ui`.
+- VS Code/Cursor extension: status bar + side panel.

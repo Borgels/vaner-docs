@@ -1,11 +1,11 @@
 ---
 title: Introduction
-description: Vaner is a local-first predictive context engine that prepares context before you ask.
+description: Vaner is local-first context infrastructure that rides alongside your IDE model flow.
 ---
 
-Vaner is a **local-first predictive context engine** for AI coding workflows.
+Vaner is a **local-first context gateway + cockpit** for AI coding workflows.
 
-Think of it like a chess engine for context: during idle time, Vaner predicts likely next prompts, prepares useful context branches, and then serves the best package quickly when the real prompt arrives.
+Your IDE keeps its model picker. Vaner sits in the middle, enriches requests with context, and gives you visibility into what happened.
 
 <iframe
   src="https://ghbtns.com/github-btn.html?user=Borgels&repo=Vaner&type=star&count=true&size=large"
@@ -17,9 +17,9 @@ Think of it like a chess engine for context: during idle time, Vaner predicts li
 
 ## What Vaner does
 
-- Runs a background **ponder loop** to pre-build likely context.
-- Runs a prompt-time **answer loop** to rank and assemble the best context package.
-- Stays **model-agnostic**, so you can use local or cloud backends without lock-in.
+- Uses idle local hardware to prepare context ahead of requests.
+- Enriches prompt-time requests through an OpenAI-shaped gateway.
+- Surfaces live decisions in CLI, local web cockpit, and IDE extension.
 
 ## Core outcomes
 
@@ -32,6 +32,7 @@ Vaner is successful when it improves one or more of:
 ## Start here
 
 - New users: [Getting started](/getting-started)
-- Concepts and terminology: [Concepts](/concepts)
-- Setup and tuning: [Configuration](/configuration)
-- Integration modes: [Integrations](/integrations)
+- Mental model: [How it works](/how-it-works)
+- Prove it is helping: [See it working](/see-it-working)
+- Setup and tuning: [Configuration](/configuration) and [Compute tuning](/tuning/compute)
+- Advanced integrations: [Integrations](/integrations)

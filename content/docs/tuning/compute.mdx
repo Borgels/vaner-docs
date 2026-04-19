@@ -1,0 +1,32 @@
+---
+title: Compute Tuning
+description: Control CPU/GPU usage and device routing for Vaner.
+---
+
+Vaner reads compute settings from `.vaner/config.toml`.
+
+```toml
+[compute]
+device = "auto"               # auto | cpu | cuda:0 | cuda:1 | mps
+cpu_fraction = 0.2
+gpu_memory_fraction = 0.5
+embedding_device = "cuda"
+exploration_concurrency = 4
+max_parallel_precompute = 1
+```
+
+## CLI updates
+
+```bash
+vaner config set compute.device cuda:1
+vaner config set compute.cpu_fraction 0.2
+vaner config set compute.gpu_memory_fraction 0.5
+```
+
+## Inspect available devices
+
+```bash
+curl http://127.0.0.1:8471/compute/devices
+```
+
+or use `vaner show` / the VS Code extension cockpit panel.

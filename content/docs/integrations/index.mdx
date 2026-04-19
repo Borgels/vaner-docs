@@ -1,9 +1,12 @@
 ---
 title: Integrations
-description: Choose the right Vaner integration mode for your tools.
+description: Advanced integration paths for tools and runtimes beyond the default gateway+cockpit flow.
 ---
 
-Vaner supports four primary integration modes:
+Default onboarding is gateway + cockpit (`vaner proxy`, `vaner watch`, `vaner show`).
+This section covers advanced alternatives and tool-specific recipes.
+
+## Advanced integration modes
 
 - [Proxy mode](/integrations/proxy): OpenAI-compatible `/v1/chat/completions` endpoint.
 - [MCP mode](/integrations/mcp): native IDE integration where the IDE handles model calls.
@@ -11,3 +14,8 @@ Vaner supports four primary integration modes:
 - [Python SDK mode](/integrations/python-sdk): direct library usage for scripts and tooling.
 
 For local multi-service setups, see [Docker](/integrations/docker).
+
+## Tool Compatibility
+
+- [Compatibility matrix](/integrations/compatibility): grouped tool status across IDEs, CLIs, backends, and hosts.
+- [Tool-specific pages](/integrations/tools/cursor-mcp): per-tool install and verification routes.

@@ -1,0 +1,289 @@
+{
+  "$schema": "./compatibility.schema.json",
+  "version": 1,
+  "tools": [
+    {
+      "slug": "cursor-mcp",
+      "name": "Cursor",
+      "category": "ide",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/cursor-mcp.md",
+      "example_path": "examples/cursor-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "claude-code-mcp",
+      "name": "Claude Code",
+      "category": "cli",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/claude-code-mcp.md",
+      "example_path": "examples/claude-code-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "claude-desktop-mcp",
+      "name": "Claude Desktop",
+      "category": "agent-host",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/claude-desktop-mcp.md",
+      "example_path": "examples/claude-desktop-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "zed-mcp",
+      "name": "Zed",
+      "category": "ide",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/zed-mcp.md",
+      "example_path": "examples/zed-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "windsurf-mcp",
+      "name": "Windsurf",
+      "category": "ide",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/windsurf-mcp.md",
+      "example_path": "examples/windsurf-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "vscode-copilot-agent-mcp",
+      "name": "VS Code Copilot Agent",
+      "category": "ide",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/vscode-copilot-agent-mcp.md",
+      "example_path": "examples/vscode-copilot-agent-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": "Agent mode only"
+    },
+    {
+      "slug": "codex-cli-mcp",
+      "name": "Codex CLI",
+      "category": "cli",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/codex-cli-mcp.md",
+      "example_path": "examples/codex-cli-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "continue-mcp",
+      "name": "Continue (MCP)",
+      "category": "ide",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/continue-mcp.md",
+      "example_path": "examples/continue-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "openclaw-mcp",
+      "name": "OpenClaw",
+      "category": "agent-host",
+      "mode": "mcp",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "mcp"
+      ],
+      "doc_path": "docs/integrations/openclaw-mcp.md",
+      "example_path": "examples/openclaw-mcp/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "aider-proxy",
+      "name": "Aider",
+      "category": "cli",
+      "mode": "proxy",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "proxy"
+      ],
+      "doc_path": "docs/integrations/aider-proxy.md",
+      "example_path": "examples/aider-proxy/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "continue-proxy",
+      "name": "Continue (Proxy)",
+      "category": "ide",
+      "mode": "proxy",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "proxy"
+      ],
+      "doc_path": "docs/integrations/continue-proxy.md",
+      "example_path": "examples/continue-proxy/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "lm-studio-client-proxy",
+      "name": "LM Studio (client)",
+      "category": "web-ui",
+      "mode": "proxy",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "proxy"
+      ],
+      "doc_path": "docs/integrations/lm-studio-client-proxy.md",
+      "example_path": "examples/lm-studio-client-proxy/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "openrouter-backend-proxy",
+      "name": "OpenRouter",
+      "category": "proxy",
+      "mode": "proxy",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "proxy",
+        "backend"
+      ],
+      "doc_path": "docs/integrations/openrouter-backend-proxy.md",
+      "example_path": "examples/openrouter-backend-proxy/",
+      "verified_on": "2026-04-19",
+      "notes": "Used as upstream backend behind Vaner proxy"
+    },
+    {
+      "slug": "vllm-backend",
+      "name": "vLLM",
+      "category": "backend",
+      "mode": "backend",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "backend"
+      ],
+      "doc_path": "docs/integrations/vllm-backend.md",
+      "example_path": "examples/vllm-backend/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "hf-inference-endpoints-backend",
+      "name": "Hugging Face Inference Endpoints",
+      "category": "backend",
+      "mode": "backend",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "backend"
+      ],
+      "doc_path": "docs/integrations/hf-inference-endpoints-backend.md",
+      "example_path": "examples/hf-inference-endpoints-backend/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "lm-studio-backend",
+      "name": "LM Studio (backend)",
+      "category": "backend",
+      "mode": "backend",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "backend"
+      ],
+      "doc_path": "docs/integrations/lm-studio-backend.md",
+      "example_path": "examples/lm-studio-backend/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    },
+    {
+      "slug": "ollama-backend",
+      "name": "Ollama",
+      "category": "backend",
+      "mode": "backend",
+      "status": "supported",
+      "install_effort": "docs-only",
+      "surfaces": [
+        "backend"
+      ],
+      "doc_path": "docs/integrations/ollama-backend.md",
+      "example_path": "examples/ollama-backend/",
+      "verified_on": "2026-04-19",
+      "notes": ""
+    }
+  ],
+  "unsupported": [
+    {
+      "name": "ChatGPT (consumer web/app)",
+      "reason": "No local proxy or MCP attach point for third-party middleware.",
+      "re_evaluate_when": "If OpenAI exposes local middleware/plugin hooks for consumer ChatGPT."
+    },
+    {
+      "name": "Microsoft Copilot (consumer / Microsoft 365)",
+      "reason": "Closed hosted product with no local context-injection attach point.",
+      "re_evaluate_when": "If Microsoft exposes local plugin or MCP endpoints for this product tier."
+    },
+    {
+      "name": "Perplexity (consumer)",
+      "reason": "No local attach point for Vaner proxy or MCP-based retrieval.",
+      "re_evaluate_when": "If Perplexity adds extensible local tools/middleware APIs."
+    },
+    {
+      "name": "Google Gemini app (consumer)",
+      "reason": "Consumer app does not expose local middleware integration points.",
+      "re_evaluate_when": "If Gemini consumer product supports local tools or middleware hooks."
+    },
+    {
+      "name": "Replit Ghostwriter",
+      "reason": "Hosted assistant does not provide local middleware insertion for Vaner.",
+      "re_evaluate_when": "If Replit enables local agent/plugin attach points for Ghostwriter."
+    }
+  ]
+}

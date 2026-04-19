@@ -1,0 +1,50 @@
+---
+title: See It Working
+description: Verify traffic, quality signals, and latency/cost impact.
+---
+
+## Live flow
+
+```bash
+vaner watch
+```
+
+You should see lines like:
+
+```text
+[hit] 214 tok • 8 files • decision abc123
+```
+
+## Health snapshot
+
+```bash
+vaner status
+vaner doctor
+```
+
+Use this to confirm proxy reachability, backend config, and compute limits.
+
+## Before/after summary
+
+Enable shadow sampling in `.vaner/config.toml`:
+
+```toml
+[gateway.shadow]
+rate = 0.05
+```
+
+Then run:
+
+```bash
+vaner impact
+```
+
+This reports sampled pair count, win rate, and latency delta.
+
+## Visual cockpit
+
+```bash
+vaner show
+```
+
+Opens the local cockpit with status, impact summary, compute controls, and latest decision event.

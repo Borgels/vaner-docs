@@ -3,9 +3,12 @@
   "pages": [
     "index",
     "getting-started",
+    "how-it-works",
+    "see-it-working",
     "concepts",
     "architecture",
     "configuration",
+    "tuning",
     "integrations",
     "backends",
     "cli",

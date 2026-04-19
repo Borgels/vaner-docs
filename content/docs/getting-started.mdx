@@ -1,9 +1,46 @@
 ---
 title: Getting Started
-description: Install Vaner, initialize a workspace, and run your first query.
+description: Install Vaner, connect your IDE, and verify Vaner is working in three steps.
 ---
 
-## Install
+## 1) Install Vaner
+
+```bash
+curl -fsSL https://vaner.ai/install.sh | bash
+```
+
+The installer supports Linux/macOS and can be used non-interactively in CI.
+
+### Review script before running
+
+- Canonical source: [github.com/Borgels/vaner/blob/main/scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh)
+- Hosted URL: `https://vaner.ai/install.sh`
+
+### Installer options
+
+```bash
+# Non-interactive (CI)
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --yes
+
+# Force backend
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --backend pipx
+
+# Dry-run / verify
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --dry-run
+curl -fsSL https://vaner.ai/install.sh | bash -s -- --verify
+```
+
+Environment variable mirrors:
+
+- `VANER_YES=1`
+- `VANER_DRY_RUN=1`
+- `VANER_VERIFY=1`
+- `VANER_BACKEND=uv|pipx`
+- `VANER_VERSION=<version>`
+- `VANER_NO_MODIFY_PATH=1`
+- `VANER_VERBOSE=1`
+
+### From source / contributors
 
 ```bash
 python -m venv .venv
@@ -11,20 +48,31 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-## Initialize and run
+## 2) Initialize and connect your IDE
 
 ```bash
-vaner init --profile minimal --path .
-vaner daemon start --no-once --path .
-vaner query "where is auth enforced?" --path .
-vaner inspect --last --path .
+vaner init --path .
+vaner proxy --path .
 ```
 
-## Choose an integration mode
+Then:
 
-- **Proxy mode** (`/v1/chat/completions`): best when tools expect OpenAI-compatible APIs.
-- **MCP mode**: best when your IDE supports MCP natively.
-- **Context-only mode** (`/v1/context`): best when your agent handles model routing and only needs context.
-- **Python SDK**: best for scripts and custom automation.
+- Set your IDE/provider base URL to `http://127.0.0.1:8471/v1`.
+- Keep your existing API key and model picker in the IDE.
+- Optional: install the VS Code/Cursor extension from `ide/vscode/` for built-in cockpit UI.
 
-See [Integrations](/integrations) for details.
+## 3) Verify it works
+
+```bash
+vaner watch --limit 3
+vaner status
+vaner impact
+vaner show
+```
+
+- `watch` proves traffic is flowing through Vaner.
+- `status` confirms proxy/backend/compute configuration.
+- `impact` summarizes sampled before/after shadow comparisons.
+- `show` opens the local web cockpit.
+
+For advanced integrations (MCP, context-only, SDK), see [Integrations](/integrations).
