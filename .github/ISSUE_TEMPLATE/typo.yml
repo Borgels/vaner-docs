@@ -1,0 +1,19 @@
+name: Typo report
+description: Report typos, broken grammar, or wording issues
+title: "[typo] "
+labels: ["docs", "typo"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page URL or path
+      placeholder: https://docs.vaner.ai/getting-started
+    validations:
+      required: true
+  - type: textarea
+    id: typo
+    attributes:
+      label: What should be corrected?
+      description: Share current text and your suggested fix.
+    validations:
+      required: true

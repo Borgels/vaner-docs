@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vaner code issues
+    url: https://github.com/Borgels/Vaner/issues
+    about: Report core product bugs in the main Vaner repository.
+  - name: Security disclosures
+    url: https://github.com/Borgels/Vaner/security/policy
+    about: Report vulnerabilities privately through the main repo security policy.
