@@ -17,13 +17,13 @@ installs `vaner[mcp]` so the MCP server is ready out of the box. Pass
 ### Non-interactive install (CI, Dockerfiles)
 
 ```bash
-curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh \
-  | bash -s -- --yes \
-      --backend-preset openai \
-      --backend-model gpt-4o-mini \
-      --backend-api-key-env OPENAI_API_KEY \
-      --compute-preset background \
-      --max-session-minutes 30
+VANER_YES=1 \
+VANER_BACKEND_PRESET=openai \
+VANER_BACKEND_MODEL=gpt-4o-mini \
+VANER_BACKEND_API_KEY_ENV=OPENAI_API_KEY \
+VANER_COMPUTE_PRESET=background \
+VANER_MAX_SESSION_MINUTES=30 \
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
 ```
 
 ### Environment variable mirrors

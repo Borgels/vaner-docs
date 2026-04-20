@@ -1,0 +1,20 @@
+{
+  "$schema": "./launchers.schema.json",
+  "version": 1,
+  "launchers": [
+    {
+      "id": "uvx",
+      "label": "Run via uvx (recommended)",
+      "description": "No permanent install needed. uvx runs vaner[mcp] on demand.",
+      "command": "uvx",
+      "args": ["--from", "vaner[mcp]", "vaner", "mcp"]
+    },
+    {
+      "id": "path",
+      "label": "Use installed vaner on PATH",
+      "description": "Use an already-installed vaner binary from your shell PATH.",
+      "command": "vaner",
+      "args": ["mcp"]
+    }
+  ]
+}

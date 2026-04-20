@@ -1,6 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+import { Tabs, TabsList, TabsTrigger } from 'fumadocs-ui/components/ui/tabs';
 import type { McpBackend } from '@/lib/mcp-clients';
 
 type Props = {
@@ -25,28 +28,20 @@ export function BackendPresetPicker({ backends, initialBackend, compact }: Props
 
   return (
     <div className={`my-6 rounded-xl border border-border bg-card p-4 ${compact ? '' : ''}`}>
-      <label className="mb-3 block text-xs text-muted-foreground">
-        <span className="mb-1 block font-medium text-foreground">Backend</span>
-        <select
-          value={active.id}
-          onChange={(e) => setBackendId(e.target.value)}
-          className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
-        >
-          {ordered.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.name}
-              {b.requiresKey ? ' · needs API key' : ''}
-            </option>
+      <Tabs value={active.id} onValueChange={setBackendId} className="mb-3">
+        <TabsList>
+          {ordered.map((backend) => (
+            <TabsTrigger key={backend.id} value={backend.id}>
+              {backend.name}
+            </TabsTrigger>
           ))}
-        </select>
-      </label>
+        </TabsList>
+      </Tabs>
 
       <p className="mb-2 text-xs text-muted-foreground">{active.setupHint}</p>
 
       <div className="relative">
-        <pre className="max-h-60 overflow-auto rounded-md border border-border bg-muted/40 p-3 text-xs">
-          <code>{active.snippet}</code>
-        </pre>
+        <DynamicCodeBlock lang="toml" code={active.snippet} />
         <button
           type="button"
           onClick={async () => {
@@ -64,12 +59,11 @@ export function BackendPresetPicker({ backends, initialBackend, compact }: Props
         </button>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        Upstream:{' '}
-        <a href={active.url} className="underline underline-offset-2" rel="noreferrer noopener" target="_blank">
+      <Cards className="mt-3">
+        <Card title="Upstream" href={active.url} external>
           {active.url}
-        </a>
-      </p>
+        </Card>
+      </Cards>
     </div>
   );
 }

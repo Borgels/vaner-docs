@@ -4,13 +4,19 @@ description: Install Vaner, pick a model backend, and wire up MCP for Claude Cod
 ---
 
 Vaner exposes your repository to AI clients over the
-[Model Context Protocol](https://modelcontextprotocol.io/). Three steps:
+[Model Context Protocol](https://modelcontextprotocol.io/). Most clients can
+launch Vaner directly via `uvx`, so you can connect first and install the full
+CLI later only if you want it. Three steps:
 
-1. Install Vaner and start the MCP server.
+1. Connect your client (default: `uvx` launcher, no permanent install).
 2. Pick the model backend Vaner should ponder with.
-3. Tell your AI client where to find `vaner mcp`.
+3. Use the MCP tools from your AI client.
 
 ## 1. Install Vaner
+
+> [!NOTE]
+> The default snippets use `uvx`, which requires `uv` on your PATH. Install it
+> from [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash

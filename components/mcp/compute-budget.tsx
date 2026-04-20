@@ -1,6 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+import { Tabs, TabsList, TabsTrigger } from 'fumadocs-ui/components/ui/tabs';
 
 type ComputePreset = {
   id: 'background' | 'balanced' | 'dedicated';
@@ -51,23 +54,15 @@ export function ComputeBudget({ initialPreset, compact }: Props) {
 
   return (
     <div className={`my-6 rounded-xl border border-border bg-card p-4 ${compact ? '' : ''}`}>
-      <div className="mb-3 flex flex-wrap gap-2">
-        {PRESETS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => setPresetId(p.id)}
-            className={`rounded-md border px-2 py-1 text-xs ${
-              p.id === active.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border text-muted-foreground hover:bg-muted'
-            }`}
-            aria-pressed={p.id === active.id}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
+      <Tabs value={active.id} onValueChange={(value) => setPresetId(value as ComputePreset['id'])} className="mb-3">
+        <TabsList>
+          {PRESETS.map((preset) => (
+            <TabsTrigger key={preset.id} value={preset.id}>
+              {preset.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <p className="mb-3 text-xs text-muted-foreground">{active.description}</p>
 
       <label className="mb-3 block text-xs text-muted-foreground">
@@ -87,9 +82,7 @@ export function ComputeBudget({ initialPreset, compact }: Props) {
       </label>
 
       <div className="relative">
-        <pre className="max-h-60 overflow-auto rounded-md border border-border bg-muted/40 p-3 text-xs">
-          <code>{renderedSnippet}</code>
-        </pre>
+        <DynamicCodeBlock lang="toml" code={renderedSnippet} />
         <button
           type="button"
           onClick={async () => {
@@ -107,10 +100,10 @@ export function ComputeBudget({ initialPreset, compact }: Props) {
         </button>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        `max_cycle_seconds` bounds a single ponder cycle; `max_session_minutes` bounds a whole
-        `vaner daemon` run. Both are safe to leave at their defaults.
-      </p>
+      <Callout type="info" className="mt-3">
+        <code>max_cycle_seconds</code> bounds a single ponder cycle. <code>max_session_minutes</code> bounds a
+        continuous <code>vaner daemon</code> run.
+      </Callout>
     </div>
   );
 }

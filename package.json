@@ -15,7 +15,8 @@
     "fumadocs-ui": "^16",
     "next": "^16",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^25",

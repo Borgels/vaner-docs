@@ -1,17 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import type { McpClient } from '@/lib/mcp-clients';
+import { useEffect, useMemo, useState } from 'react';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+import { Tabs, TabsList, TabsTrigger } from 'fumadocs-ui/components/ui/tabs';
+import type { McpClient, McpLauncher, McpLauncherId } from '@/lib/mcp-clients';
 import { renderInstallSnippet } from '@/lib/mcp-clients';
 
 type Props = {
   clients: McpClient[];
+  launchers: McpLauncher[];
   initialClient?: string;
   lockClient?: boolean;
   compact?: boolean;
 };
 
-export function McpClientPicker({ clients, initialClient, lockClient, compact }: Props) {
+const CLIENT_KEY = 'vaner.mcp.client';
+const SCOPE_KEY = 'vaner.mcp.scope';
+const LAUNCHER_KEY = 'vaner.mcp.launcher';
+
+export function McpClientPicker({ clients, launchers, initialClient, lockClient, compact }: Props) {
   const ordered = useMemo(() => {
     if (!initialClient) return clients;
     const first = clients.find((c) => c.id === initialClient);
@@ -22,11 +31,40 @@ export function McpClientPicker({ clients, initialClient, lockClient, compact }:
   const [clientId, setClientId] = useState(initialClient ?? ordered[0]?.id);
   const active = ordered.find((c) => c.id === clientId) ?? ordered[0];
   const [scopeId, setScopeId] = useState(active?.scopes[0]?.id ?? 'user');
+  const [launcherId, setLauncherId] = useState<McpLauncherId>('uvx');
 
   if (!active) return null;
 
+  useEffect(() => {
+    if (lockClient || typeof window === 'undefined') return;
+    const storedClient = window.localStorage.getItem(CLIENT_KEY);
+    const storedScope = window.localStorage.getItem(SCOPE_KEY);
+    const storedLauncher = window.localStorage.getItem(LAUNCHER_KEY);
+    if (storedClient && ordered.some((client) => client.id === storedClient)) {
+      setClientId(storedClient);
+    }
+    if (storedScope) setScopeId(storedScope);
+    if (storedLauncher === 'uvx' || storedLauncher === 'path') {
+      setLauncherId(storedLauncher);
+    }
+  }, [lockClient, ordered]);
+
+  useEffect(() => {
+    const selectedClient = ordered.find((client) => client.id === clientId) ?? ordered[0];
+    if (!selectedClient.scopes.some((scope) => scope.id === scopeId)) {
+      setScopeId(selectedClient.scopes[0]?.id ?? 'user');
+    }
+  }, [clientId, ordered, scopeId]);
+
+  useEffect(() => {
+    if (lockClient || typeof window === 'undefined') return;
+    window.localStorage.setItem(CLIENT_KEY, clientId ?? '');
+    window.localStorage.setItem(SCOPE_KEY, scopeId);
+    window.localStorage.setItem(LAUNCHER_KEY, launcherId);
+  }, [clientId, scopeId, launcherId, lockClient]);
+
   const currentScope = active.scopes.find((s) => s.id === scopeId) ?? active.scopes[0];
-  const snippet = renderInstallSnippet(active, currentScope.id);
+  const snippet = renderInstallSnippet(active, currentScope.id, launcherId);
   const copyLabel = snippet.language === 'bash' ? 'Copy command' : 'Copy snippet';
 
   return (
@@ -83,24 +121,34 @@ export function McpClientPicker({ clients, initialClient, lockClient, compact }:
         )}
 
         {active.scopes.length > 1 && (
-          <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="Install scope">
-            {active.scopes.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                role="tab"
-                aria-selected={s.id === currentScope.id}
-                onClick={() => setScopeId(s.id)}
-                className={`rounded-md border px-2 py-1 text-xs ${
-                  s.id === currentScope.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:bg-muted'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <Tabs value={currentScope.id} onValueChange={setScopeId} className="mb-3">
+            <TabsList>
+              {active.scopes.map((scope) => (
+                <TabsTrigger key={scope.id} value={scope.id}>
+                  {scope.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
+
+        {launchers.length > 0 && (
+          <Tabs value={launcherId} onValueChange={(value) => setLauncherId(value as McpLauncherId)} className="mb-3">
+            <TabsList>
+              {launchers.map((launcher) => (
+                <TabsTrigger key={launcher.id} value={launcher.id}>
+                  {launcher.id === 'uvx' ? 'Run via uvx (recommended)' : 'Use installed vaner on PATH'}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
+
+        {snippet.missingScopePath && (
+          <Callout type="warning" className="mb-3" title="Scope path not defined for this client">
+            This scope does not have a configured target path in the client manifest. Pick another scope or update
+            `content/mcp/clients.json`.
+          </Callout>
         )}
 
         {snippet.path && (
@@ -110,21 +158,16 @@ export function McpClientPicker({ clients, initialClient, lockClient, compact }:
         )}
 
         <div className="relative">
-          <pre className="max-h-80 overflow-auto rounded-md border border-border bg-muted/40 p-3 text-xs">
-            <code>{snippet.content}</code>
-          </pre>
+          <DynamicCodeBlock lang={snippet.language} code={snippet.content} />
           <CopyButton label={copyLabel} value={snippet.content} />
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Verify:</span> {active.verify}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Upstream docs:{' '}
-          <a href={active.sourceUrl} className="underline underline-offset-2" rel="noreferrer noopener" target="_blank">
+        <Cards className="mt-3">
+          <Card title="Verify">{active.verify}</Card>
+          <Card title="Upstream docs" href={active.sourceUrl} external>
             {active.sourceUrl}
-          </a>
-        </p>
+          </Card>
+        </Cards>
       </div>
     </div>
   );
