@@ -3,10 +3,19 @@ title: CLI Reference
 description: Core Vaner CLI commands for MCP-first setup, cockpit, and scenarios.
 ---
 
-## Setup and daemon
+## Recommended first-run flow
 
 ```bash
 vaner init --path .
+vaner up --path .
+vaner status --path .
+vaner doctor --path .
+vaner down --path .
+```
+
+## Advanced daemon controls
+
+```bash
 vaner daemon start --once false --path .
 vaner daemon serve-http --path .
 vaner daemon status --path .
@@ -54,7 +63,8 @@ vaner distill-skill <decision-id> --path . [--out-dir PATH] [--name NAME] [--for
 
 ```bash
 vaner watch --cockpit-url http://127.0.0.1:8473
-vaner logs --cockpit-url http://127.0.0.1:8473
+vaner logs --path .
+vaner logs --events --cockpit-url http://127.0.0.1:8473
 vaner show --cockpit-url http://127.0.0.1:8473
 vaner status --path .
 vaner ps --path .

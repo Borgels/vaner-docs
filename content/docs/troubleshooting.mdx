@@ -1,0 +1,118 @@
+---
+title: Troubleshooting
+description: Quick fixes for common first-run issues with Vaner, MCP clients, and Ollama.
+---
+
+## Nothing is happening after install
+
+Symptom:
+
+- You installed Vaner and connected MCP, but scenarios do not update and cockpit stays idle.
+
+Fix:
+
+```bash
+vaner doctor --path .
+vaner up --path .
+```
+
+Expected:
+
+- `doctor` shows `daemon_running: PASS`
+- `vaner status` shows daemon `running`
+- `vaner show` loads cockpit at `http://127.0.0.1:8473/`
+
+## Port already in use
+
+Symptom:
+
+- `vaner daemon serve-http` fails with `address already in use`.
+
+Fix:
+
+```bash
+vaner down --path .
+vaner up --path .
+```
+
+If another process owns 8473, Vaner now suggests the next free port. You can pin one manually:
+
+```bash
+vaner up --path . --port 8474
+```
+
+## inotify watch limit reached
+
+Symptom:
+
+- Background daemon fails with `inotify watch limit reached`.
+
+Fix:
+
+```bash
+sudo sysctl fs.inotify.max_user_watches=524288
+vaner up --path .
+```
+
+Vaner also falls back to polling mode when this happens, so it should keep running with reduced responsiveness.
+
+## Ran on the wrong folder
+
+Symptom:
+
+- You accidentally ran Vaner on `/home/<user>` or another huge non-repo directory.
+
+Fix:
+
+```bash
+cd /path/to/your/repo
+vaner up --path .
+```
+
+If you must run a non-standard path, use `--force` deliberately:
+
+```bash
+vaner up --path /some/path --force
+```
+
+## My agent is not calling Vaner tools
+
+Symptom:
+
+- MCP config exists, but your client never uses Vaner tools.
+
+Fix checklist:
+
+1. Confirm MCP config exists (`.cursor/mcp.json`, Claude config, etc.).
+2. Reload your AI client window/session after `vaner init`.
+3. Verify with `vaner doctor --path .` and look for MCP-related checks.
+4. Prompt explicitly once: \"use the vaner MCP tools for this task\".
+
+## Ollama errors or 404 responses
+
+Symptom:
+
+- Backend requests fail, or `doctor` reports runtime/model issues.
+
+Fix:
+
+```bash
+ollama serve
+ollama pull <model-from-.vaner-config>
+vaner doctor --path .
+```
+
+Confirm your configured model matches a pulled model in Ollama:
+
+- `.vaner/config.toml` -> `[backend].model`
+- `http://127.0.0.1:11434/api/tags` -> includes the same model name
+
+## CLI says daemon is stopped but doctor is green
+
+`vaner status` and `vaner doctor` now use the same runtime snapshot source. If they disagree, restart with:
+
+```bash
+vaner down --path .
+vaner up --path .
+vaner doctor --path .
+```
