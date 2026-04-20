@@ -3,6 +3,12 @@ title: Docker
 description: Run Vaner daemon and API services with Docker Compose.
 ---
 
+> [!TIP]
+> For a single local repo, start with [MCP mode](/integrations/mcp). Use Docker
+> when you need a repeatable multi-service topology.
+
+## Start services
+
 ```bash
 REPO_ROOT=. docker compose up -d
 ```
@@ -12,3 +18,12 @@ The default compose setup runs:
 - `vaner-daemon` (background preparation)
 - `vaner-proxy` (`:8471` injected completions)
 - `vaner-context` (`:8472` context-only API)
+
+## Validate containers
+
+```bash
+docker compose ps
+curl -s http://127.0.0.1:8472/v1/context \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"summarize current auth flow","top_n":6}'
+```

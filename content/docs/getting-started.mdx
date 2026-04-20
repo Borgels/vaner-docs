@@ -74,6 +74,14 @@ use the [per-client guides](/integrations/tools/claude-code-mcp).
 
 ```bash
 vaner daemon start --no-once --path .
+```
+
+Open your connected client and call `list_scenarios` as a smoke test. Then call
+`get_scenario` on one scenario ID to confirm full context retrieval.
+
+### Local debugging (optional)
+
+```bash
 vaner query "where is auth enforced?" --explain --path .
 vaner inspect --last --path .
 ```

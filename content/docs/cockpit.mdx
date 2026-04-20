@@ -1,0 +1,42 @@
+---
+title: Cockpit
+description: Operate and inspect Vaner with live stream, status, and local UI controls.
+---
+
+The cockpit is Vaner's human-control surface. Use it to monitor readiness,
+inspect scenarios, and debug local setup while your MCP clients call tools.
+
+## Start cockpit HTTP
+
+```bash
+vaner daemon serve-http --path .
+```
+
+Default URL: `http://127.0.0.1:8473`.
+
+## Stream live scenarios
+
+```bash
+vaner watch --cockpit-url http://127.0.0.1:8473
+```
+
+This tails the cockpit SSE stream (`/scenarios/stream`) so you can watch
+precompute output in real time.
+
+## Open the web UI
+
+```bash
+vaner show --cockpit-url http://127.0.0.1:8473
+```
+
+This opens the cockpit UI endpoint (`/ui`) in your browser.
+
+## Health and status checks
+
+```bash
+vaner status --path .
+vaner doctor --path .
+```
+
+- `status` checks daemon state, backend reachability, and cockpit health.
+- `doctor` runs deeper diagnostics for missing dependencies and broken config.
