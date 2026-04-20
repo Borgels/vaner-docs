@@ -6,8 +6,8 @@ description: Core Vaner CLI commands for MCP-first setup, cockpit, and scenarios
 ## Setup and daemon
 
 ```bash
-vaner init --profile minimal --path .
-vaner daemon start --no-once --path .
+vaner init --path .
+vaner daemon start --once false --path .
 vaner daemon serve-http --path .
 vaner daemon status --path .
 vaner daemon stop --path .
@@ -28,8 +28,8 @@ vaner scenarios outcome <scenario_id> --result useful --skill vaner-feedback --p
 ```bash
 vaner query "where is auth enforced?" --path .
 vaner why --path .
-vaner compare "prompt a" "prompt b" --path .
-vaner impact "refactor auth middleware" --path .
+vaner compare "Summarize auth flow" --path .
+vaner impact --path .
 ```
 
 ## Local debugging and state control
@@ -37,6 +37,8 @@ vaner impact "refactor auth middleware" --path .
 ```bash
 vaner inspect --last --path .
 vaner metrics --path . --output summary
+vaner prepare --path .
+vaner precompute --path .
 vaner forget --path .
 ```
 
@@ -52,8 +54,10 @@ vaner distill-skill <decision-id> --path . [--out-dir PATH] [--name NAME] [--for
 
 ```bash
 vaner watch --cockpit-url http://127.0.0.1:8473
+vaner logs --cockpit-url http://127.0.0.1:8473
 vaner show --cockpit-url http://127.0.0.1:8473
 vaner status --path .
+vaner ps --path .
 vaner doctor --path .
 ```
 
@@ -61,8 +65,15 @@ vaner doctor --path .
 
 ```bash
 vaner config show --path .
+vaner config show --json --path .
+vaner config keys --path .
+vaner config get backend.model --path .
 vaner config set intent.enabled true --path .
+vaner config set intent.skills_loop.enabled true --path .
+vaner config set gateway.routes.gpt- https://api.openai.com/v1 --path .
+vaner config edit --path .
 vaner profile show --path .
+vaner upgrade
 ```
 
 ## MCP server
@@ -84,7 +95,14 @@ Use this only when your client cannot call MCP tools directly.
 
 ```bash
 vaner eval --path .
-vaner run-eval --dataset examples/evals/basic.jsonl --path .
+vaner run-eval --cases-file examples/evals/basic.jsonl --path .
+```
+
+## Version and completion
+
+```bash
+vaner --version
+vaner --install-completion
 ```
 
 Run `vaner --help` and `vaner <subcommand> --help` for full flags.
