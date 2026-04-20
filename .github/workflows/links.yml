@@ -16,9 +16,12 @@ jobs:
           args: >-
             --verbose
             --no-progress
-            --root-dir .
+            --base https://docs.vaner.ai
             --exclude http://localhost:3000
             --exclude https://github.com/Borgels/Vaner/security/policy
             --exclude https://github.com/Borgels/Vaner/tree/main/examples
+            --exclude https://docs.vaner.ai/mcp
+            --exclude https://docs.vaner.ai/integrations/tools/claude-code-mcp
+            --exclude https://docs.vaner.ai/scenarios
             "./**/*.md"
             "./**/*.mdx"
