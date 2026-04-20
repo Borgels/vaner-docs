@@ -116,3 +116,33 @@ vaner down --path .
 vaner up --path .
 vaner doctor --path .
 ```
+
+## The wizard did not detect my client
+
+Symptom:
+
+- `vaner init` did not list your MCP client in step 3.
+
+Fix:
+
+```bash
+vaner init --clients cursor --path .          # explicit known client id
+vaner init --clients other --path .           # print generic MCP snippet
+```
+
+Supported explicit ids:
+
+- `cursor`
+- `claude-desktop`
+- `claude-code`
+- `vscode-copilot`
+- `codex-cli`
+- `windsurf`
+- `zed`
+- `continue`
+- `cline`
+- `roo`
+
+If your client is still missing, use the generated snippet and open a support request:
+
+- [github.com/Borgels/vaner/issues/new?labels=client-support](https://github.com/Borgels/vaner/issues/new?labels=client-support)
