@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Configure backends, privacy boundaries, and runtime limits.
+description: Configure MCP, exploration, privacy boundaries, and optional gateway behavior.
 ---
 
 Vaner reads configuration from `.vaner/config.toml`.
@@ -13,26 +13,53 @@ base_url = "http://127.0.0.1:11434/v1"
 model = "qwen2.5-coder:32b"
 api_key_env = "OLLAMA_API_KEY"
 
-[proxy]
-allow_repo_override = false
-max_requests_per_minute = 120
+[mcp]
+transport = "stdio"
+http_host = "127.0.0.1"
+http_port = 8472
+
+[intent]
+enabled = true
+include_global_skills = false
+skill_roots = [".cursor/skills", ".claude/skills", "skills"]
+
+[intent.skills_loop]
+enabled = true
+max_feedback_events_per_cycle = 200
+
+[gateway.passthrough]
+enabled = false
 
 [privacy]
 allowed_paths = ["src/**", "docs/**"]
 excluded_patterns = ["*.env", "*.key", "*.pem", "credentials*", "secrets*"]
 redact_patterns = ["sk-[a-zA-Z0-9_-]{20,}"]
 
-[limits]
-max_age_seconds = 3600
-max_context_tokens = 4096
+[compute]
+device = "cpu"
+cpu_fraction = 0.25
+gpu_memory_fraction = 0.4
+idle_only = true
+idle_cpu_threshold = 0.6
+idle_gpu_threshold = 0.7
+max_cycle_seconds = 300
+max_session_minutes = 30
+
+[exploration]
+max_exploration_depth = 3
+frontier_max_size = 500
+min_priority = 0.10
+llm_gate = "non_trivial"
 ```
 
 ## Key sections
 
-- `backend`: default upstream endpoint and model.
-- `backends.<name>`: optional named backend profiles.
-- `proxy`: HTTP behavior, auth, and rate limits.
+- `mcp`: MCP server transport and host/port for SSE mode.
+- `intent`: skill discovery roots and whether feedback adapts frontier behavior.
+- `exploration`: controls speculative scenario preparation behavior.
+- `gateway.passthrough`: optional OpenAI-compatible proxy capability (`false` by default).
+- `backend`: local/runtime model endpoint used by the exploration loop.
 - `privacy`: include/exclude/redaction rules.
-- `limits`: freshness and token budgets.
+- `compute`: CPU/GPU limits, idle-only guardrails, and ponder wall-clock caps.
 
 Use `vaner init --profile minimal|advanced|multi` to scaffold configs with different detail levels.

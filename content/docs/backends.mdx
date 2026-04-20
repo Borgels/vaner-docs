@@ -1,9 +1,15 @@
 ---
 title: Backends and Multi-Agent Setup
-description: Configure multiple upstream models and route requests by backend profile.
+description: Pick the model endpoint Vaner uses for MCP-first pondering, with optional advanced gateway overrides.
 ---
 
-Vaner supports a default backend plus named backend profiles.
+Vaner is MCP-first: your IDE/agent keeps ownership of chat generation, and Vaner
+uses a backend to run its **ponder loop** (scenario ranking, exploration, and
+precompute).
+
+## Default backend (most users)
+
+Set one backend in `~/.vaner/config.toml`:
 
 ```toml
 [backend]
@@ -22,20 +28,41 @@ model = "claude-sonnet-4-20250514"
 api_key_env = "ANTHROPIC_API_KEY"
 ```
 
-Select a profile per request:
+Use this with MCP mode (`vaner mcp --path .`): your client calls Vaner tools and
+Vaner ponders with the configured backend.
+
+## Picking local vs hosted
+
+- **Local** (Ollama, LM Studio, vLLM): best for privacy and predictable cost.
+- **Hosted** (OpenAI, Anthropic, OpenRouter): best when you need stronger
+  reasoning or larger context windows.
+
+## Multi-backend profiles
+
+Named profiles are useful if you switch between a cheap/default model and a
+heavier model for deeper exploration.
+
+Vaner also supports per-client isolation:
+
+- Send `X-Vaner-Client` to isolate context traces per agent.
+- Use `vaner inspect --last --client <id>` for client-specific visibility.
+
+## Advanced: gateway-mode per-request overrides
+
+Only in proxy/gateway mode can a caller select a backend profile per HTTP
+request via headers:
 
 ```text
 X-Vaner-Backend: openai
 ```
 
-Per-client isolation:
-
-- Send `X-Vaner-Client` to isolate context traces per agent.
-- Use `vaner inspect --last --client <id>` for client-specific visibility.
-
-Multi-repo override is disabled by default and should only be enabled intentionally:
+Multi-repo override is disabled by default and should only be enabled
+intentionally:
 
 ```toml
 [proxy]
 allow_repo_override = true
 ```
+
+If your client supports MCP directly, skip these gateway controls and stay on
+MCP mode.

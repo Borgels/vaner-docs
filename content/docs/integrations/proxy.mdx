@@ -3,10 +3,33 @@ title: Proxy Mode
 description: Use Vaner as an OpenAI-compatible endpoint with context injection.
 ---
 
-Run Vaner proxy:
+> [!TIP]
+> If your client supports MCP tools, use [MCP mode](/integrations/mcp) instead.
+> Proxy mode is a compatibility fallback for OpenAI-only clients.
+
+## Start the proxy
 
 ```bash
 vaner proxy --path . --host 127.0.0.1 --port 8471
 ```
 
-Use this mode when your client expects `/v1/chat/completions` and you want context injection transparently.
+## Minimal client config
+
+Point your OpenAI-compatible client to:
+
+- Base URL: `http://127.0.0.1:8471/v1`
+- API key: any non-empty string if your client requires one
+
+## Quick test
+
+```bash
+curl -s http://127.0.0.1:8471/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model":"vaner",
+    "messages":[{"role":"user","content":"where is auth enforced?"}]
+  }'
+```
+
+Use proxy mode when the tool only understands `/v1/chat/completions` and you
+want context injection transparently.
