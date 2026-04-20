@@ -16,7 +16,6 @@ jobs:
           args: >-
             --verbose
             --no-progress
-            --base https://docs.vaner.ai
             --exclude http://localhost:3000
             --exclude https://github.com/Borgels/Vaner/security/policy
             --exclude https://github.com/Borgels/Vaner/tree/main/examples
