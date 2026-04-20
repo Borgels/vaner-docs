@@ -1,12 +1,46 @@
 ---
 title: MCP Mode
-description: Use Vaner with IDEs and agents that support MCP.
+description: Conceptual overview of Vaner's MCP integration — what tools it exposes and how clients connect.
 ---
 
-Start MCP server:
+Vaner ships an [MCP](https://modelcontextprotocol.io/) server so any
+MCP-aware IDE or agent (Claude Code, Cursor, VS Code Copilot, Codex CLI,
+Windsurf, Zed, Continue, Cline, Roo, Claude Desktop, …) can pull
+scenario-ranked context without Vaner being in the model path.
+
+## Start the server
 
 ```bash
 vaner mcp --path .
 ```
 
-Use this mode when your IDE already orchestrates backend model calls and only needs Vaner-provided context.
+The server speaks stdio by default. Clients invoke `vaner mcp --path .` as a
+subprocess and communicate over their own stdin/stdout.
+
+## Tools exposed
+
+| Tool | Purpose |
+| --- | --- |
+| `list_scenarios` | Scenarios Vaner has precomputed for this repo. |
+| `query` | Ask a natural-language question; receive a ranked context package. |
+| `inspect` | Inspect the last served package (files, reasons, token budget). |
+| `explain` | Explanation of the scenario Vaner picked. |
+| `refresh` | Force a new ponder cycle over a file or subtree. |
+
+All tools are scoped to the `--path` Vaner was started with.
+
+## Want to wire it up?
+
+- [Connect your client](/mcp) — picker for all supported clients.
+- [Per-client guides](/integrations/tools/claude-code-mcp) — one page per tool.
+- [Backends](/backends) — pick the LLM Vaner ponders with.
+
+## When to use MCP vs other modes
+
+- **MCP mode** (this page): your IDE already orchestrates model calls and only
+  needs Vaner-provided context. Lowest coupling; recommended default.
+- **[Proxy mode](/integrations/proxy)**: tools that only speak the OpenAI
+  `/v1/chat/completions` shape.
+- **[Context-only mode](/integrations/context-only)**: frameworks that call
+  `/v1/context` directly.
+- **[Python SDK](/integrations/python-sdk)**: custom scripts.

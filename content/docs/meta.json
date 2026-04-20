@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "getting-started",
+    "mcp",
     "concepts",
     "architecture",
     "configuration",

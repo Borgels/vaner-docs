@@ -7,6 +7,7 @@ import {
 } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { useMDXComponents } from '@/mdx-components';
 
 export default async function Page({
   params,
@@ -17,6 +18,7 @@ export default async function Page({
   const page = source.getPage(slug);
   if (!page) notFound();
   const filePath = `content/docs/${slug && slug.length > 0 ? slug.join('/') : 'index'}.mdx`;
+  const mdxComponents = useMDXComponents({});
 
   const MDX = page.data.body;
 
@@ -34,7 +36,7 @@ export default async function Page({
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX />
+        <MDX components={mdxComponents} />
       </DocsBody>
     </DocsPage>
   );

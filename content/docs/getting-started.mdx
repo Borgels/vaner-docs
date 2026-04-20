@@ -1,74 +1,88 @@
 ---
 title: Getting Started
-description: Install Vaner, initialize a workspace, and run your first query.
+description: Install Vaner, pick a backend, and connect your AI client over MCP.
 ---
 
-## Install
+## 1. Install
 
 ```bash
-curl -fsSL https://vaner.ai/install.sh | bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
 ```
 
-The installer supports Linux/macOS. It auto-detects `uv` or `pipx`, asks before
-installing missing prerequisites (Python 3.11+, `uv`/`pipx`), and then installs
-`vaner`.
-Windows one-liner support is planned once a Windows install asset is available.
+The installer works on Linux and macOS. It auto-detects `uv` or `pipx`, asks
+before installing missing prerequisites (Python 3.11+, `uv`/`pipx`), and
+installs `vaner[mcp]` so the MCP server is ready out of the box. Pass
+`--no-mcp` to skip the MCP extra.
 
-### Review script before running
-
-- Canonical source (current rollout PR): [github.com/Borgels/vaner/pull/88/files](https://github.com/Borgels/vaner/pull/88/files)
-- Hosted URL after deploy: `https://vaner.ai/install.sh`
+### Non-interactive install (CI, Dockerfiles)
 
 ```bash
-curl -s https://raw.githubusercontent.com/Borgels/vaner/feat/install-oneliner/scripts/install.sh
+VANER_YES=1 \
+VANER_BACKEND_PRESET=openai \
+VANER_BACKEND_MODEL=gpt-4o-mini \
+VANER_BACKEND_API_KEY_ENV=OPENAI_API_KEY \
+VANER_COMPUTE_PRESET=background \
+VANER_MAX_SESSION_MINUTES=30 \
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
 ```
 
-### Installer options
+### Environment variable mirrors
+
+- `VANER_YES=1`, `VANER_DRY_RUN=1`, `VANER_VERIFY=1`
+- `VANER_BACKEND=uv|pipx`, `VANER_VERSION=<version>`
+- `VANER_NO_MODIFY_PATH=1`, `VANER_VERBOSE=1`
+- `VANER_NO_MCP=1` (skip the `[mcp]` extra)
+- `VANER_BACKEND_PRESET=<id>`, `VANER_BACKEND_URL`, `VANER_BACKEND_MODEL`, `VANER_BACKEND_API_KEY_ENV`
+- `VANER_COMPUTE_PRESET=<id>`, `VANER_MAX_SESSION_MINUTES=<minutes>`
+
+Installer source for review: [scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh).
+
+### From source
 
 ```bash
-# Non-interactive (CI)
-curl -fsSL https://vaner.ai/install.sh | bash -s -- --yes
-
-# Force backend
-curl -fsSL https://vaner.ai/install.sh | bash -s -- --backend pipx
-
-# Dry-run / verify
-curl -fsSL https://vaner.ai/install.sh | bash -s -- --dry-run
-curl -fsSL https://vaner.ai/install.sh | bash -s -- --verify
+git clone https://github.com/Borgels/vaner.git
+cd vaner
+pip install '.[mcp]'
 ```
 
-Environment variable mirrors:
-
-- `VANER_YES=1`
-- `VANER_DRY_RUN=1`
-- `VANER_VERIFY=1`
-- `VANER_BACKEND=uv|pipx`
-- `VANER_VERSION=<version>`
-- `VANER_NO_MODIFY_PATH=1`
-- `VANER_VERBOSE=1`
-
-### From source / contributors
+## 2. Initialize the repo
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
+vaner init --path .
 ```
 
-## Initialize and run
+`vaner init` picks up the installer's backend / compute choices (if any) and
+writes `~/.vaner/config.toml`. It's idempotent — rerunning it leaves your
+existing config alone unless you pass `--force`.
+
+## 3. Connect your AI client
+
+See [Connect your client](/mcp) for the picker. The short version:
 
 ```bash
-vaner init --profile minimal --path .
+# Claude Code
+claude mcp add --transport stdio --scope user vaner -- vaner mcp --path .
+
+# Codex CLI
+codex mcp add vaner -- vaner mcp --path .
+```
+
+For Cursor, VS Code, Zed, Windsurf, Continue, Claude Desktop, Cline, and Roo,
+use the [per-client guides](/integrations/tools/claude-code-mcp).
+
+## 4. Run it
+
+```bash
 vaner daemon start --no-once --path .
-vaner query "where is auth enforced?" --path .
+vaner query "where is auth enforced?" --explain --path .
 vaner inspect --last --path .
 ```
 
-## Choose an integration mode
+## Choose an integration mode (optional)
 
-- **Proxy mode** (`/v1/chat/completions`): best when tools expect OpenAI-compatible APIs.
-- **MCP mode**: best when your IDE supports MCP natively.
-- **Context-only mode** (`/v1/context`): best when your agent handles model routing and only needs context.
-- **Python SDK**: best for scripts and custom automation.
+Most users stay on MCP. If your tool needs another shape:
 
-See [Integrations](/integrations) for details.
+- **[MCP mode](/integrations/mcp)** (default): native IDE integration.
+- **[Proxy mode](/integrations/proxy)**: OpenAI-compatible `/v1/chat/completions`.
+- **[Context-only mode](/integrations/context-only)**: `/v1/context` for agents.
+- **[Python SDK](/integrations/python-sdk)**: scripts and custom tooling.

@@ -1,0 +1,412 @@
+{
+  "$schema": "./clients.schema.json",
+  "version": 1,
+  "clients": [
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "category": "cli",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User"
+        },
+        {
+          "id": "project",
+          "label": "Project"
+        },
+        {
+          "id": "local",
+          "label": "Local"
+        }
+      ],
+      "install": {
+        "kind": "cli",
+        "command": "claude mcp add --transport stdio --scope {scope} vaner -- {launcherShellWithDotPath}"
+      },
+      "verify": "Run `/mcp` inside a Claude Code session \u2014 `vaner` should appear with the five scenario tools.",
+      "docsSlug": "claude-code-mcp",
+      "sourceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "category": "ide",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User (~/.cursor/mcp.json)"
+        },
+        {
+          "id": "project",
+          "label": "Project (.cursor/mcp.json)"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "{scopePath}",
+        "language": "json",
+        "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"type\": \"stdio\",\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n",
+        "scopePaths": {
+          "user": "~/.cursor/mcp.json",
+          "project": ".cursor/mcp.json"
+        }
+      },
+      "verify": "Restart Cursor, open Settings \u2192 MCP, confirm `vaner` is listed. Run the `list_scenarios` tool from the composer to smoke-test.",
+      "docsSlug": "cursor-mcp",
+      "sourceUrl": "https://docs.cursor.com/en/context/mcp",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "vscode-copilot",
+      "name": "VS Code (Copilot)",
+      "category": "ide",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User profile"
+        },
+        {
+          "id": "project",
+          "label": "Workspace (.vscode/mcp.json)"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "{scopePath}",
+        "language": "json",
+        "snippet": "{\n  \"servers\": {\n    \"vaner\": {\n      \"type\": \"stdio\",\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithWorkspacePath}\n    }\n  }\n}\n",
+        "scopePaths": {
+          "user": "~/.config/Code/User/mcp.json",
+          "project": ".vscode/mcp.json"
+        }
+      },
+      "verify": "Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server from the tools menu and call `list_scenarios`.",
+      "docsSlug": "vscode-copilot-mcp",
+      "sourceUrl": "https://code.visualstudio.com/docs/copilot/chat/mcp-servers",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "codex-cli",
+      "name": "Codex CLI",
+      "category": "cli",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User (~/.codex/config.toml)"
+        }
+      ],
+      "install": {
+        "kind": "cli",
+        "command": "codex mcp add vaner -- {launcherShellWithDotPath}"
+      },
+      "verify": "Run `codex mcp list` \u2014 `vaner` should appear with status `running`.",
+      "docsSlug": "codex-cli-mcp",
+      "sourceUrl": "https://github.com/openai/codex",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "windsurf",
+      "name": "Windsurf",
+      "category": "ide",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "~/.codeium/windsurf/mcp_config.json",
+        "language": "json",
+        "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n"
+      },
+      "verify": "Restart Windsurf. Open Cascade and confirm the Vaner tools appear when prompting about this repo.",
+      "docsSlug": "windsurf-mcp",
+      "sourceUrl": "https://docs.windsurf.com/windsurf/cascade/mcp",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "continue",
+      "name": "Continue",
+      "category": "extension",
+      "scopes": [
+        {
+          "id": "project",
+          "label": "Project (.continue/mcpServers/vaner.yaml)"
+        },
+        {
+          "id": "user",
+          "label": "User (~/.continue/mcpServers/vaner.yaml)"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "{scopePath}",
+        "language": "yaml",
+        "snippet": "name: vaner\nversion: 0.0.1\nschema: v1\ncommand: {launcherCommand}\nargs:\n{launcherArgsYamlWithDotPath}\n",
+        "scopePaths": {
+          "project": ".continue/mcpServers/vaner.yaml",
+          "user": "~/.continue/mcpServers/vaner.yaml"
+        }
+      },
+      "verify": "Reload Continue. Ask the agent to list available MCP tools \u2014 `vaner.list_scenarios` should be present.",
+      "docsSlug": "continue-mcp",
+      "sourceUrl": "https://docs.continue.dev/customize/deep-dives/mcp",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "zed",
+      "name": "Zed",
+      "category": "ide",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User settings.json"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "~/.config/zed/settings.json",
+        "language": "json",
+        "snippet": "{\n  \"context_servers\": {\n    \"vaner\": {\n      \"command\": {\n        \"path\": \"{launcherCommand}\",\n        \"args\": {launcherArgsJsonWithDotPath}\n      }\n    }\n  }\n}\n"
+      },
+      "verify": "Restart Zed. Open the Assistant panel; `vaner` should appear under Context Servers.",
+      "docsSlug": "zed-mcp",
+      "sourceUrl": "https://zed.dev/docs/assistant/model-context-protocol",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "claude-desktop",
+      "name": "Claude Desktop",
+      "category": "desktop",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User config"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "~/Library/Application Support/Claude/claude_desktop_config.json (macOS) \u00b7 %APPDATA%\\\\Claude\\\\claude_desktop_config.json (Windows)",
+        "language": "json",
+        "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n"
+      },
+      "verify": "Quit and reopen Claude Desktop. The hammer icon should list `vaner` with its five scenario tools.",
+      "docsSlug": "claude-desktop-mcp",
+      "sourceUrl": "https://modelcontextprotocol.io/quickstart/user",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cline",
+      "name": "Cline",
+      "category": "extension",
+      "scopes": [
+        {
+          "id": "user",
+          "label": "User"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+        "language": "json",
+        "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n"
+      },
+      "verify": "Reload VS Code. In Cline's MCP Servers panel, toggle `vaner` on and run `list_scenarios` from the chat.",
+      "docsSlug": "cline-mcp",
+      "sourceUrl": "https://docs.cline.bot/mcp/adding-and-configuring-servers",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    },
+    {
+      "id": "roo",
+      "name": "Roo Code",
+      "category": "extension",
+      "scopes": [
+        {
+          "id": "project",
+          "label": "Project (.roo/mcp.json)"
+        },
+        {
+          "id": "user",
+          "label": "User (~/.roo/mcp_settings.json)"
+        }
+      ],
+      "install": {
+        "kind": "file",
+        "path": "{scopePath}",
+        "language": "json",
+        "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n",
+        "scopePaths": {
+          "project": ".roo/mcp.json",
+          "user": "~/.roo/mcp_settings.json"
+        }
+      },
+      "verify": "Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `list_scenarios`.",
+      "docsSlug": "roo-mcp",
+      "sourceUrl": "https://docs.roocode.com/features/mcp/using-mcp-in-roo",
+      "launchers": {
+        "uvx": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "vaner[mcp]",
+            "vaner",
+            "mcp"
+          ]
+        },
+        "path": {
+          "command": "vaner",
+          "args": [
+            "mcp"
+          ]
+        }
+      }
+    }
+  ]
+}

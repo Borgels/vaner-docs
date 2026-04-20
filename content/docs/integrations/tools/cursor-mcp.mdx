@@ -1,0 +1,42 @@
+---
+title: Cursor + Vaner (MCP)
+description: Connect Cursor to Vaner over MCP for predictive, repo-grounded context.
+---
+
+[Cursor](https://docs.cursor.com/en/context/mcp) supports the
+[Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
+Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
+agent before every prompt.
+
+## Install
+
+If you haven't installed Vaner yet:
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+vaner init --path .
+```
+
+## Connect Cursor
+
+<McpClientPicker initialClient="cursor" lockClient />
+
+## Verify
+
+Restart Cursor, open Settings → MCP, confirm `vaner` is listed. Run the `list_scenarios` tool from the composer to smoke-test.
+
+If `Cursor` reports the server as failed, run `vaner mcp --path .`
+manually in a terminal and read the error. The most common failure is a
+missing backend API key — confirm with `vaner config show`.
+
+## What this unlocks
+
+- Composer auto-calls `vaner.query` for "where is X?" prompts instead of grepping from scratch.
+- Project-scoped config keeps Vaner active only in the repos you want.
+- Agent mode uses `vaner.explain` to justify its file picks in the chat sidebar.
+
+## See also
+
+- The full [Connect your client](/mcp) guide.
+- [Backends](/backends) for picking the model Vaner ponders with.
+- Upstream docs: [https://docs.cursor.com/en/context/mcp](https://docs.cursor.com/en/context/mcp).

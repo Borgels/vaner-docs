@@ -1,0 +1,65 @@
+{
+  "$schema": "./backends.schema.json",
+  "version": 1,
+  "backends": [
+    {
+      "id": "ollama",
+      "name": "Ollama (local)",
+      "requiresKey": false,
+      "snippet": "[backend]\nkind = \"openai\"\nbase_url = \"http://127.0.0.1:11434/v1\"\nmodel = \"llama3.2:3b\"\napi_key_env = \"\"\n",
+      "setupHint": "Install Ollama and run `ollama pull llama3.2:3b`. Ollama exposes an OpenAI-compatible endpoint on port 11434.",
+      "url": "https://ollama.com"
+    },
+    {
+      "id": "lmstudio",
+      "name": "LM Studio (local)",
+      "requiresKey": false,
+      "snippet": "[backend]\nkind = \"openai\"\nbase_url = \"http://127.0.0.1:1234/v1\"\nmodel = \"local-model\"\napi_key_env = \"\"\n",
+      "setupHint": "Open LM Studio → Developer → Start Server. Replace `local-model` with the identifier shown in the server log.",
+      "url": "https://lmstudio.ai"
+    },
+    {
+      "id": "vllm",
+      "name": "vLLM (self-hosted)",
+      "requiresKey": false,
+      "snippet": "[backend]\nkind = \"openai\"\nbase_url = \"http://127.0.0.1:8000/v1\"\nmodel = \"meta-llama/Llama-3.1-8B-Instruct\"\napi_key_env = \"\"\n",
+      "setupHint": "Run `vllm serve meta-llama/Llama-3.1-8B-Instruct`. Update `model` to match your deployment.",
+      "url": "https://docs.vllm.ai"
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "requiresKey": true,
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "snippet": "[backend]\nkind = \"openai\"\nbase_url = \"https://api.openai.com/v1\"\nmodel = \"gpt-4o-mini\"\napi_key_env = \"OPENAI_API_KEY\"\n",
+      "setupHint": "Export `OPENAI_API_KEY=...` in the shell where you run `vaner daemon` / `vaner mcp`.",
+      "url": "https://platform.openai.com/docs/api-reference"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "requiresKey": true,
+      "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "snippet": "[backend]\nkind = \"anthropic\"\nbase_url = \"https://api.anthropic.com\"\nmodel = \"claude-3-5-sonnet-latest\"\napi_key_env = \"ANTHROPIC_API_KEY\"\n",
+      "setupHint": "Export `ANTHROPIC_API_KEY=...`. Vaner uses the Messages API under the hood.",
+      "url": "https://docs.anthropic.com"
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "requiresKey": true,
+      "apiKeyEnv": "OPENROUTER_API_KEY",
+      "snippet": "[backend]\nkind = \"openai\"\nbase_url = \"https://openrouter.ai/api/v1\"\nmodel = \"meta-llama/llama-3.1-8b-instruct\"\napi_key_env = \"OPENROUTER_API_KEY\"\n",
+      "setupHint": "Export `OPENROUTER_API_KEY=...`. Pick any model slug from openrouter.ai/models.",
+      "url": "https://openrouter.ai/docs"
+    },
+    {
+      "id": "skip",
+      "name": "Skip for now",
+      "requiresKey": false,
+      "snippet": "# No backend configured.\n# Vaner's ponder loop will be a no-op until you set [backend].\n",
+      "setupHint": "You can pick a backend later with `vaner init --backend-preset <name>`.",
+      "url": "https://docs.vaner.ai/backends"
+    }
+  ]
+}

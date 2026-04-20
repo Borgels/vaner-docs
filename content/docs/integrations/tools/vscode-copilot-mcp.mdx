@@ -1,0 +1,42 @@
+---
+title: VS Code (Copilot) + Vaner (MCP)
+description: Connect VS Code (Copilot) to Vaner over MCP for predictive, repo-grounded context.
+---
+
+[VS Code (Copilot)](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) supports the
+[Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
+Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
+agent before every prompt.
+
+## Install
+
+If you haven't installed Vaner yet:
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+vaner init --path .
+```
+
+## Connect VS Code (Copilot)
+
+<McpClientPicker initialClient="vscode-copilot" lockClient />
+
+## Verify
+
+Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server from the tools menu and call `list_scenarios`.
+
+If `VS Code (Copilot)` reports the server as failed, run `vaner mcp --path .`
+manually in a terminal and read the error. The most common failure is a
+missing backend API key — confirm with `vaner config show`.
+
+## What this unlocks
+
+- Use `@vaner` in Copilot Chat to pull in scenario-ranked context before generating a diff.
+- Share the workspace config via `.vscode/mcp.json` so teammates pick it up on clone.
+- Combine with GitHub Copilot Workspace for repo-wide refactors.
+
+## See also
+
+- The full [Connect your client](/mcp) guide.
+- [Backends](/backends) for picking the model Vaner ponders with.
+- Upstream docs: [https://code.visualstudio.com/docs/copilot/chat/mcp-servers](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).

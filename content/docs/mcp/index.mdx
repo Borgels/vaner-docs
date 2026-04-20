@@ -1,0 +1,97 @@
+---
+title: Connect your AI client
+description: Install Vaner, pick a model backend, and wire up MCP for Claude Code, Cursor, VS Code, Codex, Windsurf, Zed, Continue, Cline, Roo, and Claude Desktop.
+---
+
+Vaner exposes your repository to AI clients over the
+[Model Context Protocol](https://modelcontextprotocol.io/). Most clients can
+launch Vaner directly via `uvx`, so you can connect first and install the full
+CLI later only if you want it. Three steps:
+
+1. Connect your client (default: `uvx` launcher, no permanent install).
+2. Pick the model backend Vaner should ponder with.
+3. Use the MCP tools from your AI client.
+
+## 1. Install Vaner
+
+> [!NOTE]
+> The default snippets use `uvx`, which requires `uv` on your PATH. Install it
+> from [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+```
+
+The installer:
+
+- Ships the `[mcp]` extra by default so `vaner mcp` works immediately.
+- Falls back to `git+https://github.com/Borgels/vaner.git` if the PyPI wheel isn't available yet.
+- Asks you to pick a backend and a compute profile (interactive TTY). Pass
+  `--yes --backend-preset <id> --compute-preset <id>` for non-interactive installs.
+
+Smoke-test the server from a terminal:
+
+```bash
+vaner init --path .
+vaner mcp --path .
+# Ctrl+C when you see "MCP server ready"
+```
+
+## 2. Pick a model backend
+
+Vaner's ponder loop needs an LLM. Local backends (Ollama, LM Studio, vLLM)
+run fully offline; hosted backends (OpenAI, Anthropic, OpenRouter) need an API
+key in an environment variable.
+
+<BackendPresetPicker />
+
+Drop the snippet into `~/.vaner/config.toml` or rerun
+`vaner init --backend-preset <id>` to let Vaner write it for you.
+
+## 3. Connect your client
+
+Pick your client, copy the snippet, restart the app, and call `list_scenarios`
+to verify.
+
+<McpClientPicker />
+
+## Optional: bound ponder time
+
+Vaner will happily ponder forever. If you want a hard cap — per cycle or per
+session — set the compute budget below:
+
+<ComputeBudget />
+
+- `max_cycle_seconds` bounds a single precompute cycle (default `300`).
+- `max_session_minutes` bounds a continuous `vaner daemon` run (default unset).
+
+Both are safe to leave at their defaults; set them if you want Vaner to stop
+pondering after, say, 30 minutes on battery.
+
+## What Vaner's MCP server exposes
+
+When your client connects to `vaner mcp`, it gets five scenario-oriented
+tools:
+
+- `list_scenarios` — scenarios Vaner has precomputed for this repo.
+- `query` — ask a natural-language question; get a ranked context package.
+- `inspect` — inspect the last served package (why these files, why this order).
+- `explain` — explanation of the scenario Vaner picked.
+- `refresh` — force a new ponder cycle over a file or subtree.
+
+See [Scenarios](/scenarios) and [Architecture](/architecture) for the full picture.
+
+## Troubleshooting
+
+- **`vaner: command not found`** — the installer didn't add pipx's bin dir.
+  Run `pipx ensurepath` or restart your shell.
+- **Client shows `vaner` as `failed`** — run `vaner mcp --path .` in a
+  terminal and read the error. The most common cause is a missing backend
+  key; confirm with `vaner config show`.
+- **`vaner mcp` exits immediately** — your client may not be sending over
+  stdio. Double-check `"type": "stdio"` in the client config.
+- **Backend not reachable** — confirm with
+  `curl -s $BASE_URL/models` (OpenAI-compatible backends expose `/v1/models`).
+
+Stuck? Open an issue with `vaner diagnose --path .` output at
+[github.com/Borgels/vaner/issues](https://github.com/Borgels/vaner/issues).
