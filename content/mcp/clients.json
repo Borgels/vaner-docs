@@ -389,7 +389,7 @@
       },
       "verify": "Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `list_scenarios`.",
       "docsSlug": "roo-mcp",
-      "sourceUrl": "https://docs.roocode.com/features/mcp",
+      "sourceUrl": "https://docs.roocode.com/features/mcp/using-mcp-in-roo",
       "launchers": {
         "uvx": {
           "command": "uvx",
