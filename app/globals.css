@@ -1,2 +1,28 @@
 @import 'fumadocs-ui/style.css';
 
+@layer base {
+  /*
+   * Keep docs content centered at normal widths, but pin the sidebar to the
+   * viewport edge on very wide screens (closer to docs.ollama.com behavior).
+   */
+  @media (min-width: 1800px) {
+    #nd-docs-layout {
+      grid-template-columns:
+        0
+        var(--fd-sidebar-col)
+        minmax(0, calc(var(--fd-layout-width, 97rem) - var(--fd-sidebar-width) - var(--fd-toc-width)))
+        var(--fd-toc-width)
+        minmax(min-content, 1fr);
+    }
+  }
+
+  /*
+   * Fumadocs sidebar footer row is full-width by default. Shrink the row that
+   * contains the theme toggle so it hugs the icon buttons + light/dark buttons.
+   */
+  #nd-sidebar div:has(> [data-theme-toggle]) {
+    width: fit-content;
+    max-width: 100%;
+  }
+}
+
