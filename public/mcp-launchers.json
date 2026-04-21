@@ -5,9 +5,9 @@
     {
       "id": "uvx",
       "label": "Run via uvx (recommended)",
-      "description": "No permanent install needed. uvx runs vaner[mcp] on demand.",
+      "description": "No permanent install needed. uvx runs Vaner MCP on demand when uvx is available.",
       "command": "uvx",
-      "args": ["--from", "vaner[mcp]", "vaner", "mcp"]
+      "args": ["--from", "vaner[mcp] @ git+https://github.com/Borgels/vaner.git", "vaner", "mcp"]
     },
     {
       "id": "path",
