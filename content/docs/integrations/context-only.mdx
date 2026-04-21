@@ -3,14 +3,23 @@ title: Context-only HTTP Mode
 description: Retrieve context packages over HTTP without proxying model requests.
 ---
 
-Run context-only endpoint:
+> [!TIP]
+> If your IDE already supports MCP tools, use [MCP mode](/integrations/mcp)
+> first. Context-only mode is for frameworks that want raw prepared context.
+
+## Start context-only endpoint
 
 ```bash
 vaner proxy --context-only --path . --host 127.0.0.1 --port 8472
 ```
 
-Example request:
+## Example request
 
 ```bash
-curl -s http://127.0.0.1:8472/v1/context   -H "Content-Type: application/json"   -d '{"prompt":"review this auth flow","top_n":8}'
+curl -s http://127.0.0.1:8472/v1/context \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"review this auth flow","top_n":8}'
 ```
+
+The response includes selected artefacts and rationale metadata. Your framework
+then decides how to inject that context into its own model call.

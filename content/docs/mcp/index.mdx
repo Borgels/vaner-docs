@@ -74,12 +74,16 @@ When your client connects to `vaner mcp`, it gets five scenario-oriented
 tools:
 
 - `list_scenarios` — scenarios Vaner has precomputed for this repo.
-- `query` — ask a natural-language question; get a ranked context package.
-- `inspect` — inspect the last served package (why these files, why this order).
-- `explain` — explanation of the scenario Vaner picked.
-- `refresh` — force a new ponder cycle over a file or subtree.
+- `get_scenario` — full context, evidence, and coverage gaps for one scenario.
+- `expand_scenario` — deepen precompute and return the refreshed scenario.
+- `compare_scenarios` — overlap and divergence between two candidates.
+- `report_outcome` — usefulness feedback (`useful`, `partial`, `irrelevant`) so
+  Vaner can adapt.
 
-See [Scenarios](/scenarios) and [Architecture](/architecture) for the full picture.
+Each tool also accepts an optional `skill` field for attribution when a
+specific `SKILL.md` drove the call.
+
+See [Concepts](/concepts) and [Architecture](/architecture) for the full picture.
 
 ## Troubleshooting
 
