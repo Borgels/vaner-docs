@@ -1,1 +1,24 @@
 @import 'fumadocs-ui/style.css';
+
+@layer base {
+  /*
+   * Fumadocs uses a sticky sidebar; `overflow-x: clip` on the docs grid can prevent
+   * sticky positioning from behaving correctly in some browsers.
+   */
+  #nd-docs-layout {
+    overflow-x: visible;
+  }
+
+  /*
+   * Sidebar footer merges ThemeSwitch with utility classes that strip rounding;
+   * restore a clear pill toggle so light/dark matches the rest of the UI.
+   */
+  #nd-sidebar [data-theme-toggle] {
+    border-radius: 9999px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--color-fd-border);
+    background-color: var(--color-fd-background);
+  }
+}
+
