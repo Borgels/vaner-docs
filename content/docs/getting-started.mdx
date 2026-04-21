@@ -51,24 +51,38 @@ pip install '.[mcp]'
 vaner init --path .
 ```
 
-`vaner init` picks up the installer's backend / compute choices (if any) and
-writes `~/.vaner/config.toml`. It's idempotent — rerunning it leaves your
-existing config alone unless you pass `--force`.
+`vaner init` opens a guided wizard that:
 
-## 3. Connect your AI client
+- configures backend + compute defaults
+- auto-detects supported MCP clients on your machine
+- lets you select/deselect clients before writing anything
+- safely appends only the `vaner` MCP entry (with backups)
 
-See [Connect your client](/mcp) for the picker. The short version:
+Example picker view:
 
-```bash
-# Claude Code
-claude mcp add --transport stdio --scope user vaner -- vaner mcp --path .
-
-# Codex CLI
-codex mcp add vaner -- vaner mcp --path .
+```text
+Step 3 of 4 — Connect MCP clients
+Detected on this system (pre-selected):
+  [x] 1  Cursor             ~/.cursor/mcp.json                              (installed)
+  [x] 2  Claude Desktop     ~/.config/Claude/claude_desktop_config.json     (installed)
+  [x] 3  Claude Code        via `claude mcp add`                            (installed)
+  [x] 4  VS Code (Copilot)  ~/.config/Code/User/mcp.json                    (installed)
+  [ ] 5  Codex CLI          codex binary not found                           (missing)
+  [ ] 6  Windsurf           ~/.codeium/windsurf/                             (missing)
+  [ ] 7  Zed                ~/.config/zed/                                   (missing)
+  [ ] 8  Continue           ~/.continue/mcpServers/vaner.yaml                (missing)
+  [ ] 9  Cline              ~/.config/Code/.../cline_mcp_settings.json       (missing)
+  [ ] 10 Roo Code           ~/.roo/mcp_settings.json                         (missing)
+  [ ] o  Other / not listed (prints a generic snippet + docs link)
 ```
 
-For Cursor, VS Code, Zed, Windsurf, Continue, Claude Desktop, Cline, and Roo,
-use the [per-client guides](/integrations/tools/claude-code-mcp).
+If your client is not listed, continue anyway and use:
+
+```bash
+vaner init --clients other --path .
+```
+
+That prints a generic MCP snippet and links to [Connect your client](/mcp) for manual setup.
 
 ## 4. Start Vaner
 
@@ -101,7 +115,21 @@ vaner doctor --path .
 
 Then follow fixes in [Troubleshooting](/troubleshooting).
 
-### Advanced (manual mode)
+### Manual connection (advanced)
+
+Most users should rely on `vaner init`, but manual connection is still available:
+
+```bash
+# Claude Code
+claude mcp add --transport stdio --scope user vaner -- vaner mcp --path .
+
+# Codex CLI
+codex mcp add vaner -- vaner mcp --path .
+```
+
+See [Connect your client](/mcp) for launcher variants and all supported clients.
+
+### Advanced daemon mode
 
 Use this only if you need separate process control:
 
