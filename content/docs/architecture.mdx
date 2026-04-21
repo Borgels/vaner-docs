@@ -10,6 +10,16 @@ Vaner is built around one default architecture:
 - **Side-running ponder engine:** Vaner precomputes scenarios in the background.
 - **Local cockpit controls:** operators inspect, debug, and tune behavior.
 
+## Two loops: precompute and serve
+
+- **Ponder loop (background):** watches repo signals, expands frontier candidates,
+  and refreshes scenario context in storage.
+- **Answer loop (prompt-time):** serves precomputed scenarios over MCP tools when
+  your client asks for context during a real task.
+
+This split is the core performance model: expensive exploration happens between
+prompts, while prompt-time retrieval stays fast and deterministic.
+
 ## Runtime flow
 
 ```mermaid
@@ -66,5 +76,5 @@ See [Cockpit](/cockpit) for the operator view.
 ### Optional gateway capability
 
 `vaner proxy` remains available for clients that only support OpenAI-compatible
-endpoints. It is an advanced compatibility layer, not the default integration
-path.
+endpoints. It is a legacy compatibility layer, not the default integration
+path; prefer MCP-first wiring whenever your client supports MCP.

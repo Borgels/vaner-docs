@@ -1,0 +1,57 @@
+---
+title: Usage
+description: Day-to-day Vaner workflow with MCP tools, background pondering, and feedback loops.
+---
+
+Vaner works best when you treat it as a continuously learning context service for
+your repo: keep it running during active sessions, call MCP tools when needed,
+and report outcomes so ranking improves over time.
+
+## Daily workflow
+
+```bash
+vaner up --path .
+vaner status --path .
+# work in your client with Vaner MCP tools
+vaner down --path .
+```
+
+- `vaner up` starts the supervised runtime (daemon + cockpit).
+- `vaner status` confirms health and runtime details.
+- `vaner down` cleanly stops the background processes.
+
+If behavior seems off, run:
+
+```bash
+vaner doctor --path .
+```
+
+## How MCP usage fits in
+
+During a coding session, your client calls Vaner MCP tools such as:
+
+- `list_scenarios`
+- `get_scenario`
+- `expand_scenario`
+- `compare_scenarios`
+- `report_outcome`
+
+Vaner serves prepared scenario context from the local store and keeps refining
+future ranking with outcome feedback.
+
+## Ponder loop vs answer loop
+
+- **Ponder loop (background):** precomputes and refreshes scenario candidates.
+- **Answer loop (prompt-time):** serves and ranks scenarios when the client asks.
+
+This split is why Vaner can stay responsive during prompts while still doing
+deeper exploration between prompts.
+
+## Managed skill prompts and feedback
+
+When you run `vaner init`, Vaner can install a managed `vaner-feedback` skill in
+supported client skill roots. That skill acts as system-prompt guidance so the
+agent reports outcome quality (`useful`, `partial`, `irrelevant`) after it uses
+Vaner scenarios.
+
+That closed loop improves which scenarios are ranked first in later sessions.

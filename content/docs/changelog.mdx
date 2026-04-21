@@ -3,184 +3,63 @@ title: Changelog
 description: Notable changes in Vaner documentation and releases.
 ---
 
-Notable product releases are published on [**GitHub Releases**](https://github.com/Borgels/vaner/releases) (downloads, tags, and discussion). The sections below track **docs-only** edits in progress and mirror **published** release notes into this page.
-
-## Unreleased
-
-- Reframed docs around MCP-first architecture: model path via MCP tools by default, with proxy/gateway documented as advanced compatibility mode.
-- Added cockpit/concepts/architecture updates to reflect scenario frontier flow, feedback queue, and operator runtime controls.
-- Clarified product framing: Vaner as a local-first chess engine for next-prompt context prediction.
-- Updated architecture docs to emphasize ponder loop vs answer loop.
-- Expanded integration guidance for proxy, MCP, context-only HTTP, and Python SDK.
-- Added Agent Skills integration docs: skill discovery roots, loop architecture, `vaner distill-skill`, and managed feedback skill flow.
-- Corrected MCP tools list in `/integrations/mcp` to match the actual shipped tool surface.
+Notable product releases are published on [**GitHub Releases**](https://github.com/Borgels/vaner/releases) (downloads, tags, and discussion). This page mirrors published release notes in a short, docs-friendly highlights format.
 
 {/* sync:github-releases begin */}
 
-_The section below is generated from [GitHub Releases](https://github.com/Borgels/vaner/releases). Edit release notes on GitHub, then run `npm run sync:changelog`._
+_The section below is generated from [GitHub Releases](https://github.com/Borgels/vaner/releases). Edit release notes on GitHub, then run `npm run sync:changelog -- --force`._
 
 ## v0.6.1
 
-_Released April 21, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.6.1)_
+_Released April 21, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.6.1)_
 
-## Highlights
-- Fix MCP server startup for stdio/SSE by passing explicit notification capabilities.
-- Restore `vaner config show/keys` stability with intent config compatibility.
-- Add backup-file idempotence and rotation for repeated MCP client wiring.
-- Harden installer MCP dependency resolution and add `vaner uninstall`.
-- Include regression tests and updated installer-first docs/site flows.
-
-See full changelog in `CHANGELOG.md`.
+- Fix MCP server startup for stdio/SSE by passing explicit notification capabilities
+- Restore `vaner config show/keys` stability with intent config compatibility
+- Add backup-file idempotence and rotation for repeated MCP client wiring
+- Harden installer MCP dependency resolution and add `vaner uninstall`
+- Include regression tests and updated installer-first docs/site flows
+- See full changelog in `CHANGELOG.md`
 
 ## v0.6.0
 
-_Released April 21, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.6.0)_
+_Released April 21, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.6.0)_
 
-## What's Changed
-* fix(ux): harden installer safety, upgrades, and hardware detection by @abolsen in https://github.com/Borgels/vaner/pull/112
-* chore(deps): bump pydantic from 2.13.2 to 2.13.3 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/123
-* chore(deps): bump atheris from 2.3.0 to 3.0.0 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/121
-* chore(deps): bump pytest-randomly from 4.0.1 to 4.1.0 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/122
-* chore(deps): bump cyclonedx-bom from 4.6.1 to 7.3.0 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/120
-* chore(deps): bump sigstore/cosign-installer from 1aa8e0f2454b781fbf0fbf306a4c9533a0c57409 to dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da by @dependabot[bot] in https://github.com/Borgels/vaner/pull/118
-* chore(deps): bump build from 1.2.2.post1 to 1.4.3 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/119
-* chore(deps): bump actions/download-artifact from 4.1.8 to 8.0.1 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/116
-* chore(deps): bump actions/upload-artifact from 4.6.2 to 7.0.1 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/117
-* chore(deps): bump docker/login-action from 3.7.0 to 4.1.0 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/115
-* chore(deps): bump actions/checkout from 4.1.1 to 6.0.2 by @dependabot[bot] in https://github.com/Borgels/vaner/pull/114
-* feat(mcp): v1.0 redesign + first-class memory semantics by @abolsen in https://github.com/Borgels/vaner/pull/113
-
-## New Contributors
-* @dependabot[bot] made their first contribution in https://github.com/Borgels/vaner/pull/123
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.4.0...v0.6.0
+- fix(ux): harden installer safety, upgrades, and hardware detection
+- feat(mcp): v1.0 redesign + first-class memory semantics
 
 ## v0.4.0
 
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.4.0)_
+_Released April 20, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.4.0)_
 
-## Vaner 0.4.0
-
-### Onboarding rescue
-- Added `vaner up` / `vaner down` for a supervised one-command startup and shutdown path.
-- Unified `vaner status` and `vaner doctor` via a shared runtime snapshot for consistent health reporting.
-- Hardened startup reliability with preflight checks (repo-root safety, inotify headroom, busy-port remediation).
-- Added inotify overflow fallback to polling watcher mode instead of crashing.
-- Extended `vaner logs` to include daemon and cockpit runtime logs.
-
-### UX and docs
-- Updated installer next-steps messaging to point users to `vaner up` + `vaner doctor`.
-- Updated README, docs site, and web onboarding callouts for minimal-friction install-to-first-value.
-
-### Quality
-- Full Vaner suite green (245 passing tests) and lint checks clean at release cut.
+- Added `vaner up` / `vaner down` for a supervised one-command startup and shutdown path
+- Unified `vaner status` and `vaner doctor` via a shared runtime snapshot for consistent health reporting
+- Hardened startup reliability with preflight checks (repo-root safety, inotify headroom, busy-port remediation)
+- Added inotify overflow fallback to polling watcher mode instead of crashing
+- Extended `vaner logs` to include daemon and cockpit runtime logs
+- Updated installer next-steps messaging to point users to `vaner up` + `vaner doctor`
+- ...and more on [GitHub](https://github.com/Borgels/vaner/releases/tag/v0.4.0).
 
 ## v0.3.0
 
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.3.0)_
+_Released April 20, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.3.0)_
 
-## Highlights
 - MCP-first skills-loop improvements including scenario feedback plumbing and `vaner distill-skill`
 - CLI UX polish (`--version`, grouped help, config get/keys/edit, aliases, richer doctor output, `vaner upgrade`)
 - Hermetic eval/query core test lane (no sentence-transformers dependency in default CI path)
-
-## Breaking changes
 - `exploration.exploration_model` -> `exploration.model`
 - `exploration.exploration_endpoint` -> `exploration.endpoint`
 - `exploration.exploration_backend` -> `exploration.backend`
-- `exploration.exploration_api_key` -> `exploration.api_key`
-- removed `exploration.embedding_device` (use `compute.embedding_device`)
-- `intent.skills_loop.enabled` now defaults to `true`
+- ...and more on [GitHub](https://github.com/Borgels/vaner/releases/tag/v0.3.0).
 
 ## v0.2.0
 
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0)_
+_Released April 20, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0)_
 
-_No release notes provided._
-
-## v0.2.0-rc.11
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.11)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.10...v0.2.0-rc.11
-
-## v0.2.0-rc.10
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.10)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.9...v0.2.0-rc.10
-
-## v0.2.0-rc.9
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.9)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.8...v0.2.0-rc.9
-
-## v0.2.0-rc.8
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.8)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.7...v0.2.0-rc.8
-
-## v0.2.0-rc.7
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.7)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.6...v0.2.0-rc.7
-
-## v0.2.0-rc.6
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.6)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.5...v0.2.0-rc.6
-
-## v0.2.0-rc.5
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.5)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.4...v0.2.0-rc.5
-
-## v0.2.0-rc.4
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.4)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.3...v0.2.0-rc.4
-
-## v0.2.0-rc.3
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.3)_
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.2.0-rc.2...v0.2.0-rc.3
-
-## v0.2.0-rc.2
-
-_Released April 20, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.2.0-rc.2)_
-
-## What's Changed
-* chore(security): Scorecard + CodeQL hardening pass by @abolsen in https://github.com/Borgels/vaner/pull/92
-* chore(security): move zizmor ignore to the on: line by @abolsen in https://github.com/Borgels/vaner/pull/93
-* chore(community): add fallback issue template by @abolsen in https://github.com/Borgels/vaner/pull/91
-* fix(ci): repair labels sync and refresh public badges by @abolsen in https://github.com/Borgels/vaner/pull/94
-* chore(community): add .github security policy entry point by @abolsen in https://github.com/Borgels/vaner/pull/95
-* chore(community): expand .github security policy content by @abolsen in https://github.com/Borgels/vaner/pull/97
-* feat: ship local-first gateway and cockpit surfaces by @abolsen in https://github.com/Borgels/vaner/pull/96
-* chore(security): finalize scorecard remediation workflow by @abolsen in https://github.com/Borgels/vaner/pull/98
-* fix(ci): restore scorecard workflow_dispatch trigger by @abolsen in https://github.com/Borgels/vaner/pull/99
-* chore(security): restore pinned dependency + security hardening by @abolsen in https://github.com/Borgels/vaner/pull/101
-* fix(ci): pin VSCode publish workflow for scorecard by @abolsen in https://github.com/Borgels/vaner/pull/102
-* fix(security): close open scanning alerts and doc breakages by @abolsen in https://github.com/Borgels/vaner/pull/103
-* fix(installer): fallback to GitHub source before PyPI publish by @abolsen in https://github.com/Borgels/vaner/pull/104
-* fix(mcp-runtime): harden scenario runtime and cockpit feedback by @abolsen in https://github.com/Borgels/vaner/pull/100
-* feat(mcp): pick backend + ponder cap + MCP-first quickstart by @abolsen in https://github.com/Borgels/vaner/pull/105
-* feat(mcp): friendly backend guard + installer runtime cap UX by @abolsen in https://github.com/Borgels/vaner/pull/106
-* chore(security): gitleaks pre-commit + MCP list_scenarios schema fix by @abolsen in https://github.com/Borgels/vaner/pull/107
-
-
-**Full Changelog**: https://github.com/Borgels/vaner/compare/v0.1.0...v0.2.0-rc.2
+- See details on GitHub.
 
 ## v0.1.0 - initial public release
 
-_Released April 19, 2026 · [View on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.1.0)_
+_Released April 19, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.1.0)_
 
-Initial public release v0.1.0.
+- Initial public release v0.1.0
 {/* sync:github-releases end */}
