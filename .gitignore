@@ -30,3 +30,6 @@ next-env.d.ts
 
 # fumadocs generated
 .source/
+
+# github changelog sync cache (optional; omit if you want reproducible offline sync)
+scripts/.cache/
