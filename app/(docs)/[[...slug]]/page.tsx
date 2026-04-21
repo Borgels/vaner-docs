@@ -8,6 +8,7 @@ import {
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { useMDXComponents } from '@/mdx-components';
+import { PageActions } from '@/components/page-actions';
 
 export default async function Page({
   params,
@@ -36,6 +37,7 @@ export default async function Page({
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
+        <PageActions pageUrl={page.url} pageTitle={page.data.title} />
         <MDX components={mdxComponents} />
       </DocsBody>
     </DocsPage>
