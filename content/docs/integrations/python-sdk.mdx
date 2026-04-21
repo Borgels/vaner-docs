@@ -3,6 +3,12 @@ title: Python SDK Mode
 description: Use Vaner directly from Python applications and automation scripts.
 ---
 
+> [!TIP]
+> Prefer [MCP mode](/integrations/mcp) for interactive IDE agents. Use SDK mode
+> when you are writing your own automation code.
+
+Install from source or package first, then call Vaner directly:
+
 ```python
 from vaner import api
 
@@ -10,4 +16,8 @@ package = api.query("review auth middleware", ".", client_id="agent-a")
 print(package.injected_context)
 ```
 
-Use SDK mode for CI jobs, tooling scripts, and custom orchestration.
+## Good fit for SDK mode
+
+- CI checks that need deterministic context assembly
+- migration/review scripts that run outside an IDE
+- custom orchestration where you own prompt/model execution

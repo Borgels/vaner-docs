@@ -70,10 +70,49 @@ codex mcp add vaner -- vaner mcp --path .
 For Cursor, VS Code, Zed, Windsurf, Continue, Claude Desktop, Cline, and Roo,
 use the [per-client guides](/integrations/tools/claude-code-mcp).
 
-## 4. Run it
+## 4. Start Vaner
+
+```bash
+vaner up --path .
+```
+
+`vaner up` is the default path. It starts the background daemon and cockpit together,
+opens the cockpit URL, and keeps both processes supervised in one command.
+
+Expected startup output:
+
+```text
+Vaner up
+Daemon PID: <pid>
+Cockpit PID: <pid>
+Cockpit URL: http://127.0.0.1:8473
+Health: ready
+```
+
+Press `Ctrl+C` (or run `vaner down --path .`) when you are done.
+
+> Vaner is local-first. No background process runs unless you start it (`vaner up`) or your MCP client invokes it.
+
+If nothing seems to be happening, run:
+
+```bash
+vaner doctor --path .
+```
+
+Then follow fixes in [Troubleshooting](/troubleshooting).
+
+### Advanced (manual mode)
+
+Use this only if you need separate process control:
 
 ```bash
 vaner daemon start --no-once --path .
+vaner daemon serve-http --path .
+```
+
+### Local debugging (optional)
+
+```bash
 vaner query "where is auth enforced?" --explain --path .
 vaner inspect --last --path .
 ```

@@ -4,9 +4,9 @@
     "index",
     "mcp",
     "tools",
-    "proxy",
     "context-only",
     "python-sdk",
+    "proxy",
     "docker"
   ]
 }

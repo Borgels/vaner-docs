@@ -11,5 +11,8 @@ Vaner defaults to a conservative posture:
 - Exclusion patterns for sensitive files
 - Inspectable context decisions via `vaner inspect --last`
 - Local retention controls via `vaner forget`
+- Skill discovery defaults to repo-local roots (`.cursor/skills/**`, `.claude/skills/**`, `skills/**`)
+- Privacy zoning for skills (`project_local` for repo paths, `external` for outside paths)
+- Global skill scanning is opt-in via `[intent].include_global_skills = true`
 
 For production deployments, terminate TLS at a trusted reverse proxy and keep Vaner bound to localhost/private networks where possible.
