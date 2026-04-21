@@ -121,13 +121,16 @@ async function fetchAllReleases(repo, token) {
 
 function formatReleasesMdx(releases, repo) {
   const releasesUrl = `https://github.com/${repo}/releases`;
+  const visibleReleases = releases.filter(
+    (r) => !r.prerelease && !/-((rc|beta|alpha)[\d.-]*)$/i.test(r.tag_name || ''),
+  );
   const lines = [
     '',
-    `_The section below is generated from [GitHub Releases](${releasesUrl}). Edit release notes on GitHub, then run \`npm run sync:changelog\`._`,
+    `_The section below is generated from [GitHub Releases](${releasesUrl}). Edit release notes on GitHub, then run \`npm run sync:changelog -- --force\`._`,
     '',
   ];
 
-  for (const r of releases) {
+  for (const r of visibleReleases) {
     const rawTitle = r.name?.trim() || r.tag_name || 'Release';
     const title = String(rawTitle).replace(/\s+/g, ' ').trim();
     const date = r.published_at
@@ -137,21 +140,78 @@ function formatReleasesMdx(releases, repo) {
           day: 'numeric',
         })
       : '';
-    const badge = r.prerelease ? ' _(pre-release)_' : '';
-    lines.push(`## ${title}${badge}`);
+    lines.push(`## ${title}`);
     lines.push('');
     lines.push(
       date
-        ? `_Released ${date} · [View on GitHub](${r.html_url})_`
-        : `_[View on GitHub](${r.html_url})_`,
+        ? `_Released ${date} · [Details on GitHub](${r.html_url})_`
+        : `_[Details on GitHub](${r.html_url})_`,
     );
     lines.push('');
-    const body = (r.body || '').trim();
-    lines.push(body || '_No release notes provided._');
+    const body = extractHighlights(r.body || '', r.html_url);
+    lines.push(...body.map((item) => `- ${item}`));
     lines.push('');
   }
 
   return `${lines.join('\n').trimEnd()}\n`;
+}
+
+const MAX_HIGHLIGHTS = 6;
+const HEADER_RE = /^#{1,6}\s+/;
+const FULL_CHANGELOG_RE = /^\*\*full changelog\*\*:\s*/i;
+const SECTION_HEADING_RE = /^##?\s*(highlights|what'?s changed|new contributors)\s*$/i;
+const DEPENDABOT_RE = /\bdependabot\b/i;
+const CHORE_DEPS_RE = /\bchore\(deps\)\b/i;
+const NO_NOTES_RE = /^_?no release notes provided\.?_?$/i;
+const PR_ATTRIBUTION_RE = /\s+by\s+@[\w-]+\s+in\s+https?:\/\/\S+\s*$/i;
+
+function normalizeHighlight(text) {
+  return text
+    .replace(/^\s*[-*]\s+/, '')
+    .replace(PR_ATTRIBUTION_RE, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\.$/, '');
+}
+
+function shouldSkipLine(line) {
+  if (!line) return true;
+  if (HEADER_RE.test(line)) return true;
+  if (SECTION_HEADING_RE.test(line)) return true;
+  if (FULL_CHANGELOG_RE.test(line)) return true;
+  if (NO_NOTES_RE.test(line)) return true;
+  if (DEPENDABOT_RE.test(line)) return true;
+  if (CHORE_DEPS_RE.test(line)) return true;
+  return false;
+}
+
+function extractHighlights(body, releaseUrl) {
+  const candidates = [];
+  let inFence = false;
+
+  for (const rawLine of body.split('\n')) {
+    const trimmed = rawLine.trim();
+    if (trimmed.startsWith('```')) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence || shouldSkipLine(trimmed)) continue;
+
+    const normalized = normalizeHighlight(trimmed);
+    if (!normalized) continue;
+    candidates.push(normalized);
+  }
+
+  const deduped = [...new Set(candidates)];
+  if (deduped.length === 0) return ['See details on GitHub.'];
+
+  if (deduped.length > MAX_HIGHLIGHTS) {
+    return [
+      ...deduped.slice(0, MAX_HIGHLIGHTS),
+      `...and more on [GitHub](${releaseUrl}).`,
+    ];
+  }
+  return deduped;
 }
 
 function patchChangelog(changelogPath, generatedInner) {

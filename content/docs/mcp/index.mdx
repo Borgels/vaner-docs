@@ -17,38 +17,13 @@ first and install the full CLI later only if you want it. Three steps:
 2. Pick the model backend Vaner should ponder with.
 3. Use the MCP tools from your AI client.
 
-## 1. Install Vaner
+## 1. Install once, then wire clients
 
-> [!NOTE]
-> The default snippets use `uvx`, which requires `uv` on your PATH. Install it
-> from [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
-> If `uvx --from "vaner[mcp]" ...` cannot resolve from PyPI yet, use the
-> generated GitHub source spec snippet or switch launcher mode to `path` after
-> running the installer.
+Install instructions live in [Getting Started](/getting-started), including
+interactive and non-interactive installer modes, environment variable mirrors,
+and source install fallback.
 
-> [!TIP]
-> Running Vaner via MCP (`uvx ... vaner mcp`) starts the MCP server process on
-> demand, but does **not** auto-start Ollama/model pulls or background daemon
-> precompute.
-
-```bash
-curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
-```
-
-The installer:
-
-- Ships the `[mcp]` extra by default so `vaner mcp` works immediately.
-- Falls back to `git+https://github.com/Borgels/vaner.git` if the PyPI wheel isn't available yet.
-- Asks you to pick a backend and a compute profile (interactive TTY). Pass
-  `--yes --backend-preset <id> --compute-preset <id>` for non-interactive installs.
-
-Smoke-test the server from a terminal:
-
-```bash
-vaner init --path .
-vaner mcp --path .
-# Ctrl+C when you see "MCP server ready"
-```
+Use this page for MCP wiring after install.
 
 ## 2. Pick a model backend
 
@@ -67,6 +42,46 @@ Pick your client, copy the snippet, restart the app, and call `list_scenarios`
 to verify.
 
 <McpClientPicker />
+
+## What `vaner init` writes
+
+`vaner init --path .` is the recommended path for most users because it can
+configure MCP clients and managed skill guidance in one pass.
+
+### MCP client wiring
+
+Vaner writes or updates only the `vaner` MCP server entry for supported clients
+(Cursor, Claude Desktop, Claude Code, VS Code Copilot, Codex CLI, Windsurf,
+Zed, Continue, Cline, and Roo Code), using the same snippets shown by the
+picker on this page.
+
+Common paths include:
+
+- `~/.cursor/mcp.json` or `.cursor/mcp.json`
+- `~/.config/Code/User/mcp.json` or `.vscode/mcp.json`
+- `~/.codex/config.toml` (via `codex mcp add`)
+- `~/.codeium/windsurf/mcp_config.json`
+- `~/.config/zed/settings.json`
+- `~/.continue/mcpServers/vaner.yaml` or `.continue/mcpServers/vaner.yaml`
+- `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+- `~/.roo/mcp_settings.json` or `.roo/mcp.json`
+
+### Safety and rollback behavior
+
+- Writes are idempotent: rerunning `vaner init` updates the same `vaner` entry.
+- Existing configs are backed up (`.bak` rotation) before mutation.
+- You can remove managed wiring with `vaner uninstall`.
+
+### Managed prompt update via `vaner-feedback` skill
+
+`vaner init` can install a managed `vaner-feedback` skill under:
+
+- `.cursor/skills/vaner/vaner-feedback/SKILL.md`
+- `.claude/skills/vaner/vaner-feedback/SKILL.md`
+
+This is effectively a system-prompt-level instruction for agent runtimes: after
+using Vaner scenarios, report outcomes back via `report_outcome` so ranking can
+improve over time. See [Agent Skills](/skills) for the full loop.
 
 ## Optional: bound ponder time
 
