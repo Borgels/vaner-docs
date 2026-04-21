@@ -1,55 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { buttonVariants } from "fumadocs-ui/components/ui/button";
+import { useCopyButton } from "fumadocs-ui/utils/use-copy-button";
 
 type PageActionsProps = {
-  /** The page URL path, e.g. "/getting-started". Used to build the .mdx URL and the handoff links. */
   pageUrl: string;
-  /** The page title, used in the handoff prompt. */
   pageTitle: string;
 };
 
 const DOCS_ORIGIN = "https://docs.vaner.ai";
 
-function handoffUrl(baseUrl: string, mdxUrl: string, title: string) {
-  const msg = `Read ${DOCS_ORIGIN}${mdxUrl} and help me understand: ${title}`;
-  return `${baseUrl}?q=${encodeURIComponent(msg)}`;
-}
-
 export function PageActions({ pageUrl, pageTitle }: PageActionsProps) {
-  const [copied, setCopied] = useState(false);
-
-  // /getting-started → /docs/getting-started.mdx  (Fumadocs *.mdx rewrite)
   const mdxUrl = `${pageUrl}.mdx`;
 
-  const copyMarkdown = async () => {
+  const [copied, onCopyClick] = useCopyButton(async () => {
     try {
       const res = await fetch(mdxUrl);
       const text = res.ok ? await res.text() : `${DOCS_ORIGIN}${mdxUrl}`;
       await navigator.clipboard.writeText(text);
     } catch {
-      try {
-        await navigator.clipboard.writeText(`${DOCS_ORIGIN}${mdxUrl}`);
-      } catch {}
+      await navigator.clipboard.writeText(`${DOCS_ORIGIN}${mdxUrl}`).catch(() => {});
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
-  };
+  });
+
+  const sharedClass = buttonVariants({ variant: "ghost", size: "sm" });
+
+  const chatGptUrl = `https://chatgpt.com/?q=${encodeURIComponent(`Read ${DOCS_ORIGIN}${mdxUrl} and help me understand: ${pageTitle}`)}`;
+  const claudeUrl = `https://claude.ai/new?q=${encodeURIComponent(`Read ${DOCS_ORIGIN}${mdxUrl} and help me understand: ${pageTitle}`)}`;
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2 border-b pb-4">
-      <button
-        type="button"
-        onClick={copyMarkdown}
-        title="Copy page as Markdown"
-        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-fd-border bg-fd-muted/30 px-2.5 text-xs text-fd-muted-foreground transition-colors hover:border-fd-foreground/30 hover:text-fd-foreground"
-      >
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "8px",
+        borderBottom: "1px solid var(--color-fd-border)",
+        paddingBottom: "16px",
+        marginBottom: "24px",
+      }}
+    >
+      <button type="button" className={sharedClass} onClick={onCopyClick}>
         <svg
           viewBox="0 0 16 16"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.4"
-          className="h-3 w-3 shrink-0"
+          style={{ width: "12px", height: "12px", flexShrink: 0 }}
           aria-hidden
         >
           <rect x="4" y="4" width="9" height="9" rx="1.5" />
@@ -59,11 +56,10 @@ export function PageActions({ pageUrl, pageTitle }: PageActionsProps) {
       </button>
 
       <a
-        href={handoffUrl("https://chatgpt.com/", mdxUrl, pageTitle)}
+        href={chatGptUrl}
         target="_blank"
         rel="noopener noreferrer"
-        title="Open this page in ChatGPT"
-        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-fd-border bg-fd-muted/30 px-2.5 text-xs text-fd-muted-foreground transition-colors hover:border-fd-foreground/30 hover:text-fd-foreground"
+        className={sharedClass}
       >
         Ask ChatGPT
         <svg
@@ -71,7 +67,7 @@ export function PageActions({ pageUrl, pageTitle }: PageActionsProps) {
           fill="none"
           stroke="currentColor"
           strokeWidth="1.4"
-          className="h-3 w-3 shrink-0"
+          style={{ width: "12px", height: "12px", flexShrink: 0 }}
           aria-hidden
         >
           <path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" />
@@ -81,11 +77,10 @@ export function PageActions({ pageUrl, pageTitle }: PageActionsProps) {
       </a>
 
       <a
-        href={handoffUrl("https://claude.ai/new", mdxUrl, pageTitle)}
+        href={claudeUrl}
         target="_blank"
         rel="noopener noreferrer"
-        title="Open this page in Claude"
-        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-fd-border bg-fd-muted/30 px-2.5 text-xs text-fd-muted-foreground transition-colors hover:border-fd-foreground/30 hover:text-fd-foreground"
+        className={sharedClass}
       >
         Ask Claude
         <svg
@@ -93,7 +88,7 @@ export function PageActions({ pageUrl, pageTitle }: PageActionsProps) {
           fill="none"
           stroke="currentColor"
           strokeWidth="1.4"
-          className="h-3 w-3 shrink-0"
+          style={{ width: "12px", height: "12px", flexShrink: 0 }}
           aria-hidden
         >
           <path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" />
