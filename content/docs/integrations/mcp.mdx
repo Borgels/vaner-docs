@@ -22,12 +22,14 @@ subprocess and communicate over their own stdin/stdout.
 | Tool | Purpose |
 | --- | --- |
 | `list_scenarios` | Scenarios Vaner has precomputed for this repo. |
-| `query` | Ask a natural-language question; receive a ranked context package. |
-| `inspect` | Inspect the last served package (files, reasons, token budget). |
-| `explain` | Explanation of the scenario Vaner picked. |
-| `refresh` | Force a new ponder cycle over a file or subtree. |
+| `get_scenario` | Retrieve full context, evidence, and coverage gaps for one scenario. |
+| `expand_scenario` | Trigger deeper precompute and return the refreshed scenario. |
+| `compare_scenarios` | Compare overlap/divergence between scenario candidates. |
+| `report_outcome` | Send usefulness feedback (`useful`, `partial`, `irrelevant`) for learning. |
 
 All tools are scoped to the `--path` Vaner was started with.
+
+Each tool also accepts an optional `skill` argument for attribution. This lets Vaner track which agent skill drove calls/outcomes and route feedback into frontier adaptation.
 
 ## Want to wire it up?
 

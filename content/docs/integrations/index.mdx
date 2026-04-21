@@ -1,13 +1,21 @@
 ---
 title: Integrations
-description: Choose the right Vaner integration mode for your tools.
+description: MCP-first integration paths for IDEs, runtimes, and optional compatibility layers.
 ---
 
-Vaner supports four primary integration modes:
+Default onboarding is MCP + cockpit (`vaner mcp`, `vaner watch`, `vaner show`).
+This section covers integration modes and tool-specific recipes.
 
-- [Proxy mode](/integrations/proxy): OpenAI-compatible `/v1/chat/completions` endpoint.
-- [MCP mode](/integrations/mcp): native IDE integration where the IDE handles model calls.
-- [Context-only mode](/integrations/context-only): `/v1/context` for agent frameworks.
-- [Python SDK mode](/integrations/python-sdk): direct library usage for scripts and tooling.
+## Default integration (recommended)
 
-For local multi-service setups, see [Docker](/integrations/docker).
+- [MCP mode](/integrations/mcp): native IDE/agent integration where models pull prepared scenarios via tools.
+- [Tool-specific pages](/integrations/tools/cursor-mcp): copy/paste setup and verification by client.
+
+## Advanced and compatibility modes
+
+- [Context-only mode](/integrations/context-only): call `/v1/context` directly from custom frameworks.
+- [Python SDK mode](/integrations/python-sdk): use Vaner as a library inside scripts and automation.
+- [Proxy mode](/integrations/proxy): OpenAI-compatible `/v1/chat/completions` for clients that cannot use MCP.
+- [Docker](/integrations/docker): compose topology for local multi-service setups.
+
+If your client supports MCP, prefer MCP mode first and only use advanced modes when needed.

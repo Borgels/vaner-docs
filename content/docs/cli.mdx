@@ -1,25 +1,118 @@
 ---
 title: CLI Reference
-description: Core Vaner CLI commands for setup, runtime, and inspection.
+description: Core Vaner CLI commands for MCP-first setup, cockpit, and scenarios.
 ---
 
-## Common commands
+## Recommended first-run flow
 
 ```bash
-vaner init --profile minimal --path .
-vaner daemon start --no-once --path .
-vaner daemon status --path .
-vaner daemon stop --path .
-vaner query "where is auth enforced?" --path .
-vaner inspect --last --path .
+vaner init --path .
+vaner up --path .
+vaner status --path .
+vaner doctor --path .
+vaner down --path .
 ```
 
-## Integration commands
+## Advanced daemon controls
+
+```bash
+vaner daemon start --once false --path .
+vaner daemon serve-http --path .
+vaner daemon status --path .
+vaner daemon stop --path .
+```
+
+## Scenario cockpit commands
+
+```bash
+vaner scenarios list --limit 10 --path .
+vaner scenarios show <scenario_id> --path .
+vaner scenarios expand <scenario_id> --path .
+vaner scenarios compare <scenario_a> <scenario_b> --path .
+vaner scenarios outcome <scenario_id> --result useful --skill vaner-feedback --path .
+```
+
+## Prompt-time reasoning and comparison
+
+```bash
+vaner query "where is auth enforced?" --path .
+vaner why --path .
+vaner compare "Summarize auth flow" --path .
+vaner impact --path .
+```
+
+## Local debugging and state control
+
+```bash
+vaner inspect --last --path .
+vaner metrics --path . --output summary
+vaner prepare --path .
+vaner precompute --path .
+vaner forget --path .
+```
+
+## Skill loop commands
+
+```bash
+vaner distill-skill <decision-id> --path . [--out-dir PATH] [--name NAME] [--force]
+```
+
+`vaner init` also installs a managed `vaner-feedback` skill into `.cursor/skills/vaner/` and `.claude/skills/vaner/`.
+
+## Live monitoring and diagnostics
+
+```bash
+vaner watch --cockpit-url http://127.0.0.1:8473
+vaner logs --path .
+vaner logs --events --cockpit-url http://127.0.0.1:8473
+vaner show --cockpit-url http://127.0.0.1:8473
+vaner status --path .
+vaner ps --path .
+vaner doctor --path .
+```
+
+## Configuration and profile controls
+
+```bash
+vaner config show --path .
+vaner config show --json --path .
+vaner config keys --path .
+vaner config get backend.model --path .
+vaner config set intent.enabled true --path .
+vaner config set intent.skills_loop.enabled true --path .
+vaner config set gateway.routes.gpt- https://api.openai.com/v1 --path .
+vaner config edit --path .
+vaner profile show --path .
+vaner upgrade
+```
+
+## MCP server
+
+```bash
+vaner mcp --path .
+vaner mcp --path . --transport sse --host 127.0.0.1 --port 8472
+```
+
+## Optional capability: OpenAI-compatible gateway
 
 ```bash
 vaner proxy --path . --host 127.0.0.1 --port 8471
-vaner proxy --context-only --path . --host 127.0.0.1 --port 8472
-vaner mcp --path .
+```
+
+Use this only when your client cannot call MCP tools directly.
+
+## Evaluation flows
+
+```bash
+vaner eval --path .
+vaner run-eval --cases-file examples/evals/basic.jsonl --path .
+```
+
+## Version and completion
+
+```bash
+vaner --version
+vaner --install-completion
 ```
 
 Run `vaner --help` and `vaner <subcommand> --help` for full flags.

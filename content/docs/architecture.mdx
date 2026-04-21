@@ -1,31 +1,70 @@
 ---
 title: Architecture
-description: How Vaner combines idle-time preparation with fast prompt-time delivery.
+description: How Vaner runs beside your model and serves scenarios over MCP.
 ---
 
-Vaner has two loops:
+Vaner is built around one default architecture:
 
-- **Ponder loop (idle path):** predicts likely next prompts, explores plausible branches, and pre-builds artifacts.
-- **Answer loop (hot path):** ranks and assembles the best context package for the real prompt.
+- **MCP-first model interface:** your client calls tools; Vaner is not the chat
+  completion hot path.
+- **Side-running ponder engine:** Vaner precomputes scenarios in the background.
+- **Local cockpit controls:** operators inspect, debug, and tune behavior.
 
-## Core components
+## Runtime flow
 
-### Behavioral memory and intent modeling
+```mermaid
+flowchart LR
+  Repo[RepoSignals] --> Intent[IntentLayer]
+  Skills[SkillDiscovery] --> Intent
+  Intent --> Frontier[ExplorationFrontier]
+  Frontier --> Builder[ScenarioBuilder]
+  Builder --> Store[ScenarioStore]
+  Store --> MCP[MCPServer]
+  MCP --> Agent[IDEOrAgent]
+  Agent -->|report_outcome| MCP
+  MCP --> Feedback[FeedbackQueue]
+  Feedback --> Frontier
+  Store --> Cockpit[CockpitHTTPAndCLI]
+```
 
-Vaner adapts to workflow patterns over time using local history and recent interactions.
+## Core components and boundaries
 
-### Exploration frontier
+### Ponder loop and scenario builder
 
-The planner admits and prioritizes speculative scenarios from graph signals, conversation flow, and prompt patterns.
+The daemon watches repo activity, produces artefacts, and continuously expands
+ranked scenarios into `scenarios.db`. This is where depth, frontier size,
+deduplication, and compute limits are enforced.
 
-### Artifact store and replay memory
+### Scenario store and scoring
 
-Vaner persists prepared context artifacts and replayable evidence so prompt-time decisions stay fast.
+Each scenario stores prepared context, evidence references, freshness, expansion
+cost, and outcomes. Vaner re-scores scenarios so clients can pick promising
+candidates quickly via MCP tools.
 
-### Prompt-time broker
+### Agent skills prior
 
-When a real prompt arrives, the broker scores candidate artifacts under token and privacy constraints, then returns the best package.
+Vaner can discover active `SKILL.md` files and treat them as intent priors.
+Skill metadata contributes to feature extraction, seeds frontier candidates, and
+can bias ranking before prompt-time requests arrive.
 
-### Safety and policy gate
+See [Agent Skills](/skills) for the full loop.
 
-Every package is filtered by explicit path scope, exclusion rules, and redaction policy before delivery.
+### MCP runtime (model pull)
+
+MCP tools (`list_scenarios`, `get_scenario`, `expand_scenario`,
+`compare_scenarios`, `report_outcome`) expose prepared context on demand.
+`report_outcome` closes the loop by feeding scenario usefulness back into
+frontier adaptation.
+
+### Cockpit runtime (human controls)
+
+Cockpit endpoints and CLI commands expose status, freshness distribution, device
+configuration, and live scenario stream updates.
+
+See [Cockpit](/cockpit) for the operator view.
+
+### Optional gateway capability
+
+`vaner proxy` remains available for clients that only support OpenAI-compatible
+endpoints. It is an advanced compatibility layer, not the default integration
+path.
