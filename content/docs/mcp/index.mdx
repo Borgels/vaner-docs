@@ -38,7 +38,7 @@ Drop the snippet into `~/.vaner/config.toml` or rerun
 
 ## 3. Connect your client
 
-Pick your client, copy the snippet, restart the app, and call `list_scenarios`
+Pick your client, copy the snippet, restart the app, and call `vaner.status`
 to verify.
 
 <McpClientPicker />
@@ -98,17 +98,33 @@ pondering after, say, 30 minutes on battery.
 
 ## What Vaner's MCP server exposes
 
-When your client connects to `vaner mcp`, it gets five scenario-oriented
-tools:
+When your client connects to `vaner mcp`, it gets a set of namespaced tools.
+The core surface:
 
-- `list_scenarios` — scenarios Vaner has precomputed for this repo.
-- `get_scenario` — full context, evidence, and coverage gaps for one scenario.
-- `expand_scenario` — deepen precompute and return the refreshed scenario.
-- `compare_scenarios` — overlap and divergence between two candidates.
-- `report_outcome` — usefulness feedback (`useful`, `partial`, `irrelevant`) so
-  Vaner can adapt.
+- `vaner.status` — health + readiness. Use this as your smoke-test after wiring.
+- `vaner.resolve` — given a user prompt, return a prepared briefing + evidence
+  + (optionally) a speculative draft answer.
+- `vaner.suggest` — suggest likely next prompts based on workflow state.
+- `vaner.search` / `vaner.expand` / `vaner.inspect` — navigate and deepen the
+  prepared scenario graph.
+- `vaner.explain` — human-readable rationale for why a resolution surfaced.
+- `vaner.feedback` — usefulness feedback (`useful`, `partial`, `wrong`,
+  `irrelevant`) so Vaner adapts.
+- `vaner.warm` — hint Vaner to precompute around specific targets.
 
-Each tool also accepts an optional `skill` field for attribution when a
+**0.8.0 adds two new tool families:**
+
+- `vaner.predictions.active` / `vaner.predictions.adopt` — list Vaner's
+  currently-ready next-prompt predictions and adopt one. Adopt serves the
+  prepared briefing + draft answer with `adopted_from_prediction_id` for
+  provenance, so your client can surface an answer instantly instead of
+  round-tripping to the frontier model.
+- `vaner.goals.list` / `vaner.goals.declare` / `vaner.goals.update_status` /
+  `vaner.goals.delete` — workspace-level goals that span many prompts
+  (e.g. "JWT migration"). Declared goals seed long-horizon predictions the
+  engine matures across successive cycles.
+
+Most tools also accept an optional `skill` field for attribution when a
 specific `SKILL.md` drove the call.
 
 See [Concepts](/concepts) and [Architecture](/architecture) for the full picture.
