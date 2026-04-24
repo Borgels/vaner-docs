@@ -46,48 +46,60 @@ open vaner.xcodeproj
 
 ### Linux (Ubuntu / Debian)
 
-Signed `.deb`. The one-liner below downloads the latest release,
-verifies its detached signature against Vaner's release pubkey
-(whose fingerprint is pinned in the install script itself), and
-installs via `apt`. If the uploaded pubkey's fingerprint ever gets
-swapped, the script aborts with a mismatch error rather than trust
-an unknown signer.
+Three paths, all signed against release key fingerprint
+`506B8FA959917D530E5EE7203D219B47A7E4F046`. Pick one.
+
+**Recommended — apt repository with auto-updates.** Registers a
+signed apt source; subsequent releases arrive through
+`apt upgrade`.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-desktop-linux/main/scripts/install.sh | bash
 ```
 
-Prefer to read the script before piping it? Fair.
+Or the plain-apt form, no pipe-to-bash:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-desktop-linux/main/scripts/install.sh \
-  -o vaner-install.sh
-less vaner-install.sh   # cross-check the VANER_RELEASE_FPR pin
-bash vaner-install.sh
+curl -fsSL https://borgels.github.io/vaner-desktop-linux/release-key.asc \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/vaner.gpg
+echo "deb [signed-by=/etc/apt/keyrings/vaner.gpg] https://borgels.github.io/vaner-desktop-linux stable main" \
+  | sudo tee /etc/apt/sources.list.d/vaner.list
+sudo apt update && sudo apt install vaner-desktop-linux
 ```
 
-Manual verify-then-install (gpg only, no script):
+**One-off `.deb`** (no apt registration):
+
+```bash
+VANER_MODE=deb curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-desktop-linux/main/scripts/install.sh | bash
+```
+
+**`.AppImage`** — portable, no install:
 
 ```bash
 VER=$(curl -fsSL https://api.github.com/repos/Borgels/vaner-desktop-linux/releases/latest | jq -r .tag_name)
-curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner_${VER#v}_amd64.deb
-curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner_${VER#v}_amd64.deb.asc
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/Vaner_${VER#v}_amd64.AppImage
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/Vaner_${VER#v}_amd64.AppImage.asc
 curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/release-key.asc
-
 gpg --import release-key.asc
-gpg --verify vaner_${VER#v}_amd64.deb.asc vaner_${VER#v}_amd64.deb
-sudo apt install ./vaner_${VER#v}_amd64.deb
-```
-
-Then launch from your app menu, or:
-
-```bash
-vaner-desktop-linux
+gpg --verify Vaner_${VER#v}_amd64.AppImage.asc Vaner_${VER#v}_amd64.AppImage
+chmod +x Vaner_${VER#v}_amd64.AppImage && ./Vaner_${VER#v}_amd64.AppImage
 ```
 
 Target: Ubuntu 22.04+ / Debian 12+, X11 or KDE Plasma (Wayland and X11
 both fine). See the [first-run note below](#gnome-on-wayland-tray-icon) if
 you're on stock GNOME under Wayland.
+
+#### Auto-updates
+
+The desktop checks for new releases on every launch (via
+[`tauri-plugin-updater`](https://v2.tauri.app/plugin/updater/)). Every
+update is signed with a dedicated minisign key whose public half is
+compiled into the app — a tampered update fails verification and is
+silently discarded. When a new release is ready, a small banner
+appears in the popover; click **Install** to download + verify + swap
+in place (no shell required). Users on the apt repo path get the
+same updates through their system's normal upgrade flow instead —
+pick one mechanism, not both.
 
 Dev build from source:
 
