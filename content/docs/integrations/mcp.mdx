@@ -1,12 +1,13 @@
 ---
 title: MCP Mode
-description: Conceptual overview of Vaner's MCP integration — what tools it exposes and how clients connect.
+description: Vaner's MCP server — tools, resources, capability tiers, and MCP Apps UI.
 ---
 
 Vaner ships an [MCP](https://modelcontextprotocol.io/) server so any
 MCP-aware IDE or agent (Claude Code, Cursor, VS Code Copilot, Codex CLI,
-Windsurf, Zed, Continue, Cline, Roo, Claude Desktop, …) can pull
-scenario-ranked context without Vaner being in the model path.
+Windsurf, Zed, Continue, Cline, Roo, Claude Desktop, ChatGPT, …) can pull
+scenario-ranked context — and, on capable hosts, render an interactive
+active-predictions UI — without Vaner being in the model path.
 
 ## Start the server
 
@@ -14,22 +15,66 @@ scenario-ranked context without Vaner being in the model path.
 vaner mcp --path .
 ```
 
-The server speaks stdio by default. Clients invoke `vaner mcp --path .` as a
-subprocess and communicate over their own stdin/stdout.
+The server speaks stdio by default. Clients invoke `vaner mcp --path .` as
+a subprocess and communicate over their own stdin/stdout.
 
 ## Tools exposed
 
+The MCP tool surface is organized around prediction lifecycle + workspace
+state. Start with the prediction tools and fall back to `vaner.resolve`
+only when nothing prepared matches.
+
+### Predictions
+
 | Tool | Purpose |
 | --- | --- |
-| `list_scenarios` | Scenarios Vaner has precomputed for this repo. |
-| `get_scenario` | Retrieve full context, evidence, and coverage gaps for one scenario. |
-| `expand_scenario` | Trigger deeper precompute and return the refreshed scenario. |
-| `compare_scenarios` | Compare overlap/divergence between scenario candidates. |
-| `report_outcome` | Send usefulness feedback (`useful`, `partial`, `irrelevant`) for learning. |
+| `vaner.predictions.active` | List predictions Vaner has prepared, ranked by readiness. Includes `readiness_label`, `eta_bucket`, `adoptable`, `rank`. |
+| `vaner.predictions.dashboard` | Open the interactive predictions dashboard (MCP Apps UI on Tier‑4 clients; structured text fallback on everyone else). |
+| `vaner.predictions.adopt` | Adopt a specific prediction — returns the prepared `Resolution`. `source` arg distinguishes `mcp_app` / `mcp_tool` / `cli` / `desktop`. |
 
-All tools are scoped to the `--path` Vaner was started with.
+### Context resolution
 
-Each tool also accepts an optional `skill` argument for attribution. This lets Vaner track which agent skill drove calls/outcomes and route feedback into frontier adaptation.
+| Tool | Purpose |
+| --- | --- |
+| `vaner.resolve` | Build a context package for an explicit query when no prediction matches. Returns briefing + draft + ranked evidence + provenance. |
+| `vaner.search` | Fallback retrieval (semantic / lexical / hybrid / symbol / path) when predictive confidence is weak. |
+| `vaner.expand` | Expand a scenario/evidence branch without recomputing everything. |
+| `vaner.suggest` | Lightweight intent suggestions before full resolution. |
+| `vaner.explain` | Explain why a package was selected and where uncertainty remains. |
+| `vaner.inspect` | Read a normalized scenario/evidence item by id. |
+
+### Workspace state
+
+| Tool | Purpose |
+| --- | --- |
+| `vaner.goals.*` | Declare, list, update, and delete long-horizon workspace goals that bias prediction ranking. |
+| `vaner.artefacts.*` | Inspect intent-bearing artefacts (plans, outlines, issues) + their downstream influence. |
+| `vaner.sources.status` | Per-source ingestion pipeline status. |
+| `vaner.deep_run.*` | Overnight Deep-Run session lifecycle (start / stop / status / list / show). |
+| `vaner.status` | Vaner readiness, freshness, and memory health. |
+
+### Learning + debug
+
+| Tool | Purpose |
+| --- | --- |
+| `vaner.feedback` | Record usefulness (`useful` / `partial` / `wrong` / `irrelevant`) with optional correction. |
+| `vaner.warm` | Hint Vaner to precompute around selected targets. |
+| `vaner.debug.trace` | Debug trace of the most recent decision + memory state. |
+
+## Resources exposed
+
+MCP clients that fetch resources get two:
+
+- `vaner://guidance/current` — the canonical operational guidance asset. Agents should embed this in the system/developer prompt. See [Integration Layer](/integrations/integration-layer).
+- `ui://vaner/active-predictions` — the MCP Apps UI bundle for the active-predictions dashboard (served on Tier‑4 clients; see [MCP Apps UI](/integrations/mcp-apps-ui)).
+
+## Capability tiers
+
+Vaner classifies the connected client into one of four tiers during MCP
+`initialize` and picks sensible defaults accordingly. See [Integration
+Layer](/integrations/integration-layer) for the tier contract, the
+detection rules, and how `vaner integrations doctor` reports the active
+tier.
 
 ## Want to wire it up?
 
@@ -39,10 +84,7 @@ Each tool also accepts an optional `skill` argument for attribution. This lets V
 
 ## When to use MCP vs other modes
 
-- **MCP mode** (this page): your IDE already orchestrates model calls and only
-  needs Vaner-provided context. Lowest coupling; recommended default.
-- **[Proxy mode](/integrations/proxy)**: tools that only speak the OpenAI
-  `/v1/chat/completions` shape.
-- **[Context-only mode](/integrations/context-only)**: frameworks that call
-  `/v1/context` directly.
+- **MCP mode** (this page): your IDE or agent already orchestrates model calls and only needs Vaner-provided context. Lowest coupling; recommended default.
+- **[Proxy mode](/integrations/proxy)**: tools that only speak the OpenAI `/v1/chat/completions` shape.
+- **[Context-only mode](/integrations/context-only)**: frameworks that call `/v1/context` directly.
 - **[Python SDK](/integrations/python-sdk)**: custom scripts.

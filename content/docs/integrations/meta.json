@@ -3,6 +3,8 @@
   "pages": [
     "index",
     "mcp",
+    "integration-layer",
+    "mcp-apps-ui",
     "tools",
     "context-only",
     "python-sdk",

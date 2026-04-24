@@ -1,0 +1,186 @@
+---
+title: Integration Layer
+description: Guidance assets, capability tiers, context injection, and the adopted-package handoff that make Vaner useful even when the backend LLM doesn't call MCP tools.
+---
+
+Vaner is a predictive preparation layer. MCP tools are one delivery path
+— but they're not the only one. 0.8.5 introduced a first-class
+integration layer so prepared work reaches agents through multiple
+surfaces, with per-client defaults driven by capability detection.
+
+The integration layer has four components:
+
+1. **Guidance asset** — a canonical, versioned markdown block agents
+   embed in their system/developer prompt so they know when to call
+   Vaner tools.
+2. **Capability tiers** — Vaner classifies the connected client into one
+   of four tiers during MCP `initialize` and picks defaults (injection
+   mode, UI resource attachment) accordingly.
+3. **Context injection** — on tiers that can accept assembled prompt
+   context, Vaner can deposit a `<VANER_PREPARED_WORK_DIGEST>` or
+   `<VANER_ADOPTED_PACKAGE>` block without the model needing to call a
+   tool.
+4. **Adopted-package handoff** — when the user clicks Adopt on a
+   desktop client, the daemon short-circuits the next `vaner.resolve`
+   call and returns the adopted Resolution verbatim.
+
+## Guidance asset
+
+The canonical guidance asset ships three variants:
+
+| Variant | Audience | Size |
+| --- | --- | --- |
+| `canonical` | Tier‑2 clients (most MCP agents — default) | ~600 tokens |
+| `weak` | Tier‑1 clients that can only accept a one-liner | ~100 tokens |
+| `strong` | Tier‑3 clients that see `<VANER_ADOPTED_PACKAGE>` markers | ~900 tokens |
+
+Each variant is exposed through three surfaces:
+
+```bash
+# CLI
+vaner guidance print --variant canonical              # body only
+vaner guidance print --variant weak --format json     # structured
+vaner guidance versions                               # list variants
+
+# HTTP
+curl localhost:8473/integrations/guidance?variant=canonical
+curl localhost:8473/integrations/guidance?variant=weak&format=markdown
+
+# MCP resource
+# In any MCP client: read the resource at vaner://guidance/current
+```
+
+The guidance asset auto-syncs into `AGENTS.md` via
+`scripts/sync_agents_primer.py` (enforced in CI). If you're writing
+agent instructions in your own repo, you can embed the same block
+verbatim — it's versioned via the `vaner-primer:start v=…` marker.
+
+## Capability tiers
+
+| Tier | What the client can do | Default behavior |
+| --- | --- | --- |
+| **Tier 1** | MCP tools only | No injection. Guidance available by request. |
+| **Tier 2** | + Prompt guidance | Canonical guidance embedded. Digest-only injection. |
+| **Tier 3** | + Context mediation | Adopted-package + digest injection. Freshness checks. |
+| **Tier 4** | + MCP Apps UI | Interactive `ui://vaner/active-predictions` bundle rendered. |
+
+Detection happens on first tool/resource call per session. The classifier
+reads `capabilities.experimental["io.modelcontextprotocol/ui"]` for
+Tier 4, `experimental["vaner.context_injection"]` for Tier 3,
+`roots`/`sampling` for Tier 2, else Tier 1.
+
+Run the doctor to see the active tier + config:
+
+```bash
+vaner integrations doctor
+vaner integrations doctor --format json
+```
+
+The doctor output covers: guidance version + source path, AGENTS.md
+primer parity with the canonical asset, `IntegrationsConfig` snapshot,
+daemon reachability with the `/integrations/guidance` endpoint, and any
+pending adopted-package handoff.
+
+## Context injection
+
+When mediating context on the agent's behalf, the integration layer
+emits structural blocks agents can recognize and use without calling a
+tool.
+
+### Digest block
+
+Emitted when relevant predictions exist but none are ready, or when the
+user might benefit from seeing options:
+
+```
+<VANER_PREPARED_WORK_DIGEST version="1">
+Top prepared predictions:
+1. [Ready] "Draft the project update" — Ready now
+2. [Drafting] "Compare the two research notes" — ~10–20s
+3. [Gathering evidence] "Prepare next planning step" — Working
+
+If relevant, use vaner.predictions.active or vaner.predictions.adopt to inspect or adopt one.
+</VANER_PREPARED_WORK_DIGEST>
+```
+
+### Adopted-package block
+
+Emitted when the user has clicked Adopt and the full Resolution is
+available:
+
+```
+<VANER_ADOPTED_PACKAGE version="1" expires_at="2026-04-25T12:10:00+00:00">
+Intent:
+Draft the project update
+
+Prepared briefing:
+…
+
+Predicted response:
+…
+
+Evidence:
+- doc/handoff.md (latest)
+- thread://slack/…
+
+Provenance:
+mode=predictive_hit cache=warm freshness=fresh
+Adopted from prediction: pred-abc
+</VANER_ADOPTED_PACKAGE>
+```
+
+When this block is present in the prompt, the agent should answer from
+it directly rather than re-calling `vaner.resolve` or
+`vaner.predictions.active` for the same intent.
+
+### Configuration
+
+Injection is governed by `VanerConfig.integrations.context_injection`:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `mode` | `policy_hybrid` | One of `none` / `digest_only` / `adopted_package_only` / `top_match_auto_include` / `policy_hybrid` / `client_controlled`. |
+| `digest_token_budget` | `500` | Hard cap on digest tokens. |
+| `adopted_package_token_budget` | `2000` | Hard cap on adopted-package tokens (briefing gets 60%, response 25%, structure 15% when over budget). |
+| `max_context_fraction` | `0.20` | Never consume more than this fraction of the remaining context window. |
+| `ttl_seconds` | `600` | How long an adopted-package block is considered fresh. |
+| `include_provenance` | `true` | Include the provenance footer in the adopted-package block. |
+| `include_confidence_details` | `false` | Include raw confidence/evidence scores in the digest. |
+
+## Adopted-package handoff
+
+When the user clicks Adopt on the macOS or Linux desktop app, the client
+stashes the full `Resolution` JSON at a platform-canonical path:
+
+| OS | Path |
+| --- | --- |
+| Linux | `$XDG_STATE_HOME/vaner/pending-adopt.json` |
+| macOS | `~/Library/Application Support/Vaner/pending-adopt.json` |
+| Windows | `%LOCALAPPDATA%\Vaner\pending-adopt.json` |
+
+The daemon's `vaner.resolve` handler checks this path on every call. If
+a fresh drop exists (default TTL: 10 minutes), the handler returns it
+verbatim with `provenance.mode = "handoff_hit"` and increments the
+`tool_call_redundancy_suppressed` metric. The file is deleted on read so
+one adopted package suppresses exactly one resolve.
+
+## Metrics
+
+The following counters are available via the daemon's metrics store:
+
+- `mcp_dashboard_called`, `mcp_apps_ui_attached`, `mcp_apps_adopt_clicked`
+- `mcp_apps_bundle_read`, `guidance_resource_read_{canonical,weak,strong}`
+- `mcp_adopt_source_{mcp_app,mcp_tool,cli,desktop,unknown}`
+- `tool_call_redundancy_suppressed`
+
+## Kill-switches
+
+- `mcp.apps_ui_enabled: false` — suppress the `ui://` resource + UI bundle for the whole daemon.
+- `integrations.capability_detection_enabled: false` — skip session tier detection (falls back to `UNKNOWN` → no injection).
+- `integrations.context_injection.mode = "none"` — disable context injection without touching capability detection.
+
+## See also
+
+- [MCP Apps UI](/integrations/mcp-apps-ui) — the interactive
+  active-predictions dashboard served through `ui://vaner/active-predictions`.
+- [MCP Mode](/integrations/mcp) — the full MCP tool + resource surface.

@@ -1,0 +1,134 @@
+---
+title: MCP Apps UI
+description: Vaner's interactive active-predictions dashboard for MCP Apps capable clients, with a structured text fallback for everyone else.
+---
+
+[MCP Apps](https://github.com/modelcontextprotocol/ext-apps) are an
+extension to MCP that lets servers expose interactive UI resources which
+compliant clients render inside a sandboxed iframe. Vaner ships an MCP
+Apps UI for its prediction dashboard — Tier‑4 clients get rich,
+adoptable prediction cards; every other tier gets a structured text
+fallback from the same `vaner.predictions.dashboard` tool.
+
+## Who sees the UI?
+
+Clients that advertise `io.modelcontextprotocol/ui` in their
+`capabilities.experimental` during MCP `initialize` are classified as
+Tier 4 by Vaner. The current set includes:
+
+- Claude Desktop (reference MCP Apps host)
+- ChatGPT
+- Any client that ships the `@modelcontextprotocol/ext-apps` host adapter
+
+Everyone else — Claude Code, Cursor, VS Code Copilot, Cline, Zed,
+Continue, Roo, Codex CLI, plain stdio clients — gets the structured
+text fallback on `vaner.predictions.dashboard`:
+
+```text
+Vaner has 3 active prediction(s):
+
+1. Ready — "Draft the project update"
+2. Drafting (~10–20s) — "Compare the two research notes"
+3. Gathering evidence — "Prepare next planning step"
+
+Use vaner.predictions.adopt with a prediction id to adopt one.
+```
+
+## What the UI does
+
+The `ui://vaner/active-predictions` bundle is a single-file HTML app
+that:
+
+- Loads prediction cards from the initial tool result payload.
+- Polls `vaner.predictions.active` every 5s through the host bridge to
+  refresh readiness, ETA, and adoptability.
+- Sorts adoptable-first, shows 3–5 cards by default, renders the
+  readiness label + ETA bucket + source label on every row.
+- Exposes an Adopt button per card. Adopt calls
+  `vaner.predictions.adopt` with `source: "mcp_app"`, waits for the
+  `Resolution`, shows a checkmark, and refreshes.
+- Supports light and dark color schemes, is keyboard-navigable, and
+  emits aria-live updates so screen readers announce adopt completions
+  and refresh errors.
+
+No direct calls to the local Vaner daemon. All state-changing actions
+flow through MCP tools; the host mediates postMessage both directions.
+
+## Architecture
+
+```text
+Vaner daemon
+  │
+  ├── MCP resource: ui://vaner/active-predictions  (served on read_resource)
+  │       ↑                        │
+  │       │ host iframe fetches    │
+  │       │                        ▼
+  │   ┌──────────────────────────────┐
+  │   │ Sandboxed iframe (ext-apps)  │
+  │   │  - renders cards             │
+  │   │  - polls predictions.active  │
+  │   │  - Adopt → predictions.adopt │
+  │   └──────────────────────────────┘
+  │       │ postMessage via App bridge
+  │       ▼
+  │   MCP host (Claude Desktop / ChatGPT / …)
+  │       │
+  └────── MCP tool calls ←──────────┘
+```
+
+## Security model
+
+- **Sandboxed iframe**. The host renders the bundle in a dedicated
+  iframe; no access to the parent window.
+- **Strict CSP**. The resource's `_meta.ui.csp.resourceDomains` allowlist
+  is tight — only `https://unpkg.com` for the pinned ext-apps SDK.
+  Every other domain (including the local daemon) is blocked by the
+  host-applied CSP.
+- **No direct daemon calls from the iframe**. All state-changing actions
+  go through MCP tool calls via the host bridge.
+- **No secrets in the payload**. `prepared_briefing` text is not included
+  in the dashboard initial payload — the Adopt round-trip fetches the
+  full `Resolution` only when the user explicitly clicks.
+- **Manual adopt only**. No auto-execution; every Adopt is an explicit
+  user click.
+- **HTML escape** on every user-controlled card field before DOM
+  insertion — card label, ui_summary, and source label are escaped to
+  prevent XSS even if an upstream source is malformed.
+
+## Accessibility
+
+- Keyboard navigable (tab order follows card order; no `tabindex` traps).
+- `aria-live="polite"` status region announces Adopt success, refresh
+  errors, and empty-state messaging.
+- `aria-label` on every Adopt button naming the prediction.
+- Real `<h1>` + `<ol>` + `<li>` structure (not div soup) for
+  rotor-based screen-reader navigation.
+- Light + dark color schemes via `prefers-color-scheme`.
+- Disabled Adopt buttons signal their state textually (replacing the
+  label), not just with color.
+
+## Configuration
+
+Kill-switch: `mcp.apps_ui_enabled` (default `true`). When false, the
+daemon removes `ui://vaner/active-predictions` from `list_resources` and
+the dashboard tool returns text fallback for every tier.
+
+## Dev / debugging
+
+```bash
+# Inspect the bundled HTML + its SHA-256 hash.
+vaner integrations doctor --format json  # shows mcp_apps_ui_attached metric
+
+# List resources exposed.
+# In any MCP client: call list_resources; both vaner://guidance/current
+# and ui://vaner/active-predictions should appear (the UI bundle only
+# when mcp.apps_ui_enabled=true).
+```
+
+## See also
+
+- [Integration Layer](/integrations/integration-layer) — guidance,
+  tiers, context injection, handoff.
+- [MCP Mode](/integrations/mcp) — the full tool + resource surface.
+- [MCP Apps spec](https://github.com/modelcontextprotocol/ext-apps) —
+  upstream protocol + host adapter.
