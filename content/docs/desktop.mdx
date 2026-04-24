@@ -1,0 +1,178 @@
+---
+title: Desktop app
+description: Vaner's menu-bar companion for macOS and Linux — install, first-run, and the Adopt flow for handing prepared context to your AI agent.
+---
+
+Vaner is primarily an engine your AI agent (Claude Code, Cursor, Zed,
+Claude Desktop, …) talks to over MCP. But while it's running in the
+background, it's also pondering — ranking likely next prompts, staging
+evidence, drafting answers. The desktop app is a small menu-bar
+companion that lets **you** see what Vaner has pondered and click one
+thing to inject the prepared package into whichever agent you're using.
+
+Two clients, same engine:
+
+| Platform | Repo | Native stack |
+|---|---|---|
+| **macOS** | [`Borgels/vaner-desktop-macos`](https://github.com/Borgels/vaner-desktop-macos) | SwiftUI + AppKit, menu-bar popover |
+| **Linux** (Ubuntu / Debian / KDE / GNOME) | [`Borgels/vaner-desktop-linux`](https://github.com/Borgels/vaner-desktop-linux) | Tauri v2 + SvelteKit, tray + popover |
+| Windows | Planned | Tauri v2 (same codebase as Linux) |
+
+Both apps talk only **HTTP / SSE** to the local Vaner daemon on
+`127.0.0.1:8473`. They never speak MCP themselves — that's reserved
+for your AI agent.
+
+## Install
+
+### macOS
+
+> The engine must be running first. Install Vaner and start the daemon
+> following [Getting Started](./getting-started.mdx); the desktop app
+> attaches to whatever's up on `127.0.0.1:8473`.
+
+Grab the latest `.dmg` from the [macOS releases page](https://github.com/Borgels/vaner-desktop-macos/releases),
+mount it, and drag **Vaner.app** into `/Applications`. On first
+launch, macOS may ask you to verify the app via System Settings →
+Privacy & Security. Once open, Vaner lives in your menu bar — click
+the icon to pop the popover.
+
+If you prefer to build from source:
+
+```bash
+git clone https://github.com/Borgels/vaner-desktop-macos.git
+cd vaner-desktop-macos
+open vaner.xcodeproj
+```
+
+### Linux (Ubuntu / Debian)
+
+```bash
+# Grab the latest .deb from the Linux releases page
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/latest/download/vaner_latest_amd64.deb
+sudo apt install ./vaner_latest_amd64.deb
+```
+
+Then launch from your app menu, or:
+
+```bash
+vaner-desktop-linux
+```
+
+Target: Ubuntu 22.04+ / Debian 12+, X11 or KDE Plasma (Wayland and X11
+both fine). See the [first-run note below](#gnome-on-wayland-tray-icon) if
+you're on stock GNOME under Wayland.
+
+Dev build from source:
+
+```bash
+# One-time system deps
+sudo apt install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+  libayatana-appindicator3-dev librsvg2-dev patchelf
+
+git clone https://github.com/Borgels/vaner-desktop-linux.git
+cd vaner-desktop-linux
+pnpm install
+pnpm tauri dev
+```
+
+## What the popover shows
+
+The desktop app mirrors whatever state the engine is in. Five common
+states you'll see:
+
+| State | Meaning |
+|---|---|
+| **Watching** | Daemon is alive, sources are connected, nothing surfaceable yet. |
+| **Learning** | First-time indexing — Vaner is reading the sources you just connected. |
+| **Prepared** | A reactive prepared moment is ready (based on something you already did). |
+| **Active predictions** | Vaner has one or more predicted next-prompts in `drafting` / `ready`. Click **Adopt** on any row to send its full prepared package to your agent. |
+| **No active agent** | Predictions or prepared moments exist, but Vaner doesn't see your agent running. Launch Cursor / Claude Code / etc. and the popover will re-route. |
+
+## The Adopt flow
+
+When you click **Adopt** on a ready prediction row, here's what
+happens:
+
+1. The app calls `POST /predictions/{id}/adopt` on the local daemon.
+   The daemon returns a `Resolution` — the full prepared package:
+   briefing, optional predicted-response draft, evidence,
+   alternatives considered.
+2. The app writes that `Resolution` to a **handoff file** at a
+   well-known path:
+   - Linux: `$XDG_STATE_HOME/vaner/pending-adopt.json`
+     (usually `~/.local/state/vaner/pending-adopt.json`).
+   - macOS: `~/Library/Application Support/Vaner/pending-adopt.json`.
+3. The paste-fallback (`predicted_response ?? prepared_briefing ??
+   intent`) goes onto your clipboard, in case you want to paste it
+   into an agent that doesn't support the handoff yet.
+4. Your agent's next turn reads the handoff file.
+   - In Claude Code, the [`/vaner:next` skill](./skills.mdx) checks
+     this path before anything else; if a fresh drop is there
+     (< 10 minutes old), it injects the prepared package directly and
+     skips the listing step.
+   - Agents without a Vaner skill can paste the clipboard content
+     manually.
+
+This is how the desktop and your agent compose — you decide in the
+popover, the agent serves it on the next turn.
+
+## First-run notes
+
+### GNOME on Wayland: tray icon
+
+GNOME Shell on Wayland doesn't render `AppIndicator`-style tray icons
+by default. Ubuntu 22.04+ ships the extension that fixes this; vanilla
+GNOME or a stripped-down session may not.
+
+If the Linux app's tray icon doesn't appear, install the extension:
+
+```bash
+sudo apt install gnome-shell-extension-appindicator
+# Log out + back in, or: `killall -HUP gnome-shell` on X11 only
+```
+
+The app detects this at first launch and shows a one-time modal with
+these exact instructions — no guessing. KDE Plasma and X11 sessions
+don't need the extension.
+
+### Global shortcuts on Wayland
+
+The Wayland protocol doesn't expose a system-wide-hotkey API. If the
+app gracefully disables its global-shortcut features on your session,
+that's why. X11 supports them; so does macOS.
+
+### macOS sandboxing
+
+Release macOS builds are sandboxed. The adopt-handoff file currently
+requires an unsandboxed build OR a one-time "choose a folder" dialog
+that persists via a security-scoped bookmark. DEBUG builds are
+unsandboxed and work out of the box; the v1 sandboxed release is
+tracked in the desktop repo's issues.
+
+## Troubleshooting
+
+- **Popover says "Can't reach the Vaner engine."** Check the daemon:
+  ```bash
+  vaner status --json
+  ```
+  If it's stopped, run `vaner up`. The desktop attaches automatically
+  on its next refresh tick.
+- **Predictions never appear.** This is often expected — Vaner needs
+  a few minutes of observation and at least one MCP call before the
+  prediction layer has something to surface. Keep working; the
+  popover updates itself.
+- **Adopt seems to do nothing in my agent.** Make sure your agent
+  invokes the Vaner skill (`/vaner:next` in Claude Code, equivalent in
+  Cursor). Agents that don't support the skill can still use the
+  clipboard contents as a manual paste.
+- **GNOME/Wayland: no tray icon.** See [the extension note above](#gnome-on-wayland-tray-icon).
+
+## Feedback
+
+Platform-specific issues belong in the platform repo:
+
+- macOS: <https://github.com/Borgels/vaner-desktop-macos/issues>
+- Linux: <https://github.com/Borgels/vaner-desktop-linux/issues>
+
+Engine or skill issues (including `/vaner:next` behaviour) go to the
+main [Vaner repo](https://github.com/Borgels/Vaner/issues).
