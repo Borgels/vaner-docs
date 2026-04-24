@@ -46,10 +46,37 @@ open vaner.xcodeproj
 
 ### Linux (Ubuntu / Debian)
 
+Signed `.deb`. The one-liner below downloads the latest release,
+verifies its detached signature against Vaner's release pubkey
+(whose fingerprint is pinned in the install script itself), and
+installs via `apt`. If the uploaded pubkey's fingerprint ever gets
+swapped, the script aborts with a mismatch error rather than trust
+an unknown signer.
+
 ```bash
-# Grab the latest .deb from the Linux releases page
-curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/latest/download/vaner_latest_amd64.deb
-sudo apt install ./vaner_latest_amd64.deb
+curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-desktop-linux/main/scripts/install.sh | bash
+```
+
+Prefer to read the script before piping it? Fair.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-desktop-linux/main/scripts/install.sh \
+  -o vaner-install.sh
+less vaner-install.sh   # cross-check the VANER_RELEASE_FPR pin
+bash vaner-install.sh
+```
+
+Manual verify-then-install (gpg only, no script):
+
+```bash
+VER=$(curl -fsSL https://api.github.com/repos/Borgels/vaner-desktop-linux/releases/latest | jq -r .tag_name)
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner_${VER#v}_amd64.deb
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner_${VER#v}_amd64.deb.asc
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/release-key.asc
+
+gpg --import release-key.asc
+gpg --verify vaner_${VER#v}_amd64.deb.asc vaner_${VER#v}_amd64.deb
+sudo apt install ./vaner_${VER#v}_amd64.deb
 ```
 
 Then launch from your app menu, or:
