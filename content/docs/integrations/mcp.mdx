@@ -19,17 +19,46 @@ subprocess and communicate over their own stdin/stdout.
 
 ## Tools exposed
 
+Vaner's v1.0 MCP surface is namespaced (`vaner.*`). Tools break into three
+groups: resolve/navigation, predictions, and workspace goals.
+
+### Resolve & navigation
+
 | Tool | Purpose |
 | --- | --- |
-| `list_scenarios` | Scenarios Vaner has precomputed for this repo. |
-| `get_scenario` | Retrieve full context, evidence, and coverage gaps for one scenario. |
-| `expand_scenario` | Trigger deeper precompute and return the refreshed scenario. |
-| `compare_scenarios` | Compare overlap/divergence between scenario candidates. |
-| `report_outcome` | Send usefulness feedback (`useful`, `partial`, `irrelevant`) for learning. |
+| `vaner.status` | Health + readiness. Use as the smoke-test after wiring. |
+| `vaner.resolve` | Given a user prompt, return a prepared briefing + evidence + (optionally) a speculative draft. |
+| `vaner.suggest` | Likely next prompts based on workflow state. |
+| `vaner.search` | Search Vaner's scenario graph. |
+| `vaner.expand` | Deepen precompute around a specific scenario/target. |
+| `vaner.inspect` | Read a single scenario/evidence item by id. |
+| `vaner.explain` | Human-readable rationale for a resolution. |
+| `vaner.feedback` | Usefulness feedback (`useful`, `partial`, `wrong`, `irrelevant`). |
+| `vaner.warm` | Hint Vaner to precompute around selected targets. |
+
+### Predictions (0.8.0)
+
+| Tool | Purpose |
+| --- | --- |
+| `vaner.predictions.active` | List predictions currently in `ready` or `drafting` state with their labels, readiness, and compute contract. |
+| `vaner.predictions.adopt` | Adopt a specific prediction as the user's next intent. Returns a Resolution with prepared briefing + draft answer + `adopted_from_prediction_id` for provenance. |
+
+### Workspace goals (0.8.0)
+
+Long-horizon workspace aspirations ("implement JWT migration", "review auth
+before ship") that span many prompts. Declared goals seed goal-anchored
+predictions the engine matures across cycles.
+
+| Tool | Purpose |
+| --- | --- |
+| `vaner.goals.list` | List workspace goals filtered by status. |
+| `vaner.goals.declare` | Declare a new user-authoritative goal (`confidence=1.0`). |
+| `vaner.goals.update_status` | Move a goal between `active`/`paused`/`abandoned`/`achieved`. |
+| `vaner.goals.delete` | Delete a goal (prefer `update_status` — deletion loses evidence). |
 
 All tools are scoped to the `--path` Vaner was started with.
 
-Each tool also accepts an optional `skill` argument for attribution. This lets Vaner track which agent skill drove calls/outcomes and route feedback into frontier adaptation.
+Most tools also accept an optional `skill` argument for attribution. This lets Vaner track which agent skill drove calls/outcomes and route feedback into frontier adaptation.
 
 ## Want to wire it up?
 

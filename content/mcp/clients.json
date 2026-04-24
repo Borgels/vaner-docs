@@ -69,7 +69,7 @@
           "project": ".cursor/mcp.json"
         }
       },
-      "verify": "Restart Cursor, open Settings \u2192 MCP, confirm `vaner` is listed. Run the `list_scenarios` tool from the composer to smoke-test.",
+      "verify": "Restart Cursor, open Settings \u2192 MCP, confirm `vaner` is listed. Run the `vaner.status` tool from the composer to smoke-test.",
       "docsSlug": "cursor-mcp",
       "sourceUrl": "https://docs.cursor.com/en/context/mcp",
       "launchers": {
@@ -114,7 +114,7 @@
           "project": ".vscode/mcp.json"
         }
       },
-      "verify": "Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server from the tools menu and call `list_scenarios`.",
+      "verify": "Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server from the tools menu and call `vaner.status`.",
       "docsSlug": "vscode-copilot-mcp",
       "sourceUrl": "https://code.visualstudio.com/docs/copilot/chat/mcp-servers",
       "launchers": {
@@ -231,7 +231,7 @@
           "user": "~/.continue/mcpServers/vaner.yaml"
         }
       },
-      "verify": "Reload Continue. Ask the agent to list available MCP tools \u2014 `vaner.list_scenarios` should be present.",
+      "verify": "Reload Continue. Ask the agent to list available MCP tools \u2014 `vaner.status` should be present.",
       "docsSlug": "continue-mcp",
       "sourceUrl": "https://docs.continue.dev/customize/deep-dives/mcp",
       "launchers": {
@@ -342,7 +342,7 @@
         "language": "json",
         "snippet": "{\n  \"mcpServers\": {\n    \"vaner\": {\n      \"command\": \"{launcherCommand}\",\n      \"args\": {launcherArgsJsonWithDotPath}\n    }\n  }\n}\n"
       },
-      "verify": "Reload VS Code. In Cline's MCP Servers panel, toggle `vaner` on and run `list_scenarios` from the chat.",
+      "verify": "Reload VS Code. In Cline's MCP Servers panel, toggle `vaner` on and run `vaner.status` from the chat.",
       "docsSlug": "cline-mcp",
       "sourceUrl": "https://docs.cline.bot/mcp/adding-and-configuring-servers",
       "launchers": {
@@ -387,7 +387,7 @@
           "user": "~/.roo/mcp_settings.json"
         }
       },
-      "verify": "Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `list_scenarios`.",
+      "verify": "Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `vaner.status`.",
       "docsSlug": "roo-mcp",
       "sourceUrl": "https://docs.roocode.com/features/mcp/using-mcp-in-roo",
       "launchers": {
