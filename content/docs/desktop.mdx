@@ -84,12 +84,12 @@ VANER_MODE=deb curl -fsSL https://raw.githubusercontent.com/Borgels/vaner-deskto
 
 ```bash
 VER=$(curl -fsSL https://api.github.com/repos/Borgels/vaner-desktop-linux/releases/latest | jq -r .tag_name)
-curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/Vaner_${VER#v}_amd64.AppImage
-curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/Vaner_${VER#v}_amd64.AppImage.asc
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner-desktop_${VER#v}_amd64.AppImage
+curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/vaner-desktop_${VER#v}_amd64.AppImage.asc
 curl -LO https://github.com/Borgels/vaner-desktop-linux/releases/download/$VER/release-key.asc
 gpg --import release-key.asc
-gpg --verify Vaner_${VER#v}_amd64.AppImage.asc Vaner_${VER#v}_amd64.AppImage
-chmod +x Vaner_${VER#v}_amd64.AppImage && ./Vaner_${VER#v}_amd64.AppImage
+gpg --verify vaner-desktop_${VER#v}_amd64.AppImage.asc vaner-desktop_${VER#v}_amd64.AppImage
+chmod +x vaner-desktop_${VER#v}_amd64.AppImage && ./vaner-desktop_${VER#v}_amd64.AppImage
 ```
 
 Target: Ubuntu 22.04+ / Debian 12+, X11 or KDE Plasma (Wayland and X11
