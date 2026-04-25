@@ -1,0 +1,156 @@
+---
+title: Clients CLI
+description: vaner clients — install, uninstall, status, and drift-recovery for every supported MCP client.
+---
+
+`vaner clients` is the headless equivalent of the desktop app's MCP Clients pane. Use it from CI, SSH sessions, or anywhere a GUI isn't an option. It's idempotent, backup-safe, and never drops user-configured non-Vaner MCP servers.
+
+## Subcommand reference
+
+| Command | What it does |
+| --- | --- |
+| `vaner clients detect` | List MCP clients detected on this machine + their config status. |
+| `vaner clients install <name>` | Install Vaner into a single client. |
+| `vaner clients install --all` | Install Vaner into every detected client. |
+| `vaner clients uninstall <name>` | Remove the Vaner entry from a single client. |
+| `vaner clients uninstall --all` | Remove Vaner from every configured client. |
+| `vaner clients status` | Pretty matrix of install/configured state. |
+| `vaner clients doctor` | Detect launcher path drift after Vaner is reinstalled / moved. |
+
+Every command supports `--format pretty` (default) and `--format json`. JSON output is a stable contract for tooling.
+
+## Examples
+
+### What's on this machine?
+
+```bash
+$ vaner clients detect
+                MCP clients
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Client           ┃ Status       ┃ Path                       ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Cursor           │ ✓ Configured │ ~/.cursor/mcp.json         │
+│ Claude Desktop   │ · Detected   │ ~/.config/Claude/...       │
+│ Claude Code      │ · Detected   │ -                          │
+│ Cline            │ ✗ Missing    │ -                          │
+│ Continue         │ · Detected   │ ~/.continue/mcpServers/... │
+│ ...                                                          │
+└──────────────────┴──────────────┴────────────────────────────┘
+```
+
+JSON output (use this from scripts):
+
+```bash
+$ vaner clients detect --format json
+{
+  "clients": [
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "kind": "json-mcpServers",
+      "status": "configured",
+      "detected": true,
+      "configured": true,
+      "config_path": "/home/me/.cursor/mcp.json",
+      "detail": "already configured"
+    },
+    ...
+  ]
+}
+```
+
+### One-shot install for everything detected
+
+```bash
+$ vaner clients install --all
+✓ cursor: updated at /home/me/.cursor/mcp.json
+✓ claude-desktop: added at /home/me/.config/Claude/claude_desktop_config.json
+✓ continue: added at /home/me/.continue/mcpServers/vaner.yaml
+· claude-code: skipped (claude binary not found)
+```
+
+Skipping is normal for clients whose binary or config dir is absent — Vaner won't write speculative configs.
+
+### Single client, dry-run preview
+
+```bash
+$ vaner clients install claude-desktop --dry-run --format json
+{
+  "results": [
+    {
+      "client_id": "claude-desktop",
+      "path": "/home/me/.config/Claude/claude_desktop_config.json",
+      "action": "skipped",
+      "error": "dry-run",
+      ...
+    }
+  ]
+}
+```
+
+`--dry-run` exits without touching any file. Use it before automation.
+
+### Detect launcher drift (after reinstall / upgrade)
+
+When Vaner moves (e.g. `pipx` → `uv tool install`, or system → user install), every client config now points at the old path:
+
+```bash
+$ vaner clients doctor
+                Launcher drift
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ Client           ┃ Configured             ┃ Expected            ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ Cursor           │ /old/path/vaner        │ /new/path/vaner     │
+│ Claude Desktop   │ /old/path/vaner        │ /new/path/vaner     │
+└──────────────────┴────────────────────────┴─────────────────────┘
+
+Fix: run `vaner clients install --all --force`
+```
+
+Doctor exits **non-zero** when drift is found — wire it into your CI / shell-rc to catch silent breakage.
+
+## Per-client config locations
+
+| Client | Path | Format |
+| --- | --- | --- |
+| Cursor | `~/.cursor/mcp.json` | `mcpServers` JSON |
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` | `mcpServers` JSON |
+| Claude Desktop (Linux) | `~/.config/Claude/claude_desktop_config.json` | `mcpServers` JSON |
+| Claude Code | (CLI-managed via `claude mcp add`) | n/a |
+| VS Code (Copilot) | `~/.config/Code/User/mcp.json` | `servers` JSON |
+| Codex CLI | (CLI-managed via `codex mcp add`) | n/a |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` JSON |
+| Zed | `~/.config/zed/settings.json` | `context_servers` JSON |
+| Continue | `~/.continue/mcpServers/vaner.yaml` | per-server YAML |
+| Cline | `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` | `mcpServers` JSON |
+| Roo Code | `~/.roo/mcp_settings.json` | `mcpServers` JSON |
+
+## How install merges with existing entries
+
+For JSON-shaped configs, install writes only the `vaner` (or `vaner-<reponame>` for Claude Desktop) entry inside the `mcpServers` / `servers` / `context_servers` container. Every other entry the user already has is preserved verbatim. Before any write the existing file is hashed; if the new content is byte-identical, the write is skipped (`action: skipped`). Otherwise the existing file is rotated to a backup (last 3 kept) and the new content is atomically replaced.
+
+For YAML (Continue), install writes a single Vaner-only document to `~/.continue/mcpServers/vaner.yaml`. Other Continue MCP servers live in their own files; we don't touch them.
+
+For CLI-managed clients (Claude Code, Codex CLI), install shells out to the client's own `mcp add` command with `--scope user`.
+
+## Idempotency + safety
+
+- Re-running `vaner clients install --all` on a configured machine is a no-op (every result is `skipped`).
+- `--force` rewrites even matching entries; useful after launcher drift.
+- `--dry-run` previews without writing anywhere.
+- Backups land alongside the original file as `<name>.vaner-backup-<timestamp>`. Last 3 kept; older rotated automatically.
+- Atomic writes via `tempfile.mkstemp() + os.replace()` — no half-written configs even on crash.
+
+## Programmatic use
+
+The `--format json` shape is the contract the desktop apps consume. The `WriteResult.action` field is `"added" | "updated" | "skipped" | "failed"`; the `error` field carries the human-readable reason for skip/fail.
+
+```bash
+$ vaner clients install --all --format json | jq '.results[] | select(.action == "failed")'
+```
+
+## See also
+
+- [Quickstart](/integrations/quickstart) — the desktop-app path that wraps this CLI.
+- [Integration Layer](/integrations/integration-layer) — capability tiers and the broader integration story.
+- [MCP Mode](/integrations/mcp) — full Vaner MCP tool surface.

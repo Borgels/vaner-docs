@@ -1,0 +1,88 @@
+---
+title: Quickstart
+description: From zero to Vaner-wired in every MCP client on your machine, in two clicks.
+---
+
+This is the shortest path from "Vaner is installed" to "every MCP client I have on this machine sees Vaner". For the why-and-how, see [Integration Layer](/integrations/integration-layer) and [MCP Apps UI](/integrations/mcp-apps-ui).
+
+## 1. Install Vaner
+
+```bash
+curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+```
+
+Or via uv:
+
+```bash
+uv tool install vaner
+```
+
+## 2. Open the desktop app
+
+The macOS and Linux desktop apps ship the same first-run flow:
+
+1. **Launch** Vaner Desktop (download from [vaner.ai/download](https://vaner.ai/download)).
+2. **Pick the repo** you want Vaner to watch (or accept the default).
+3. **Install for detected MCP clients** — the onboarding shows a checklist of every MCP client found on this machine (Cursor, Claude Desktop, Claude Code, Cline, Continue, Zed, Windsurf, VS Code, Codex CLI, Roo). Every detected client is checked by default. Click **Install for selected**.
+
+That's it. Every checked client now has a Vaner entry in its MCP config and will see Vaner on next restart.
+
+> **Already past first-run?** Open Preferences → MCP Clients to install for additional clients later, see status, or recover from launcher drift.
+
+## 3. Try it from any agent
+
+In any MCP-connected agent (Cursor, Claude Desktop, Claude Code, etc.) ask:
+
+> "Show me the Vaner dashboard."
+
+The agent calls `vaner.predictions.dashboard`. On Tier-4 hosts (Claude Desktop, Cursor 2.6+, ChatGPT) you'll see an inline iframe with prediction cards + Adopt buttons. On Tier-1/2 hosts you'll see structured text with the same information. Either way, Adopt works.
+
+## How it all fits together
+
+```text
+┌─────────────────────────┐    starts/configures      ┌─────────────────────┐
+│ Vaner Desktop (macOS    │ ────────────────────────► │ vaner daemon        │
+│ or Linux)               │   `vaner clients install` │ + MCP server        │
+│                         │   for every detected host │ (loopback :8473)    │
+└────────────┬────────────┘                           └──────────┬──────────┘
+             │ shows native prediction cards                     │
+             │ (consumes /predictions/active)                    │
+             │                                                   │
+             │ user clicks Adopt                                 │
+             ▼                                                   │
+   ┌─────────────────────┐  drops pending-adopt.json              │
+   │ Resolution stashed  │ ───────────────────────────────────────┤
+   └─────────────────────┘                                        │
+                                                                  │
+   ┌─────────────────────┐                                        │
+   │ Cursor / Claude /   │   MCP tool calls                       │
+   │ any MCP client      │ ◄──────────────────────────────────────┘
+   └─────────────────────┘   vaner.resolve sees fresh handoff,
+                             returns the adopted package verbatim
+```
+
+The desktop app is the **visual cockpit** + **Adopt button** + **install helper**. The agent integration (Cursor / Claude Desktop / etc.) consumes the same daemon over MCP. The MCP Apps UI bundle is for chat hosts that don't have a desktop cockpit running — it's the same dashboard, rendered server-side.
+
+## Headless / CI / SSH workflows
+
+If you don't have a GUI, the desktop app's install logic is also a CLI. See [Clients CLI](/integrations/clients-cli) for the full reference. Quick path:
+
+```bash
+vaner clients detect                  # what's on this machine
+vaner clients install --all           # wire everything detected
+vaner clients install claude-desktop  # one client only
+vaner clients doctor                  # detect launcher drift after upgrades
+```
+
+## Troubleshooting
+
+- **My MCP client isn't detected.** Make sure it's installed (try launching it once) and click **Refresh** in Preferences → MCP Clients. The detection logic is in [`mcp_clients.py`](https://github.com/Borgels/Vaner/blob/main/src/vaner/cli/commands/mcp_clients.py); requesting support for a new client takes a one-entry registry change.
+- **I upgraded Vaner and now my agents say "vaner: command not found".** The `vaner` binary moved (e.g. `uv` → `pipx`). Run `vaner clients doctor` or open Preferences → MCP Clients — the drift banner will offer one-click "Update All". Headless: `vaner clients install --all --force`.
+- **I want Vaner OUT of a specific client.** `vaner clients uninstall <name>` from CLI, or open Preferences → MCP Clients → Remove. Symmetric with install; backups preserved.
+
+## See also
+
+- [Integration Layer](/integrations/integration-layer) — guidance assets, capability tiers, context injection, adopted-package handoff.
+- [MCP Apps UI](/integrations/mcp-apps-ui) — interactive prediction-card dashboard, security model, fallback behavior.
+- [MCP Mode](/integrations/mcp) — full MCP tool + resource surface.
+- [Clients CLI](/integrations/clients-cli) — `vaner clients` command reference.

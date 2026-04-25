@@ -17,12 +17,18 @@ Clients that advertise `io.modelcontextprotocol/ui` in their
 Tier 4 by Vaner. The current set includes:
 
 - Claude Desktop (reference MCP Apps host)
+- **Cursor 2.6+** (added April 2026)
 - ChatGPT
 - Any client that ships the `@modelcontextprotocol/ext-apps` host adapter
 
-Everyone else — Claude Code, Cursor, VS Code Copilot, Cline, Zed,
-Continue, Roo, Codex CLI, plain stdio clients — gets the structured
-text fallback on `vaner.predictions.dashboard`:
+Vaner's tier classification is value-driven — it matches on the
+`io.modelcontextprotocol/ui` capability key, not the client name. New
+hosts that adopt MCP Apps automatically promote to Tier 4 the moment
+they advertise the extension; no Vaner-side change required.
+
+Everyone else — Claude Code, Cursor pre-2.6, VS Code Copilot, Cline,
+Zed, Continue, Roo, Codex CLI, plain stdio clients — gets the
+structured text fallback on `vaner.predictions.dashboard`:
 
 ```text
 Vaner has 3 active prediction(s):

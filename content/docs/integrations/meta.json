@@ -2,9 +2,11 @@
   "title": "Integrations",
   "pages": [
     "index",
+    "quickstart",
     "mcp",
     "integration-layer",
     "mcp-apps-ui",
+    "clients-cli",
     "tools",
     "context-only",
     "python-sdk",

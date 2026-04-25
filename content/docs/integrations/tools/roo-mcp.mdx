@@ -9,7 +9,12 @@ Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
 agent before every prompt.
 
 > [!TIP]
-> Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
+> Or just run `vaner clients install roo` from your project root — it will detect and configure this client for you.
+
+> [!TIP]
+> **Easiest path:** open the Vaner desktop app and click *Install for all clients* in the first-run flow (or in Preferences → MCP Clients). Vaner detects this client and writes the right config automatically.
+>
+> Headless: `vaner clients install roo` — see [Clients CLI](/integrations/clients-cli).
 
 ## Install
 
@@ -26,7 +31,7 @@ vaner init --path .
 
 ## Verify
 
-Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `list_scenarios`.
+Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `vaner.predictions.active`.
 
 If `Roo Code` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a
@@ -34,7 +39,7 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Roo Code’s agent mode can call `list_scenarios`/`get_scenario` before writing diffs.
+- Roo Code’s agent mode can call `vaner.predictions.active`/`vaner.predictions.active` before writing diffs.
 - Project-level `.roo/mcp.json` so repos opt in explicitly.
 - Works with Roo’s orchestration to break large changes into Vaner-informed steps.
 

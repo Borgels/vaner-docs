@@ -9,7 +9,12 @@ Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
 agent before every prompt.
 
 > [!TIP]
-> Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
+> Or just run `vaner clients install continue` from your project root — it will detect and configure this client for you.
+
+> [!TIP]
+> **Easiest path:** open the Vaner desktop app and click *Install for all clients* in the first-run flow (or in Preferences → MCP Clients). Vaner detects this client and writes the right config automatically.
+>
+> Headless: `vaner clients install continue` — see [Clients CLI](/integrations/clients-cli).
 
 ## Install
 
@@ -26,7 +31,7 @@ vaner init --path .
 
 ## Verify
 
-Reload Continue. Ask the agent to list available MCP tools — `vaner.list_scenarios` should be present.
+Reload Continue. Ask the agent to list available MCP tools — `vaner.vaner.predictions.active` should be present.
 
 If `Continue` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a
@@ -34,9 +39,9 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Continue’s agent mode calls `vaner.list_scenarios` between steps for grounded plans.
+- Continue’s agent mode calls `vaner.vaner.predictions.active` between steps for grounded plans.
 - Ship the YAML in `.continue/` so teammates inherit the integration.
-- Combine with Continue’s code lenses to open `vaner.get_scenario` payloads inline.
+- Combine with Continue’s code lenses to open `vaner.vaner.predictions.active` payloads inline.
 
 ## See also
 
