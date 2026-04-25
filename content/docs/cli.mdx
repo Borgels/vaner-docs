@@ -13,6 +13,25 @@ vaner doctor --path .
 vaner down --path .
 ```
 
+`vaner init` chains into the [Simple-Mode](/simple-mode) wizard
+interactively on first run. Skip the wizard with `--non-interactive`
+and pick a bundle later via `vaner setup apply`.
+
+## Setup wizard (Simple Mode)
+
+```bash
+vaner setup wizard            # Interactive five-question Simple-Mode flow
+vaner setup show              # Current bundle + reasons + hardware
+vaner setup recommend         # JSON-out (programmatic)
+vaner setup apply             # Persist + hot-reload running daemon
+vaner setup advanced          # Open config in $EDITOR
+vaner setup hardware          # Print HardwareProfile.detect()
+```
+
+See [Simple Mode](/simple-mode) for the question surface and
+[Policy bundles](/policy-bundles) for the bundle catalog. For full
+control over the engine, see [Advanced Mode](/advanced-mode).
+
 ## Advanced daemon controls
 
 ```bash
