@@ -1,0 +1,82 @@
+---
+title: Hardware Tiers
+description: How Vaner classifies your machine into light / capable / high_performance / unknown, and what changes per tier.
+---
+
+Vaner runs a read-only, fail-safe hardware probe on first launch and
+on every `vaner setup` invocation. The probe collects RAM, CPU class,
+GPU type / VRAM, battery presence, and detected local runtimes, then
+maps the result into one of four tiers. The tier feeds the
+[policy-bundle selector](/policy-bundles) so a *Capable* MacBook gets
+different defaults from a *High-Performance* workstation.
+
+The probe is best-effort and never raises: a missing dependency, a
+non-zero subprocess exit, a timeout, or unrecognised output yields a
+sensible fallback rather than failing the wizard.
+
+Source:
+[`vaner.setup.hardware`](https://github.com/Borgels/vaner/blob/main/src/vaner/setup/hardware.py).
+
+## The four tiers
+
+| Tier | Mapping rules | Engine implications |
+|---|---|---|
+| **light** | `ram_gb < 16`, OR (no GPU and `cpu_class == "low"`), OR (battery present and `ram_gb < 24`) | Smaller local model (`runtime_profile = small`), lower background budget, conservative Deep-Run preset, snappier latency floor. |
+| **capable** | Anything that isn't light, high-performance, or unknown — typical 32 GB laptop or desktop with integrated or modest GPU | Medium local model, balanced cycle budget, moderate drafting aggressiveness, balanced Deep-Run preset. |
+| **high_performance** | NVIDIA or Apple Silicon GPU with `gpu_vram_gb >= 16` (or unknown for unified-memory Apple Silicon), `ram_gb >= 32`, AND not on battery | Larger local model, deeper background budget, aggressive Deep-Run preset, higher concurrency. |
+| **unknown** | OS probe failed entirely, OR `ram_gb == 0` (RAM probe returned nothing) | Treat snapshot as untrusted. Recommend the *Hybrid Balanced* bundle (cloud-recommended), keep local work conservative. |
+
+The `tier_for(profile)` rules are evaluated in the order shown above:
+`unknown` → `light` → `high_performance` → otherwise `capable`.
+
+## What the engine actually does per tier
+
+### light
+
+- Runtime profile: `small` (e.g. a 3–7B local model).
+- `compute.max_cycle_seconds` shortened; `max_concurrent_jobs` capped low.
+- Background pondering biased toward `likely_next` and `finish_partials`.
+- Deep-Run preset defaults to `conservative`; long-horizon work falls back to cloud if the bundle allows it.
+
+### capable
+
+- Runtime profile: `medium` (e.g. 7–13B Q4+).
+- Cycle and concurrency at the shipped defaults.
+- Bundle defaults apply unmodified — this is the "intended" tier for the shipped knobs.
+- Deep-Run preset `balanced`; daytime cycles are short, overnight cycles broader.
+
+### high_performance
+
+- Runtime profile: `large` (e.g. 30–70B Q4+).
+- Cycle budget extended; concurrent jobs scaled up to take advantage of the hardware.
+- Background pondering biased toward `long_horizon` and `balanced`.
+- Deep-Run preset `aggressive`; the box can handle heavy overnight runs.
+
+### unknown
+
+- Treated as untrusted. The selector recommends *Hybrid Balanced* by default and keeps local work small.
+- Cockpit shows the tier as *Unknown* with a "Re-detect hardware" affordance and a link to [Troubleshooting](/troubleshooting) for probe failures.
+
+## Inspecting the probe
+
+```bash
+vaner setup hardware       # raw HardwareProfile.detect() output
+vaner setup show           # tier + bundle + reasons
+```
+
+The desktop apps surface the tier as a one-liner — *"This MacBook
+Pro looks Capable."* — on the Simple-Mode pane. On every wizard run
+the probe re-fires; nothing is cached at module level.
+
+## Caveats
+
+- **Apple Silicon** uses unified memory — `gpu_vram_gb` is `None`
+  rather than a number. The selector treats that as "VRAM constraint
+  not applicable" and only checks RAM.
+- **Windows without `psutil`** gets a degraded probe; install
+  `pynvml` (for NVIDIA GPUs) and `psutil` for accurate readings.
+- **Thermal pressure** (Linux only) is best-effort. If any
+  `/sys/class/thermal/thermal_zone*/temp` zone reports above 85 °C,
+  the snapshot's `thermal_constrained` field flips to `True`. The
+  selector currently only logs this; future bundles may use it to
+  suppress aggressive Deep-Run.

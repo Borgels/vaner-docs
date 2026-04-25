@@ -1,0 +1,205 @@
+---
+title: Policy Bundles
+description: The seven shipped bundles — who each is for, and what it implies for compute, cloud, spend, and Deep-Run.
+---
+
+A *policy bundle* is the intermediate layer between [Simple-Mode](/simple-mode)
+answers and the engine's actual knobs. Each bundle names an
+outcome-level archetype (e.g. *"Local Balanced"*, *"Hybrid Quality"*)
+that a non-technical user can recognise, and carries the dimensions
+the engine consults — cloud posture, runtime profile, spend profile,
+latency profile, privacy profile, prediction-horizon bias, drafting
+aggressiveness, exploration ratio, persistence strength, goal
+weighting, context-injection default, and Deep-Run profile.
+
+Bundles compose multiplicatively with Deep-Run preset overrides at
+session start. Bundles set the *baseline*; Deep-Run sessions layer
+additive overrides on top.
+
+The single source of truth is
+[`vaner.setup.catalog.PROFILE_CATALOG`](https://github.com/Borgels/vaner/blob/main/src/vaner/setup/catalog.py).
+The seven shipped bundles are listed below in catalog order.
+
+## Local Lightweight
+
+`id: local_lightweight`
+
+> Run entirely on this device with a small local model. Best for
+> older laptops, battery, and privacy-first users.
+
+**Who it's for.** Laptop on battery, integrated GPU, no cloud
+budget. You want Vaner not to heat the room.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `local_only` |
+| Runtime profile | `small` |
+| Spend profile | `zero` |
+| Latency profile | `snappy` |
+| Privacy profile | `strict` |
+| Drafting aggressiveness | `0.8` (cautious) |
+| Exploration ratio | `-0.05` |
+| Persistence strength | `0.7` (decay fast) |
+| Context injection default | `digest_only` |
+| Deep-Run profile | `conservative` |
+
+## Local Balanced
+
+`id: local_balanced`
+
+> Local-first with a mid-sized model. Solid default for a capable
+> laptop or desktop with no cloud reliance.
+
+**Who it's for.** Capable laptop or desktop, willing to ponder more
+in the background. The default for the *Capable* hardware tier.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `local_preferred` |
+| Runtime profile | `medium` |
+| Spend profile | `zero` |
+| Latency profile | `balanced` |
+| Privacy profile | `strict` |
+| Drafting aggressiveness | `1.0` |
+| Exploration ratio | `0.0` |
+| Persistence strength | `1.0` |
+| Context injection default | `policy_hybrid` |
+| Deep-Run profile | `balanced` |
+
+## Local Heavy
+
+`id: local_heavy`
+
+> All-local with a large model and aggressive background pondering.
+> Built for workstations and homelab GPUs.
+
+**Who it's for.** Workstation or homelab with a large local model
+(e.g. 30–70B at Q4+). Local-only by policy, aggressive by capacity.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `local_only` |
+| Runtime profile | `large` |
+| Spend profile | `zero` |
+| Latency profile | `quality` |
+| Privacy profile | `strict` |
+| Drafting aggressiveness | `1.1` |
+| Exploration ratio | `+0.10` |
+| Persistence strength | `1.3` |
+| Context injection default | `policy_hybrid` |
+| Deep-Run profile | `aggressive` |
+
+## Hybrid Balanced
+
+`id: hybrid_balanced`
+
+> Local for everyday work, cloud only when it's clearly worth it.
+> Recommended default for most users.
+
+**Who it's for.** Anyone fine with the engine reaching for a cloud
+model when local is genuinely insufficient. The canonical default
+when the hardware tier is *unknown* — safe middle path.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `hybrid` |
+| Runtime profile | `medium` |
+| Spend profile | `low` |
+| Latency profile | `balanced` |
+| Privacy profile | `standard` |
+| Drafting aggressiveness | `1.0` |
+| Exploration ratio | `+0.05` |
+| Persistence strength | `1.0` |
+| Context injection default | `policy_hybrid` |
+| Deep-Run profile | `balanced` |
+
+## Hybrid Quality
+
+`id: hybrid_quality`
+
+> Reach for the best available model — local or cloud — and trade
+> some snappiness and budget for higher answer quality.
+
+**Who it's for.** Serious work where you'd rather pay than wait.
+Cloud bias is set higher; latency optimises for quality over snap.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `cloud_preferred` |
+| Runtime profile | `large` |
+| Spend profile | `medium` |
+| Latency profile | `quality` |
+| Privacy profile | `standard` |
+| Drafting aggressiveness | `1.2` |
+| Exploration ratio | `+0.10` |
+| Persistence strength | `1.2` |
+| Context injection default | `top_match_auto_include` |
+| Deep-Run profile | `balanced` |
+
+## Cost Saver
+
+`id: cost_saver`
+
+> Hybrid setup with tight cloud spend caps. Prefers the cheapest
+> endpoint that still meets the bar.
+
+**Who it's for.** Cost-conscious user who still wants some hybrid
+capacity. Tight spend cap; cheapest endpoint that meets the latency
+and context floor.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `local_preferred` |
+| Runtime profile | `small` |
+| Spend profile | `low` |
+| Latency profile | `balanced` |
+| Privacy profile | `standard` |
+| Drafting aggressiveness | `0.9` |
+| Exploration ratio | `-0.05` |
+| Persistence strength | `0.9` |
+| Context injection default | `adopted_package_only` |
+| Deep-Run profile | `conservative` |
+
+## Deep Research
+
+`id: deep_research`
+
+> Long-horizon, broad exploration for research and writing. Persists
+> predictions longer and prefers depth over speed.
+
+**Who it's for.** Research / writing work where Vaner should ponder
+broadly and persistently. Overnight Deep-Run is the natural mode;
+daytime use composes the bundle's bias with the active session's
+preset.
+
+| Dimension | Value |
+|---|---|
+| Local / cloud posture | `hybrid` |
+| Runtime profile | `large` |
+| Spend profile | `medium` |
+| Latency profile | `quality` |
+| Privacy profile | `standard` |
+| Drafting aggressiveness | `1.1` |
+| Exploration ratio | `+0.15` (most explore-leaning) |
+| Persistence strength | `1.5` (slowest decay) |
+| Goal weighting | `1.4` (highest) |
+| Context injection default | `policy_hybrid` |
+| Deep-Run profile | `aggressive` |
+
+## How a bundle is selected
+
+`vaner setup recommend` (and the wizard behind it) scores all seven
+bundles against your [Simple-Mode answers](/simple-mode) and the
+detected [hardware tier](/hardware-tiers), and returns the best
+match. The reasoning trail — *"hybrid because cloud_posture =
+hybrid; medium runtime because tier = capable; balanced Deep-Run
+because preparation = standard"* — is surfaced verbatim in the
+cockpit.
+
+To inspect or change the active bundle:
+
+```bash
+vaner setup show       # current bundle + reasons + hardware
+vaner setup recommend  # JSON: candidate bundles with scores
+vaner setup apply      # persist + hot-reload
+```

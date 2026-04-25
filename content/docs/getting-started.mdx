@@ -1,7 +1,31 @@
 ---
 title: Getting Started
-description: Install Vaner, pick a backend, and connect your AI client over MCP.
+description: Install Vaner and choose between Simple Mode (recommended) or Advanced Mode setup.
 ---
+
+Choose how you want to set up Vaner.
+
+## Simple Mode (recommended)
+
+Five questions, no model / runtime / quantization terminology required.
+Start here if you're new to Vaner.
+
+→ [Simple Mode quickstart](/simple-mode)
+
+## Advanced Mode
+
+Full control over the engine, providers, budgets, prediction policy,
+and Deep-Run knobs. Start here if you've used Vaner before, or if you
+want to wire Vaner into a custom backend.
+
+→ [Advanced Mode reference](/advanced-mode)
+
+## Both paths share
+
+- `vaner up` to start the daemon
+- `vaner status` and `vaner doctor` to verify health
+- `vaner clients install <client>` to wire Vaner into your IDE
+- The MCP integration is the same regardless of mode
 
 ## 1. Install
 
@@ -51,8 +75,15 @@ pip install '.[mcp]'
 vaner init --path .
 ```
 
-`vaner init` opens a guided wizard that:
+`vaner init` opens a guided wizard. By default it now chains into the
+five-question Simple-Mode flow (`vaner setup wizard`) so newcomers can
+land on a working policy bundle without learning the engine's full
+knob surface. Skip the wizard with `--non-interactive` and pick a
+bundle later via `vaner setup apply`.
 
+The wizard:
+
+- runs the Simple-Mode five questions and selects a policy bundle
 - configures backend + compute defaults
 - auto-detects supported MCP clients on your machine
 - lets you select/deselect clients before writing anything
@@ -84,7 +115,7 @@ vaner init --clients other --path .
 
 That prints a generic MCP snippet and links to [Connect your client](/mcp) for manual setup.
 
-## 4. Start Vaner
+## 3. Start Vaner
 
 ```bash
 vaner up --path .
@@ -114,6 +145,16 @@ vaner doctor --path .
 ```
 
 Then follow fixes in [Troubleshooting](/troubleshooting).
+
+## Core lifecycle commands
+
+```bash
+vaner init     # initialize the repo (chains into Simple-Mode wizard)
+vaner up       # start daemon + cockpit
+vaner status   # quick health summary
+vaner doctor   # detailed diagnostic
+vaner down     # stop daemon + cockpit
+```
 
 ### Manual connection (advanced)
 

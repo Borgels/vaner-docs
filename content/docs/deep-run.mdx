@@ -1,0 +1,114 @@
+---
+title: Deep-Run
+description: The overnight / long-horizon mode. Bundle-derived defaults, anti-autonomy callout, and how to start a session.
+---
+
+> **Deep-Run prepares; it does not act.** Vaner will draft, deepen
+> evidence, and queue artefacts — but never auto-execute, auto-send,
+> auto-commit, or auto-adopt without your explicit confirmation. Every
+> Deep-Run output lands in your queue for review.
+
+Deep-Run is Vaner's long-horizon working mode. Where the daytime
+ponder loop biases toward *"what's likely next?"*, Deep-Run biases
+toward *"what will matter tomorrow?"* — broader exploration, longer
+persistence, more thorough drafting. It pairs naturally with the
+[*Deep Research*](/policy-bundles#deep-research) bundle and overnight
+sessions, but every bundle ships a Deep-Run profile and any user can
+start a session.
+
+## Bundle-derived defaults
+
+When you open *"Start Deep-Run"* (cockpit, desktop app, or `vaner
+deep-run start`), the dialog pre-fills the session knobs from the
+active [policy bundle](/policy-bundles)'s `deep_run_profile`. The
+bundle decides:
+
+- **preset** — `conservative`, `balanced`, or `aggressive`. Sets the
+  baseline ponder budget, exploration ratio, and persistence.
+- **horizon_bias** — the four-bucket weight distribution
+  (`likely_next`, `long_horizon`, `finish_partials`, `balanced`). Each
+  bundle ships a calibrated mix; Deep-Run renormalises before
+  applying.
+- **locality** — `local_only`, `hybrid`, `cloud_preferred`. Inherits
+  the bundle's `local_cloud_posture` unless you override.
+- **cost_cap_usd** — per-session cloud spend cap derived from the
+  bundle's `spend_profile` (zero / low / medium).
+- **focus** — free-text focus hint. Empty by default; the desktop
+  app surfaces a "Focus tonight on…" field.
+- **prefer** — optional list of skills, scenarios, or work-styles to
+  bias toward. Empty by default.
+
+For programmatic consumers, `GET /deep-run/defaults` returns the
+fully-resolved defaults for the active bundle as JSON. The desktop
+apps and cockpit consume the same endpoint to populate the dialog —
+the only thing the UI does is show the bundle name next to each
+field so you can see *why* the default is what it is.
+
+```bash
+curl -s http://127.0.0.1:8473/deep-run/defaults | jq
+```
+
+```json
+{
+  "bundle_id": "deep_research",
+  "preset": "aggressive",
+  "horizon_bias": {
+    "likely_next": 0.7,
+    "long_horizon": 1.6,
+    "finish_partials": 1.1,
+    "balanced": 1.2
+  },
+  "locality": "hybrid",
+  "cost_cap_usd": 5.00,
+  "focus": "",
+  "prefer": []
+}
+```
+
+Override any of these per session — the override applies only to that
+run; the bundle defaults stay intact.
+
+## Starting a session
+
+```bash
+vaner deep-run start                    # interactive — uses bundle defaults
+vaner deep-run start --preset aggressive --duration 480 --cost-cap 5
+vaner deep-run start --focus "land WS9 contract roundtrip"
+vaner deep-run status
+vaner deep-run stop
+```
+
+In the cockpit, *Start Deep-Run* opens the same dialog with the
+bundle defaults pre-filled. You confirm; Vaner schedules the run.
+
+## What Deep-Run actually does
+
+A Deep-Run session:
+
+1. Fans the frontier out further than a normal cycle. Long-horizon
+   bucket weights apply.
+2. Pulls in deeper evidence, including artefacts the daytime ponder
+   loop deferred for cost reasons.
+3. Drafts candidate answers / artefacts and queues them.
+4. **Stops at the queue.** Nothing is shipped, sent, committed, or
+   adopted without an explicit human action. This is non-negotiable
+   and lives in the engine's policy layer, not in the UI.
+
+When the session finishes, the cockpit shows a digest of what was
+drafted, with adopt / discard / refine actions per artefact.
+
+## Composition with bundles
+
+Bundles set the *baseline*; Deep-Run sessions layer additive overrides
+on top. A *Cost Saver* bundle running an `aggressive` Deep-Run
+session does not silently lift the daily cost cap — the bundle's
+`spend_profile` still applies. If a session would breach the cap,
+Vaner trims work to fit and notes it in the digest.
+
+## See also
+
+- [Policy bundles](/policy-bundles) — every bundle's `deep_run_profile`.
+- [Advanced Mode → Deep-Run](/advanced-mode#5-deep-run) — the raw
+  config knobs.
+- [Hardware tiers](/hardware-tiers) — what each tier implies for
+  sustained Deep-Run cycles.

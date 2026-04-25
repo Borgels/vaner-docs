@@ -1,0 +1,132 @@
+---
+title: Simple Mode
+description: The five-question setup flow. Choose what you want, not how Vaner does it.
+---
+
+Simple Mode is the recommended on-ramp for Vaner. You answer five
+outcome-level questions about *what you want Vaner to help with* and
+*what trade-offs you accept*, and Vaner picks the policy bundle, model
+size, runtime, and Deep-Run defaults for you.
+
+You never have to pick a quantization, a context window, a token
+budget, or a runtime by hand. If you later want raw control, switch
+to [Advanced Mode](/advanced-mode) at any time — your Simple-Mode
+choices are kept as the baseline and your tweaks layer on top as
+overrides.
+
+## How to run it
+
+From the CLI:
+
+```bash
+vaner setup wizard
+```
+
+`vaner init` also chains into the wizard interactively on first run,
+so most users never need to invoke `setup wizard` directly.
+
+From the desktop app:
+
+- **macOS** — Vaner Companion → "Open setup wizard" in Onboarding,
+  or Preferences → Engine → "Switch to Simple".
+- **Linux** — Vaner Desktop → first-run `/setup` route, or
+  Preferences → Engine → Simple tab.
+
+## The five questions
+
+### 1. What kinds of work do you want Vaner to help with? *(multi-select)*
+
+{/* TODO(0.8.6): screenshot at /images/simple-mode-step1.png — Work styles multi-select */}
+
+Pick any combination — *coding*, *writing*, *research*, *learning*,
+*ops / sysadmin*, *data analysis*, *general assistant*. Vaner uses
+this to seed work-style priors that shape what it predicts and
+prepares in the background.
+
+### 2. What matters most to you right now? *(single-select)*
+
+{/* TODO(0.8.6): screenshot at /images/simple-mode-step2.png — Priority single-select */}
+
+- *Quality* — best answer Vaner can produce, even if it costs more
+  cycles or cloud spend.
+- *Snappiness* — fast turnaround; smaller models, fewer cycles.
+- *Privacy* — never leave the machine; cloud is disabled.
+- *Cost* — minimum spend; hybrid only when local genuinely cannot.
+
+### 3. How hard is Vaner allowed to push your machine? *(single-select)*
+
+{/* TODO(0.8.6): screenshot at /images/simple-mode-step3.png — Compute posture */}
+
+- *Light* — stay out of the way; small local model, conservative
+  background work.
+- *Balanced* — sensible defaults for a typical laptop or desktop.
+- *Heavy* — workstation-class; let Vaner ponder broadly.
+
+Vaner cross-checks this against the detected
+[hardware tier](/hardware-tiers) and surfaces a hint if your answer
+implies more than the box can comfortably handle.
+
+### 4. Is Vaner allowed to use cloud models? *(single-select)*
+
+{/* TODO(0.8.6): screenshot at /images/simple-mode-step4.png — Cloud posture */}
+
+- *Local only* — never call out.
+- *Local preferred* — only call out when local is clearly insufficient.
+- *Hybrid* — Vaner picks per task, within your spend cap.
+- *Cloud preferred* — reach for the best model when the task warrants it.
+
+### 5. How much background preparation do you want? *(single-select)*
+
+{/* TODO(0.8.6): screenshot at /images/simple-mode-step5.png — Background preparation */}
+
+- *Off* — Vaner only works when you ask.
+- *Light* — short cycles, minimal idle work.
+- *Standard* — the default — balanced background preparation.
+- *Aggressive* — long-horizon pondering; pairs with the *Deep Research*
+  bundle and overnight Deep-Run sessions.
+
+## What happens next
+
+After you answer the questions, Vaner runs a hardware probe
+(`HardwareProfile.detect()`), scores the seven shipped
+[policy bundles](/policy-bundles) against your answers + hardware,
+and recommends the best match. The wizard shows:
+
+- the selected bundle and its label (e.g. *"Hybrid Balanced"*)
+- a *"why this bundle"* reasoning line — which answers, which hardware
+  facts, and which trade-offs led the selector here
+- the detected hardware tier as a one-liner: *"This MacBook Pro looks
+  Capable."*
+- an *Apply* button that persists the bundle to `.vaner/config.toml`
+  and hot-reloads the running daemon if one is up
+
+In the cockpit, an "Open setup wizard" affordance appears on every
+Simple-Mode preferences pane so you can re-answer the questions any
+time without opening Advanced Mode.
+
+## Programmatic equivalents
+
+For scripts, CI, or custom UIs, the wizard is just a thin wrapper
+around the CLI sub-commands:
+
+```bash
+vaner setup show         # current bundle + reasons + hardware
+vaner setup recommend    # JSON: bundle id, score, reasons
+vaner setup apply        # persist + hot-reload
+vaner setup hardware     # raw HardwareProfile.detect() output
+```
+
+The same surface is available over MCP and HTTP — see
+[CLI reference](/cli) for the full command list.
+
+## Switching to Advanced Mode
+
+Simple Mode never locks you in. If you outgrow it:
+
+1. Open the cockpit Preferences → Engine pane.
+2. Click *"Switch to Advanced"*.
+3. Your selected bundle stays as the baseline; your overrides land in
+   `PolicyConfig.bundle_overrides` and apply on top.
+
+See [Advanced Mode reference](/advanced-mode) for the full knob
+surface.
