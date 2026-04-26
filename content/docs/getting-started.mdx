@@ -38,6 +38,14 @@ before installing missing prerequisites (Python 3.11+, `uv`/`pipx`), and
 installs `vaner[mcp]` so the MCP server is ready out of the box. Pass
 `--no-mcp` to skip the MCP extra.
 
+On **Windows**, install via `pip` or `pipx` directly (the bash installer
+above is POSIX-only):
+
+```powershell
+pip install "vaner[mcp]"   # or: pipx install "vaner[mcp]"
+vaner init
+```
+
 ### Non-interactive install (CI, Dockerfiles)
 
 ```bash
