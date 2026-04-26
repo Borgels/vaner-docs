@@ -1,0 +1,175 @@
+---
+title: ComposerAdapter
+description: Wire client composer/prompt lifecycle events into Vaner so it can prepare earlier — Live Intent Capture (Phase 1, v0.8.7).
+---
+
+Vaner consumes explicit composer/prompt lifecycle events from supported
+clients via a **ComposerAdapter**. Each event carries a
+`DraftIntentSnapshot` plus a capability declaration, and lands on the
+local Vaner daemon's `POST /signals/composer` endpoint as a
+`SignalEvent` of kind `composer_lifecycle`.
+
+The first official adapter ships in the [Claude Code plugin](/integrations/tools/claude-code-mcp)
+and fires on every prompt submit (Level 0). This page is the
+cross-language contract for adapter authors who want to wire
+additional clients.
+
+## Privacy contract
+
+- The draft text itself **never** crosses this boundary. Adapters send a
+  `text_hash` (sha256 of the draft text) and a length, never the raw
+  text or a preview.
+- Local-only by default. Cloud processing of unsent draft text is **not**
+  enabled in v0.8.7.
+- No raw-draft persistence. The engine stores the snapshot, hash,
+  lifecycle state, and counters; raw text never reaches storage.
+- Per-client opt-in inherits the host's plugin/extension enable/disable
+  surface in v0.8.7. First-class per-client opt-in scaffolding lands in
+  v0.8.8.
+
+Vaner is **not** a client. Live Intent Capture only honors explicit
+client-level mechanisms (hooks, plugin APIs, extension APIs,
+documented local-config hooks). Generic input capture, accessibility
+APIs, terminal scraping, and unsupported DOM injection are not
+acceptable adapter mechanisms.
+
+## Capability levels
+
+Adapters MUST declare the highest lifecycle they can truthfully observe.
+Fabricating higher states corrupts the engine's downstream scoring; the
+daemon validates each event against the adapter's declared
+`capabilities.emits` on ingest.
+
+| Level | What the adapter can observe                                      | Honest `emits` |
+|-------|-------------------------------------------------------------------|----------------|
+| L0    | Submit-time only (the prompt as it leaves the composer)           | `["submitted"]` |
+| L1    | Pre-submit draft lifecycle (debounced snapshots while user types) | `["observing", "tentative", "stabilizing", "actionable", "submitted", "cleared", "abandoned"]` |
+| L2    | L1 + host-rendered affordance hook near the composer              | same as L1 |
+| L3    | L2 + host-native adopt flow for prepared packages                 | same as L1 |
+
+## Capability matrix (existing surfaces)
+
+| Surface                     | Hook mechanism                                  | Level |
+|-----------------------------|-------------------------------------------------|-------|
+| Claude Code (plugin)        | `UserPromptSubmit` hook (v0.8.7 MVP)            | L0    |
+| Cursor                      | MCP tools only — no composer hook              | —     |
+| Claude Desktop              | MCP tools only                                  | —     |
+| VS Code (Copilot Chat MCP)  | MCP tools only                                  | —     |
+| Codex CLI                   | MCP tools only                                  | —     |
+| Windsurf                    | MCP tools only                                  | —     |
+| Zed                         | MCP `context_servers` only                      | —     |
+| Continue                    | MCP tools only                                  | —     |
+| Cline                       | MCP tools only                                  | —     |
+| Roo Code                    | MCP tools only                                  | —     |
+| Vaner VS Code extension     | Cockpit/webview consuming daemon SSE            | excluded |
+
+The Vaner VS Code extension is **explicitly not** an adapter source.
+Vaner does not own a composer; doing so would violate the
+"Vaner is not a client" thesis. The extension surfaces prepared-package
+state from the daemon — it does not observe a user composer.
+
+Other clients enter the matrix only when an explicit, documented
+hook/plugin/extension mechanism exists in the host.
+
+## Wire format
+
+Adapters POST to the loopback daemon endpoint:
+
+```http
+POST http://127.0.0.1:8473/signals/composer
+Content-Type: application/json
+
+<DraftIntentSnapshot>
+```
+
+The endpoint envelopes the snapshot into a
+`SignalEvent(kind="composer_lifecycle", payload=<snapshot>)` and calls
+`engine.observe()`. The response carries a `composer_event_id` (UUID)
+that the adapter MAY surface to the host so subsequent adoptions can
+attribute back to the originating event.
+
+A snapshot looks like (L0 example):
+
+```json
+{
+  "session_id": "claude-code-session-abc123",
+  "snapshot_id": "01HX...",
+  "timestamp": "2026-04-25T20:14:45Z",
+  "lifecycle_state": "submitted",
+  "text_hash": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+  "length_chars": 142,
+  "capabilities": {
+    "level": "L0",
+    "emits": ["submitted"],
+    "host_app": "claude-code",
+    "host_kind": "ai_chat_client"
+  },
+  "workspace_id": "/home/me/repos/example",
+  "field_role": "agent_prompt"
+}
+```
+
+## Authoring an adapter
+
+1. **Pick a host that exposes an explicit composer/prompt lifecycle hook.**
+   If the host has no such mechanism, do not invent one — wait for the
+   host to ship one.
+
+2. **Decide the honest capability level.** If the hook only fires at submit
+   time, declare `level: "L0"` and `emits: ["submitted"]`. If the hook
+   fires on every keystroke or on debounced draft updates, you can
+   honestly declare a higher level.
+
+3. **Compute the text hash.** `text_hash = sha256(draft_text)`. Never
+   log, store, or transmit the raw draft text.
+
+4. **POST the snapshot.** Send to
+   `http://127.0.0.1:<daemon_port>/signals/composer` (default port
+   `8473`) with a short timeout (≤ 1 s recommended). On failure, fail
+   silent — never block the user's prompt.
+
+5. **Cadence.** L0 adapters emit one POST per submit. L1 adapters
+   debounce snapshot emission (≥ 250 ms between meaningful changes)
+   and only emit when the lifecycle state would actually change.
+
+## Reference implementation
+
+The [Claude Code plugin](https://github.com/Borgels/Vaner/tree/main/plugins/vaner)
+ships the L0 reference adapter:
+
+- `plugins/vaner/hooks/hooks.json` — `UserPromptSubmit` hook
+  registration
+- `plugins/vaner/scripts/composer-submit.sh` — shell shim
+- `plugins/vaner/scripts/composer_submit.py` — Python translator that
+  reads stdin JSON, computes the hash, POSTs to the daemon
+
+## JSON Schema
+
+The wire-contract JSON Schema is generated from the pydantic models in
+[`src/vaner/signals/composer/contract.py`](https://github.com/Borgels/Vaner/blob/main/src/vaner/signals/composer/contract.py)
+and committed at
+[`docs/specs/composer-adapter.schema.json`](https://github.com/Borgels/Vaner/blob/main/docs/specs/composer-adapter.schema.json).
+
+Adapters in non-Python languages can validate their payloads against
+this schema. CI guards drift via `git diff --exit-code` after running
+`vaner-composer-schema`.
+
+## What this enables in v0.8.7
+
+A composer-lifecycle event flows through Vaner's signal pipeline and:
+
+- Becomes a new prediction source `composer_intent`, anchored to the
+  composer `session_id`.
+- Receives a per-WorkStyle multiplier so writers/researchers (whose
+  drafts are the most intent-revealing) get a stronger boost than
+  coding/general/support.
+- Stales automatically when the user clears or abandons the draft —
+  no wasted preparation on dead branches.
+- Threads a `composer_event_id` through to `Resolution.composer_event_id`
+  on adoption, so hit/miss telemetry attributes back to the originating
+  composer event.
+
+The full Phase 2 (true Level-1 adapters with debounced pre-submit
+snapshots) and Phase 3 (inline "Prepared" affordances near the
+composer) work lands in subsequent releases as ecosystem hook support
+emerges.
