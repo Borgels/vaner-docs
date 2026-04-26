@@ -4,6 +4,7 @@
     "index",
     "mcp",
     "tools",
+    "composer-adapter",
     "context-only",
     "python-sdk",
     "proxy",
