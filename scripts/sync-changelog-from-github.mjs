@@ -135,6 +135,7 @@ function formatReleasesMdx(releases, repo) {
     const title = String(rawTitle).replace(/\s+/g, ' ').trim();
     const date = r.published_at
       ? new Date(r.published_at).toLocaleDateString('en-US', {
+          timeZone: 'UTC',
           year: 'numeric',
           month: 'long',
           day: 'numeric',
