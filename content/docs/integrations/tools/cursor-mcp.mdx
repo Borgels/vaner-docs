@@ -5,8 +5,8 @@ description: Connect Cursor to Vaner over MCP for predictive, repo-grounded cont
 
 [Cursor](https://docs.cursor.com/en/context/mcp) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -26,7 +26,9 @@ vaner init --path .
 
 ## Verify
 
-Restart Cursor, open Settings → MCP, confirm `vaner` is listed. Run the `list_scenarios` tool from the composer to smoke-test.
+Restart Cursor, open Settings -> MCP, confirm `vaner` is listed. Run
+`vaner.status` or `vaner.prepared_work.dashboard` from the composer to
+smoke-test.
 
 If `Cursor` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a
@@ -34,9 +36,11 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Composer can call `list_scenarios`/`get_scenario` for "where is X?" prompts instead of grepping from scratch.
+- Composer can call `vaner.prepared_work.dashboard` or `vaner.resolve` for
+  "where is X?" prompts instead of grepping from scratch.
 - Project-scoped config keeps Vaner active only in the repos you want.
-- Agent mode can compare alternatives with `compare_scenarios` and close the loop with `report_outcome`.
+- Agent mode can inspect evidence and close the loop with `vaner.feedback` or
+  `vaner.work_products.feedback`.
 
 ## See also
 

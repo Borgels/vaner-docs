@@ -17,7 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         },
         {
           text: 'GitHub',
-          url: 'https://github.com/Borgels/Vaner',
+          url: 'https://github.com/Borgels/vaner',
         },
       ]}
     >

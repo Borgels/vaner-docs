@@ -4,15 +4,31 @@ description: Operate and inspect Vaner with live stream, status, and local UI co
 ---
 
 The cockpit is Vaner's human-control surface. Use it to monitor readiness,
-inspect scenarios, and debug local setup while your MCP clients call tools.
+inspect Prepared Work and scenarios, and debug local setup while your MCP
+clients call tools.
 
 ## Start cockpit HTTP
 
 ```bash
-vaner daemon serve-http --path .
+vaner up --path .
 ```
 
 Default URL: `http://127.0.0.1:8473`.
+
+If you need separate process control, run `vaner daemon serve-http --path .`.
+
+## Prepared Work
+
+The cockpit exposes the same Prepared Work feed as desktop and MCP clients. It
+shows UI-safe cards by default and hides internal lifecycle, self-evaluation,
+and raw ranking fields unless a diagnostic view asks for them.
+
+Useful endpoints for scripted checks:
+
+- `/prepared-work`
+- `/work-products`
+- `/work-products/{id}/inspect`
+- `/work-products/{id}/export`
 
 ## Stream live scenarios
 
@@ -21,7 +37,8 @@ vaner watch --cockpit-url http://127.0.0.1:8473
 ```
 
 This tails the cockpit SSE stream (`/scenarios/stream`) so you can watch
-precompute output in real time.
+precompute output in real time. `/events/stream` exposes the broader daemon
+event stream for model, artifact, scenario, and prediction stages.
 
 ## Open the web UI
 

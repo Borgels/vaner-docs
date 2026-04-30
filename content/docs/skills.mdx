@@ -20,7 +20,7 @@ graph LR
     Features[extract_hybrid_features]
     Frontier[ExplorationFrontier]
     Scen[ScenarioStore]
-    MCP["report_outcome (skill)"]
+    MCP["vaner.feedback / work_products.feedback"]
     Dist[distill_skill_CLI]
     Dec[DecisionRecord]
   end
@@ -76,7 +76,8 @@ vaner:
 - `.cursor/skills/vaner/vaner-feedback/SKILL.md`
 - `.claude/skills/vaner/vaner-feedback/SKILL.md`
 
-It teaches agents to close the loop with `report_outcome`.
+It teaches agents to close the loop with `vaner.feedback` and
+`vaner.work_products.feedback`.
 
 ## Distill a skill from a decision
 

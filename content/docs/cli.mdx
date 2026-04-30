@@ -1,6 +1,6 @@
 ---
 title: CLI Reference
-description: Core Vaner CLI commands for MCP-first setup, cockpit, and scenarios.
+description: Core Vaner CLI commands for setup, Prepared Work, MCP, cockpit, and diagnostics.
 ---
 
 ## Recommended first-run flow
@@ -34,12 +34,29 @@ control over the engine, see [Advanced Mode](/advanced-mode).
 
 ## Advanced daemon controls
 
+Most users should use `vaner up` and `vaner down`. Use these only when you need
+separate process control:
+
 ```bash
 vaner daemon start --once false --path .
 vaner daemon serve-http --path .
 vaner daemon status --path .
 vaner daemon stop --path .
 ```
+
+## Prepared Work via HTTP/MCP
+
+Prepared Work is normally consumed through desktop, cockpit, or MCP clients.
+The daemon exposes the same surface over loopback HTTP:
+
+```bash
+curl -s http://127.0.0.1:8473/prepared-work | jq
+curl -s http://127.0.0.1:8473/work-products | jq
+```
+
+Use `vaner.prepared_work.dashboard` in MCP clients for the UI-safe card feed.
+Diagnostic clients can use `vaner.work_products.*` for inspect, export,
+dismiss, and feedback flows.
 
 ## Scenario cockpit commands
 
@@ -111,6 +128,9 @@ vaner upgrade
 vaner mcp --path .
 vaner mcp --path . --transport sse --host 127.0.0.1 --port 8472
 ```
+
+The stdio form is the default for Claude Code, Cursor, Codex CLI, VS Code,
+Windsurf, Zed, Continue, Cline, Roo, and Claude Desktop.
 
 ## Optional capability: OpenAI-compatible gateway
 

@@ -1,21 +1,25 @@
 ---
 title: Architecture
-description: How Vaner runs beside your model and serves scenarios over MCP.
+description: How Vaner runs beside your model and serves Prepared Work over MCP and HTTP.
 ---
 
 Vaner is built around one default architecture:
 
 - **MCP-first model interface:** your client calls tools; Vaner is not the chat
   completion hot path.
-- **Side-running ponder engine:** Vaner precomputes scenarios in the background.
+- **Side-running ponder engine:** Vaner precomputes likely useful work in the
+  background.
+- **Prepared Work surface:** clients see a small, action-oriented feed instead
+  of raw prediction/work-product lifecycle state.
 - **Local cockpit controls:** operators inspect, debug, and tune behavior.
 
 ## Two loops: precompute and serve
 
-- **Ponder loop (background):** watches repo signals, expands frontier candidates,
-  and refreshes scenario context in storage.
-- **Answer loop (prompt-time):** serves precomputed scenarios over MCP tools when
-  your client asks for context during a real task.
+- **Ponder loop (background):** watches repo signals, expands frontier
+  candidates, and refreshes scenarios, artifacts, predictions, and work
+  products in storage.
+- **Answer loop (prompt-time):** serves Prepared Work or precomputed context over
+  MCP/HTTP when your client asks during a real task.
 
 This split is the core performance model: expensive exploration happens between
 prompts, while prompt-time retrieval stays fast and deterministic.
@@ -29,9 +33,10 @@ flowchart LR
   Intent --> Frontier[ExplorationFrontier]
   Frontier --> Builder[ScenarioBuilder]
   Builder --> Store[ScenarioStore]
-  Store --> MCP[MCPServer]
+  Store --> Prepared[PreparedWork]
+  Prepared --> MCP[MCPServer]
   MCP --> Agent[IDEOrAgent]
-  Agent -->|report_outcome| MCP
+  Agent -->|feedback| MCP
   MCP --> Feedback[FeedbackQueue]
   Feedback --> Frontier
   Store --> Cockpit[CockpitHTTPAndCLI]
@@ -51,6 +56,16 @@ Each scenario stores prepared context, evidence references, freshness, expansion
 cost, and outcomes. Vaner re-scores scenarios so clients can pick promising
 candidates quickly via MCP tools.
 
+### Prepared Work layer
+
+Prepared Work is the product-facing layer above predictions and work products.
+It filters hidden/stale/dismissed/superseded items, ranks by usefulness,
+confidence, freshness, evidence, and actionability, and returns UI-safe cards
+with only server-authorized actions.
+
+Virtual diffs live in Vaner-owned storage. They can be inspected and exported,
+but Vaner does not automatically mutate the user's worktree.
+
 ### Agent skills prior
 
 Vaner can discover active `SKILL.md` files and treat them as intent priors.
@@ -61,10 +76,9 @@ See [Agent Skills](/skills) for the full loop.
 
 ### MCP runtime (model pull)
 
-MCP tools (`list_scenarios`, `get_scenario`, `expand_scenario`,
-`compare_scenarios`, `report_outcome`) expose prepared context on demand.
-`report_outcome` closes the loop by feeding scenario usefulness back into
-frontier adaptation.
+MCP tools expose Prepared Work, query resolution, scenario navigation,
+workspace goals, setup/policy controls, and Deep-Run sessions. Feedback closes
+the loop by feeding usefulness signals back into future ranking.
 
 ### Cockpit runtime (human controls)
 

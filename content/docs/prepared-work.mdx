@@ -1,0 +1,77 @@
+---
+title: Prepared Work
+description: The user-facing surface for work Vaner prepared before you asked.
+---
+
+Prepared Work is Vaner's main product surface. It combines concrete artifacts
+prepared during idle/background time with strong ready predictions, then shows
+only the small set that is useful enough to inspect.
+
+Users should not need to know whether an item came from a prediction, a
+WorkProduct loop, a virtual diff generator, or a research brief generator. The
+surface answers four questions:
+
+- What did Vaner prepare?
+- Why did Vaner prepare it now?
+- What evidence supports it?
+- What safe action can I take?
+
+## What can appear
+
+Prepared Work cards may represent:
+
+- review notes
+- bug hypotheses
+- docs drift notes
+- virtual diffs
+- research briefs
+- ready draft/prediction opportunities
+
+Vaner intentionally shows fewer, stronger items. Candidate, hidden, stale,
+dismissed, expired, and superseded artifacts stay out of the normal feed.
+
+## Actions
+
+Each card carries server-authoritative actions. Clients should render only the
+actions returned by Vaner:
+
+- **Inspect** opens the full rationale, evidence, warnings, and preview.
+- **Export** returns Vaner-owned content, such as markdown or a patch payload.
+- **Adopt** uses a ready prediction/package as the user's current intent.
+- **Dismiss** hides the item from normal feeds.
+- **Feedback** records whether the item was useful, partial, irrelevant, or not
+  useful.
+
+Export and adopt are explicit user actions. Vaner does not silently apply
+patches or edit project files.
+
+## Virtual diffs
+
+Virtual diffs are stored artifacts, not automatic code changes. They include
+the target files, source snapshot, rationale, evidence, and export payload.
+
+A virtual diff becomes stale when its target files no longer match the recorded
+snapshot. Stale virtual diffs are blocked from export until regenerated.
+
+## HTTP and MCP
+
+HTTP:
+
+- `GET /prepared-work`
+- `GET /work-products`
+- `GET /work-products/{id}/inspect`
+- `POST /work-products/{id}/export`
+- `POST /work-products/{id}/dismiss`
+- `POST /work-products/{id}/feedback`
+
+MCP:
+
+- `vaner.prepared_work.dashboard`
+- `vaner.work_products.list`
+- `vaner.work_products.inspect`
+- `vaner.work_products.export`
+- `vaner.work_products.dismiss`
+- `vaner.work_products.feedback`
+
+The default Prepared Work dashboard hides internal lifecycle, self-evaluation,
+and raw ranking fields. Diagnostic clients can opt into diagnostic references.

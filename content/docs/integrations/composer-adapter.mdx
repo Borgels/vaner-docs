@@ -134,7 +134,7 @@ A snapshot looks like (L0 example):
 
 ## Reference implementation
 
-The [Claude Code plugin](https://github.com/Borgels/Vaner/tree/main/plugins/vaner)
+The [Claude Code plugin](https://github.com/Borgels/vaner/tree/main/plugins/vaner)
 ships the L0 reference adapter:
 
 - `plugins/vaner/hooks/hooks.json` — `UserPromptSubmit` hook
@@ -146,9 +146,9 @@ ships the L0 reference adapter:
 ## JSON Schema
 
 The wire-contract JSON Schema is generated from the pydantic models in
-[`src/vaner/signals/composer/contract.py`](https://github.com/Borgels/Vaner/blob/main/src/vaner/signals/composer/contract.py)
+[`src/vaner/signals/composer/contract.py`](https://github.com/Borgels/vaner/blob/main/src/vaner/signals/composer/contract.py)
 and committed at
-[`docs/specs/composer-adapter.schema.json`](https://github.com/Borgels/Vaner/blob/main/docs/specs/composer-adapter.schema.json).
+[`docs/specs/composer-adapter.schema.json`](https://github.com/Borgels/vaner/blob/main/docs/specs/composer-adapter.schema.json).
 
 Adapters in non-Python languages can validate their payloads against
 this schema. CI guards drift via `git diff --exit-code` after running

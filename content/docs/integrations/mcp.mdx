@@ -1,12 +1,11 @@
 ---
 title: MCP Mode
-description: Conceptual overview of Vaner's MCP integration — what tools it exposes and how clients connect.
+description: Conceptual overview of Vaner's MCP integration and current tool surface.
 ---
 
-Vaner ships an [MCP](https://modelcontextprotocol.io/) server so any
-MCP-aware IDE or agent (Claude Code, Cursor, VS Code Copilot, Codex CLI,
-Windsurf, Zed, Continue, Cline, Roo, Claude Desktop, …) can pull
-scenario-ranked context without Vaner being in the model path.
+Vaner ships an [MCP](https://modelcontextprotocol.io/) server so MCP-aware IDEs
+and agents can pull Prepared Work and evidence-backed context without putting
+Vaner in the model hot path.
 
 ## Start the server
 
@@ -17,48 +16,70 @@ vaner mcp --path .
 The server speaks stdio by default. Clients invoke `vaner mcp --path .` as a
 subprocess and communicate over their own stdin/stdout.
 
+## Recommended client behavior
+
+Normal clients should call `vaner.prepared_work.dashboard` first. It returns a
+small list of UI-safe cards and hides internal lifecycle, self-evaluation, and
+raw ranking fields.
+
+When the user inspects a card, call the action returned by that card. Do not
+infer allowed actions from type alone. Server-authoritative actions are what
+keep virtual diffs and exports non-mutating by default.
+
 ## Tools exposed
 
-Vaner's v1.0 MCP surface is namespaced (`vaner.*`). Tools break into three
-groups: resolve/navigation, predictions, and workspace goals.
-
-### Resolve & navigation
+### Prepared Work
 
 | Tool | Purpose |
 | --- | --- |
-| `vaner.status` | Health + readiness. Use as the smoke-test after wiring. |
-| `vaner.resolve` | Given a user prompt, return a prepared briefing + evidence + (optionally) a speculative draft. |
-| `vaner.suggest` | Likely next prompts based on workflow state. |
+| `vaner.prepared_work.dashboard` | Unified Prepared Work dashboard for UI-safe cards. |
+| `vaner.work_products.list` | Diagnostic list of prepared artifacts. |
+| `vaner.work_products.inspect` | Inspect body, evidence, warnings, and allowed actions. |
+| `vaner.work_products.export` | Export ready content or patch payload without applying it. |
+| `vaner.work_products.dismiss` | Hide a prepared artifact from normal feeds. |
+| `vaner.work_products.feedback` | Record usefulness feedback. |
+
+### Resolve and navigation
+
+| Tool | Purpose |
+| --- | --- |
+| `vaner.status` | Health and readiness smoke test. |
+| `vaner.resolve` | Resolve a prompt into prepared briefing, evidence, and optional draft. |
+| `vaner.suggest` | Likely next prompts or work directions. |
 | `vaner.search` | Search Vaner's scenario graph. |
-| `vaner.expand` | Deepen precompute around a specific scenario/target. |
-| `vaner.inspect` | Read a single scenario/evidence item by id. |
+| `vaner.expand` | Deepen precompute around a scenario or target. |
+| `vaner.inspect` | Inspect one scenario/evidence record. |
 | `vaner.explain` | Human-readable rationale for a resolution. |
-| `vaner.feedback` | Usefulness feedback (`useful`, `partial`, `wrong`, `irrelevant`). |
+| `vaner.feedback` | Feedback for resolution/scenario flows. |
 | `vaner.warm` | Hint Vaner to precompute around selected targets. |
+| `vaner.debug.trace` | Diagnostic trace data. |
 
-### Predictions (0.8.0)
+### Predictions and workspace goals
 
-| Tool | Purpose |
-| --- | --- |
-| `vaner.predictions.active` | List predictions currently in `ready` or `drafting` state with their labels, readiness, and compute contract. |
-| `vaner.predictions.adopt` | Adopt a specific prediction as the user's next intent. Returns a Resolution with prepared briefing + draft answer + `adopted_from_prediction_id` for provenance. |
-
-### Workspace goals (0.8.0)
-
-Long-horizon workspace aspirations ("implement JWT migration", "review auth
-before ship") that span many prompts. Declared goals seed goal-anchored
-predictions the engine matures across cycles.
+Predictions remain available for diagnostic and advanced clients, but Prepared
+Work is the normal user-facing surface.
 
 | Tool | Purpose |
 | --- | --- |
-| `vaner.goals.list` | List workspace goals filtered by status. |
-| `vaner.goals.declare` | Declare a new user-authoritative goal (`confidence=1.0`). |
-| `vaner.goals.update_status` | Move a goal between `active`/`paused`/`abandoned`/`achieved`. |
-| `vaner.goals.delete` | Delete a goal (prefer `update_status` — deletion loses evidence). |
+| `vaner.predictions.active` | List ready/drafting predictions. |
+| `vaner.predictions.adopt` | Adopt a specific prediction as the current intent. |
+| `vaner.predictions.dashboard` | Diagnostic prediction dashboard. |
+| `vaner.goals.list` | List workspace goals. |
+| `vaner.goals.declare` | Declare a new user-authoritative goal. |
+| `vaner.goals.update_status` | Move a goal between active, paused, abandoned, and achieved. |
+| `vaner.goals.delete` | Delete a goal. |
+
+### Setup, policy, sources, artifacts, and Deep-Run
+
+| Tool family | Purpose |
+| --- | --- |
+| `vaner.setup.*` | Setup questions, recommendations, apply flow, and setup status. |
+| `vaner.policy.show` | Current policy bundle and posture. |
+| `vaner.artefacts.*` | List/inspect/status/influence controls for stored artifacts. |
+| `vaner.sources.status` | Source health/status. |
+| `vaner.deep_run.*` | Start, stop, inspect, list, and default Deep-Run sessions. |
 
 All tools are scoped to the `--path` Vaner was started with.
-
-Most tools also accept an optional `skill` argument for attribution. This lets Vaner track which agent skill drove calls/outcomes and route feedback into frontier adaptation.
 
 ## Want to wire it up?
 
@@ -68,8 +89,8 @@ Most tools also accept an optional `skill` argument for attribution. This lets V
 
 ## When to use MCP vs other modes
 
-- **MCP mode** (this page): your IDE already orchestrates model calls and only
-  needs Vaner-provided context. Lowest coupling; recommended default.
+- **MCP mode**: your IDE orchestrates model calls and needs Vaner-provided
+  Prepared Work/context. Recommended default.
 - **[Proxy mode](/integrations/proxy)**: tools that only speak the OpenAI
   `/v1/chat/completions` shape.
 - **[Context-only mode](/integrations/context-only)**: frameworks that call

@@ -1,17 +1,28 @@
 ---
 title: Introduction
-description: Vaner is a local-first predictive context engine that prepares context before you ask.
+description: Vaner is a local-first preparation engine that turns idle compute into useful Prepared Work.
 ---
 
-Vaner is a **local-first predictive context engine** for AI coding workflows.
+Vaner is a **local-first preparation engine** for AI workflows.
 
-Think of it like a chess engine for context: during idle time, Vaner predicts likely next prompts, prepares useful context branches, and then serves the best package quickly when the real prompt arrives.
+It runs beside your AI client, watches the scoped project you chose, and uses
+idle time to prepare useful work before you explicitly ask for it. When you do
+ask, your client can inspect or use a small set of evidence-backed Prepared Work
+items instead of starting from a cold retrieval pass.
 
 ## What Vaner does
 
-- Runs a background **ponder loop** to pre-build likely context.
-- Runs a prompt-time **answer loop** to rank and assemble the best context package.
-- Stays **model-agnostic**, so you can use local or cloud backends without lock-in.
+- Runs a background **ponder loop** to build and refresh likely useful work.
+- Surfaces a small **Prepared Work** feed: review notes, bug hypotheses, docs
+  drift, virtual diffs, research briefs, and ready prediction-backed drafts.
+- Serves evidence-backed context over MCP to Claude Code, Cursor, Codex CLI,
+  VS Code, Zed, Windsurf, Continue, Cline, Roo, and Claude Desktop.
+- Stays **model-agnostic**, so you can use local or cloud backends without
+  lock-in.
+
+Prepared Work is non-mutating by default. Vaner may prepare a virtual diff, but
+it will not apply that patch or edit your files unless you explicitly export or
+adopt it through a client workflow.
 
 ## Core outcomes
 
@@ -24,6 +35,7 @@ Vaner is successful when it improves one or more of:
 ## Start here
 
 - New users: [Getting started](/getting-started)
+- Understand Prepared Work: [Prepared Work](/prepared-work)
 - Wire up your AI client over MCP: [Connect your client](/mcp)
 - Concepts and terminology: [Concepts](/concepts)
 - Setup and tuning: [Configuration](/configuration)

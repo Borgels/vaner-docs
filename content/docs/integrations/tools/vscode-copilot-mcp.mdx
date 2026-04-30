@@ -5,8 +5,8 @@ description: Connect VS Code (Copilot) to Vaner over MCP for predictive, repo-gr
 
 [VS Code (Copilot)](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -26,7 +26,8 @@ vaner init --path .
 
 ## Verify
 
-Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server from the tools menu and call `list_scenarios`.
+Reload the VS Code window. In the Copilot chat view, pick the `vaner` MCP server
+from the tools menu and call `vaner.status`.
 
 If `VS Code (Copilot)` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a

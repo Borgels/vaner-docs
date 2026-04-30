@@ -88,6 +88,25 @@ Fix checklist:
 3. Verify with `vaner doctor --path .` and look for MCP-related checks.
 4. Prompt explicitly once: \"use the vaner MCP tools for this task\".
 
+## Prepared Work looks empty
+
+Symptom:
+
+- `/prepared-work` or the desktop Prepared Work feed returns no cards.
+
+Fix:
+
+```bash
+vaner up --path .
+vaner doctor --path .
+curl -s http://127.0.0.1:8473/status | jq
+```
+
+An empty feed is valid when Vaner has no strong, fresh item to show. Weak
+candidate artifacts and stale virtual diffs are intentionally hidden from the
+normal feed. Run a longer session, declare a goal, or use `vaner.warm` from an
+MCP client to steer preparation toward active work.
+
 ## Ollama errors or 404 responses
 
 Symptom:

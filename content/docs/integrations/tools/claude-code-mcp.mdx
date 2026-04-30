@@ -5,8 +5,8 @@ description: Connect Claude Code to Vaner over MCP for predictive, repo-grounded
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -26,7 +26,9 @@ vaner init --path .
 
 ## Verify
 
-Run `/mcp` inside a Claude Code session — `vaner` should appear with the five scenario tools.
+Run `/mcp` inside a Claude Code session. `vaner` should appear with
+`vaner.status`, `vaner.prepared_work.dashboard`, and the rest of the current
+tool surface.
 
 If `Claude Code` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a
@@ -34,7 +36,8 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Scope `/tmp` work to your repo: Claude Code hits Vaner for `list_scenarios` before running its own tools.
+- Scope work to your repo: Claude Code can inspect `vaner.prepared_work.dashboard`
+  before running its own tools.
 - Switch between `user` / `project` / `local` scope without editing JSON by hand.
 - Tight loop with `claude --resume` — Vaner keeps the ponder cache between sessions.
 
