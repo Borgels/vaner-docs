@@ -10,18 +10,17 @@
 }
 
 /* Apply Vaner brand fonts to Fumadocs' tokens. The next/font CSS
- * variables (--font-display, --font-mono) are set on <html> by
- * app/layout.tsx. Falling back to Fumadocs defaults if the fonts
- * fail to load. */
+ * variables (--font-display, --font-body, --font-mono) are set on
+ * <html> by app/layout.tsx. Body uses Inter — Space Grotesk reads
+ * heavy in paragraph-dense doc pages, so it stays for headlines. */
 :root {
-  --fd-font-sans: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --fd-font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --fd-font-mono: var(--font-mono), ui-monospace, "Menlo", monospace;
 }
 
 /* Amber accent on links + active sidebar item, consistent with the
  * vaner.ai/developers bridge. Fumadocs uses HSL color tokens; we
- * override the primary/accent ones to point at amber, but only at
- * a light enough opacity to keep contrast on the dark theme. */
+ * override the primary/accent ones to point at amber. */
 :root {
   --color-fd-primary: var(--vaner-amber);
 }
@@ -53,12 +52,14 @@
   }
 
   /*
-   * Display headings on doc pages use Space Grotesk with tight
-   * tracking, matching the bridge headline style.
+   * Display headings use Space Grotesk with tight tracking, matching
+   * the bridge headline style. Body stays in Inter (set via
+   * --fd-font-sans above).
    */
   article h1,
-  article h2 {
-    font-family: var(--font-display);
+  article h2,
+  article h3 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.015em;
     font-weight: 500;
   }
@@ -66,12 +67,67 @@
   article h1 {
     font-size: clamp(28px, 3.2vw, 40px);
     line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  article h2 {
+    letter-spacing: -0.01em;
+  }
+
+  /*
+   * Paragraph rhythm. Fumadocs' prose default is too tight for the
+   * doc voice we want (prose-sm-ish). Bump line-height + size of
+   * <p>/<li> for readability on ≥720px screens.
+   */
+  article p,
+  article li {
+    line-height: 1.65;
   }
 }
 
 /*
- * Fumadocs Card grid: amber border + soft fill on hover, matching
- * the .dev-card style on vaner.ai/developers.
+ * Sidebar polish.
+ *
+ * Default Fumadocs sidebar uses muted-foreground for both inactive
+ * items and section group labels, which makes the structure read
+ * flat. Match the bridge .toc style: section labels are uppercase
+ * mono micro-type, item rows are tighter, the active row gets the
+ * amber accent + a left rail.
+ */
+@layer components {
+  /* Section group labels (rendered from the "---Foo---" separators
+   * in meta.json). Fumadocs gives them no special treatment by
+   * default; we lift them into uppercase mono micro-labels. */
+  #nd-sidebar [data-radix-collection-item],
+  #nd-sidebar h3 {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-fd-muted-foreground);
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  /* Sidebar items: tighter rows, no bg flash on hover (the dark
+   * theme's default hover-bg looks blocky). Use color shift instead. */
+  #nd-sidebar a {
+    border-radius: 6px;
+    transition: color 0.12s ease, background-color 0.12s ease;
+  }
+  #nd-sidebar a:hover {
+    color: color-mix(in oklch, var(--vaner-amber) 70%, var(--color-fd-foreground));
+    background-color: color-mix(in oklch, var(--vaner-amber) 5%, transparent);
+  }
+  #nd-sidebar a[data-active="true"] {
+    color: var(--vaner-amber);
+    background-color: color-mix(in oklch, var(--vaner-amber) 8%, transparent);
+    border-left: 2px solid var(--vaner-amber);
+    padding-left: calc(var(--fd-sidebar-item-pl, 12px) - 2px);
+  }
+}
+
+/*
+ * Fumadocs Card grid (used on landing pages): amber border + soft
+ * fill on hover, matching the .dev-card style on the bridge.
  */
 @layer components {
   [data-card] {
