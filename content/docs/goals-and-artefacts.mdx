@@ -1,0 +1,91 @@
+---
+title: Goals & Artefacts
+description: Workspace goals, intent artefacts, snapshots, and reconciliation outcomes — what they are, how Vaner uses them, and where they show up.
+---
+
+Vaner persists two long-horizon concepts that span beyond a single conversation
+or prepared-work card: **workspace goals** and **intent artefacts**. Together
+they let Vaner stay focused on what you actually want to accomplish, even
+across days of work and across different AI clients.
+
+## Workspace goals
+
+A **goal** is a long-horizon intent in your workspace — "ship the new auth
+middleware", "remove the legacy token storage path", "answer pending design
+questions in the streaming pipeline". Goals are persisted to
+`.vaner/artefacts.db` so they survive daemon restarts, and they outlive any
+individual prompt.
+
+Each goal carries:
+
+- a **status** (`active`, `paused`, `abandoned`, `achieved`)
+- **related files** — the paths Vaner has seen the goal touched on
+- a **reconciliation state** (`reconciled` / `unreconciled` / partial) — Vaner's
+  best-effort assessment of whether the goal's evidence is consistent with
+  what's currently in the repo
+
+Goals can be declared explicitly or inferred from the work you do. The
+[`vaner.goals`](/mcp) MCP family lets agents create, list, update, and delete
+them; the [cockpit](/cockpit) shows them with linked artefacts and the latest
+reconciliation outcome.
+
+## Intent artefacts
+
+An **artefact** is a piece of intent-bearing content tied to a source — a
+design doc, an issue, a Slack thread, a code comment, a README section. Vaner
+ingests these through connectors, snapshots them periodically, and uses the
+snapshots to detect drift between the artefact and the current state of the
+repo.
+
+Each artefact has:
+
+- a **source URI** and **connector** (where it came from)
+- a **status** (`active`, `dormant`, `stale`, `superseded`, `archived`)
+- a **latest snapshot** — versioned content that lets Vaner reason about change
+- **linked goals** — which long-horizon intents this artefact supports
+
+Artefact items inside a snapshot are the granular pieces — a section, a bullet
+list, a paragraph — that Vaner extracts so individual claims can be tracked
+across snapshots.
+
+## Reconciliation outcomes
+
+When the repo changes (a commit lands, a file changes, a dependency updates),
+Vaner runs reconciliation: for each artefact, does its current snapshot still
+agree with the code? The result is a **reconciliation outcome** that records:
+
+- which **signal** triggered the pass (commit hash, file change, category shift)
+- per-item **state deltas** — what's now stale, what's confirmed, what's been
+  superseded
+- per-goal **status deltas** — does this signal move any goal toward
+  `achieved` or away from it?
+- **supersedes** — when a newer artefact replaces an older one
+
+Reconciliation outcomes feed back into the prepared-work pipeline. A goal whose
+linked artefacts have all gone stale gets demoted; an artefact that gains
+confirming evidence in a new commit gets promoted.
+
+## Where you'll see them
+
+- **MCP** — `vaner.goals.list`, `vaner.goals.declare`, `vaner.goals.update_status`,
+  `vaner.goals.delete` for goal CRUD; `vaner.artefacts.list`,
+  `vaner.artefacts.inspect`, `vaner.artefacts.set_status`,
+  `vaner.artefacts.influence` for artefact navigation. See [MCP](/mcp).
+- **Cockpit** — the `Goals` destination in the top bar shows declared goals
+  inline with their linked artefacts and the most recent reconciliation
+  outcome. See [Cockpit](/cockpit).
+- **CLI** — `vaner inspect --last` and `vaner doctor` surface reconciliation
+  state when investigating why a particular Prepared Work item was prepared
+  the way it was.
+
+## Why this matters
+
+Without goals + artefacts, Vaner would be a context-fetcher with amnesia —
+useful for a single prompt, useless across a week of related work. The
+goals/artefacts layer is what lets Vaner stay aligned with what you're trying
+to accomplish over the long arc, and what lets it admit when its assumptions
+are stale instead of confidently serving outdated evidence.
+
+The non-mutation guarantee still holds: Vaner can mark a goal achieved or
+demote a stale artefact, but it never edits your code or your source documents
+to make them match its model.
