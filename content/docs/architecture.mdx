@@ -1,115 +1,63 @@
 ---
 title: Architecture
-description: How Vaner runs beside your model and serves Prepared Work over MCP and HTTP.
+description: How Vaner runs beside your AI client.
 ---
 
-Vaner is built around one default architecture:
+Vaner runs as a small daemon next to your editor. It watches your repo,
+prepares work in the background, and serves that work to your AI client
+through MCP when you ask. The model never waits on Vaner — Vaner has the
+answer ready.
 
-- **MCP-first model interface:** your client calls tools; Vaner is not the chat
-  completion hot path.
-- **Side-running ponder engine:** Vaner precomputes likely useful work in the
-  background.
-- **Prepared Work surface:** clients see a small, action-oriented feed instead
-  of raw prediction/work-product lifecycle state.
-- **Local cockpit controls:** operators inspect, debug, and tune behavior.
+## What you see
 
-## Two loops: precompute and serve
+- **Your AI client.** Cursor, Claude Code, Codex, Zed, etc. Calls Vaner
+  through MCP tools (`vaner.resolve`, `vaner.prepared_work.dashboard`, …)
+  to pull prepared work.
+- **The cockpit.** A local web UI at `http://127.0.0.1:8473` (started
+  with `vaner up`). Shows what Vaner has prepared, why, and what's
+  in flight. See [Prepared Work](/prepared-work#inspecting-prepared-work).
+- **The desktop app** (optional). A menu-bar / tray shell that wraps
+  the daemon, surfaces the most-recent prepared moment, and adopts
+  drafts into your active client with one click.
 
-- **Ponder loop (background):** watches repo signals, expands frontier
-  candidates, and refreshes scenarios, artifacts, predictions, and work
-  products in storage.
-- **Answer loop (prompt-time):** serves Prepared Work or precomputed context over
-  MCP/HTTP when your client asks during a real task.
+All three talk to the same daemon. None of them are in the model's hot
+path — they pull from a queue Vaner keeps populated.
 
-This split is the core performance model: expensive exploration happens between
-prompts, while prompt-time retrieval stays fast and deterministic.
-
-## Runtime flow
+## What Vaner does
 
 ```mermaid
 flowchart LR
-  Repo[RepoSignals] --> Intent[IntentLayer]
-  Skills[SkillDiscovery] --> Intent
-  Intent --> Frontier[ExplorationFrontier]
-  Frontier --> Builder[ScenarioBuilder]
-  Builder --> Store[ScenarioStore]
-  Store --> Prepared[PreparedWork]
-  Prepared --> MCP[MCPServer]
-  MCP --> Agent[IDEOrAgent]
-  Agent -->|feedback| MCP
-  MCP --> Feedback[FeedbackQueue]
-  Feedback --> Frontier
-  Store --> Cockpit[CockpitHTTPAndCLI]
+  Repo[Repo signals] --> Vaner[Vaner daemon]
+  Vaner --> Store[Prepared work + evidence]
+  Store --> MCP[MCP tools]
+  MCP --> Agent[Your AI client]
+  Agent -->|feedback| Vaner
 ```
 
-## Core components and boundaries
+When the repo changes (a commit lands, a file changes, a test runs),
+Vaner notices and **prepares**. Preparing means: pulling related context,
+running the model in idle time, scoring multiple candidate angles, and
+landing the strongest as a Prepared Work card with evidence attached.
 
-### Ponder loop and scenario builder
+When you actually ask the agent something, Vaner has the relevant card
+ready to hand over instead of starting from a cold retrieval pass.
 
-The daemon watches repo activity, produces artefacts, and continuously expands
-ranked scenarios into `scenarios.db`. This is where depth, frontier size,
-deduplication, and compute limits are enforced.
+## Boundaries
 
-### Scenario store and scoring
+- **Non-mutating by default.** Vaner can prepare a virtual diff but
+  never applies it. Adopt is an explicit user action.
+- **Local-first.** The daemon, the cockpit, and the model all run on
+  your machine unless you've chosen a hybrid bundle. Privacy posture
+  is part of the [policy bundle](/policy-bundles) you pick at install.
+- **Read-only against your code.** Vaner reads the working tree and
+  git history; it doesn't write to your branch.
 
-Each scenario stores prepared context, evidence references, freshness, expansion
-cost, and outcomes. Vaner re-scores scenarios so clients can pick promising
-candidates quickly via MCP tools.
+## Going deeper
 
-### Prepared Work layer
+The internal moving parts (frontier exploration, scenario scoring,
+prediction registry, refinement context) aren't user-facing. If you
+want them, the source is the canonical reference: see
+[`src/vaner/engine.py`](https://github.com/Borgels/vaner/blob/main/src/vaner/engine.py)
+and the per-component modules under `src/vaner/`.
 
-Prepared Work is the product-facing layer above predictions and work products.
-It filters hidden/stale/dismissed/superseded items, ranks by usefulness,
-confidence, freshness, evidence, and actionability, and returns UI-safe cards
-with only server-authorized actions.
-
-Virtual diffs live in Vaner-owned storage. They can be inspected and exported,
-but Vaner does not automatically mutate the user's worktree.
-
-### Agent skills prior
-
-Vaner can discover active `SKILL.md` files and treat them as intent priors.
-Skill metadata contributes to feature extraction, seeds frontier candidates, and
-can bias ranking before prompt-time requests arrive.
-
-See [Client capability matrix](/integrations/client-capabilities) for
-the per-client skill / workflow / prompt support and how Vaner's
-`vaner-feedback` adapter fits in.
-
-### MCP runtime (model pull)
-
-MCP tools expose Prepared Work, query resolution, scenario navigation,
-workspace goals, setup/policy controls, and Deep-Run sessions. Feedback closes
-the loop by feeding usefulness signals back into future ranking.
-
-### Cockpit runtime (human controls)
-
-Cockpit endpoints and CLI commands expose status, freshness distribution, device
-configuration, and live scenario stream updates. See
-[Prepared Work](/prepared-work#inspecting-prepared-work) for the operator view.
-
-### Optional gateway capability
-
-`vaner proxy` remains available for clients that only support OpenAI-compatible
-endpoints. It is a legacy compatibility layer, not the default integration
-path; prefer MCP-first wiring whenever your client supports MCP.
-
-## Vocabulary
-
-- **Signal**: observed event from filesystem or git state.
-- **Scenario**: candidate context branch with ranked files, evidence, and expansion metadata.
-- **Frontier**: priority queue of scenarios waiting for deeper exploration.
-- **Artefact**: precomputed context unit (summary, index, diff).
-- **Prepared Work**: user-facing card Vaner prepared before the prompt, with evidence, freshness, confidence, and safe actions.
-- **Work Product**: internal stored artifact behind some Prepared Work cards.
-- **Virtual Diff**: patch-shaped Prepared Work; never auto-applied.
-- **Prediction**: internal next-intent candidate. Strong predictions surface as Prepared Work.
-- **Context Package**: selected and compressed artefacts for a prompt.
-- **Decision Record**: persisted explanation of why Vaner picked one package over alternatives.
-- **Policy**: privacy and token-budget rules.
-- **Agent Skill**: `SKILL.md` playbook metadata used as intent prior and feedback attribution signal.
-- **Ponder Loop**: idle-time branch exploration and artifact preparation.
-- **Answer Loop**: prompt-time ranking and assembly when a client asks.
-- **Goal**: long-horizon intent persisted across daemon restarts.
-- **Reconciliation**: when a repo signal lands, Vaner checks each goal's linked artefacts against the new state and updates status.
-- **Pinned Facts**: explicit user steering directives that bias preparation without prompt injection.
+For knob-by-knob configuration, see [Configuration](/configuration).
