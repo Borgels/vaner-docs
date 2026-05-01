@@ -1,35 +1,96 @@
 @import 'fumadocs-ui/style.css';
 
 /*
- * Brand alignment with vaner.ai. The marketing site uses an amber
- * accent on a near-black surface; the docs need to read as the same
- * product without overriding Fumadocs' light/dark + a11y machinery.
+ * Vaner design system — mirrors vaner-web/app/globals.css.
+ *
+ * Surfaces, lines, foregrounds, accents, and the four type stacks
+ * are imported wholesale so docs.vaner.ai reads as the same product
+ * as vaner.ai.  Then we map the brand tokens onto Fumadocs'
+ * --color-fd-* tokens so the dark theme renders against the brand
+ * palette instead of Fumadocs' default near-black.
  */
 :root {
-  --vaner-amber: #e0a557;
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg-0: oklch(0.18 0.006 280);
+  --bg-1: oklch(0.22 0.007 280);
+  --bg-2: oklch(0.26 0.008 280);
+
+  /* Lines */
+  --line: oklch(0.32 0.008 280);
+  --hair: oklch(0.28 0.007 280);
+
+  /* Foregrounds */
+  --fg-1: oklch(0.96 0.005 90);
+  --fg-2: oklch(0.78 0.008 90);
+  --fg-3: oklch(0.60 0.010 90);
+  --fg-4: oklch(0.45 0.010 90);
+
+  /* Accents */
+  --purple: #b299d1;
+  --amber: #e0a557;
+
+  /* Type stacks (next/font sets the --font-* variables on <html>) */
+  --display: var(--font-display), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --editorial: var(--font-brand), "Instrument Serif", "Times New Roman", serif;
+  --mono: var(--font-mono), "JetBrains Mono", ui-monospace, "Menlo", monospace;
+  --term: var(--font-term), "Share Tech Mono", ui-monospace, "Menlo", monospace;
 }
 
-/* Apply Vaner brand fonts to Fumadocs' tokens. The next/font CSS
- * variables (--font-display, --font-body, --font-mono) are set on
- * <html> by app/layout.tsx. Body uses Inter — Space Grotesk reads
- * heavy in paragraph-dense doc pages, so it stays for headlines. */
+/* Map brand tokens onto Fumadocs' theme tokens. Fumadocs uses HSL
+ * tokens internally; we override the dark-theme defaults with the
+ * brand palette. The light theme is intentionally left at Fumadocs'
+ * defaults — vaner.ai is dark-only, but Fumadocs' light mode stays
+ * functional for users who prefer it. */
+.dark,
 :root {
-  --fd-font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --fd-font-mono: var(--font-mono), ui-monospace, "Menlo", monospace;
+  --color-fd-background: var(--bg-0);
+  --color-fd-foreground: var(--fg-1);
+  --color-fd-muted: var(--bg-1);
+  --color-fd-muted-foreground: var(--fg-3);
+  --color-fd-card: var(--bg-1);
+  --color-fd-card-foreground: var(--fg-1);
+  --color-fd-border: var(--hair);
+  --color-fd-primary: var(--amber);
+  --color-fd-primary-foreground: var(--bg-0);
+  --color-fd-accent: color-mix(in oklch, var(--amber) 12%, var(--bg-1));
+  --color-fd-accent-foreground: var(--fg-1);
+
+  --fd-font-sans: var(--display);
+  --fd-font-mono: var(--mono);
 }
 
-/* Amber accent on links + active sidebar item, consistent with the
- * vaner.ai/developers bridge. Fumadocs uses HSL color tokens; we
- * override the primary/accent ones to point at amber. */
-:root {
-  --color-fd-primary: var(--vaner-amber);
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--bg-0);
+  color: var(--fg-1);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+/* Editorial italic accent — same as vaner-web. */
+em {
+  font-family: var(--editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.04em;
+  color: var(--amber);
 }
 
 @layer base {
   /*
-   * Keep docs content centered at normal widths, but pin the sidebar
-   * to the viewport edge on very wide screens (closer to
-   * docs.ollama.com behavior).
+   * Wide-screen layout — sidebar pinned to viewport edge.
    */
   @media (min-width: 1800px) {
     #nd-docs-layout {
@@ -42,26 +103,26 @@
     }
   }
 
-  /*
-   * Fumadocs sidebar footer row is full-width by default. Shrink the
-   * row that contains the theme toggle so it hugs the icon buttons.
-   */
+  /* Hide the light/dark toggle entirely — vaner is dark-only. */
+  [data-theme-toggle] {
+    display: none !important;
+  }
   #nd-sidebar div:has(> [data-theme-toggle]) {
-    width: fit-content;
-    max-width: 100%;
+    display: none !important;
   }
 
   /*
-   * Display headings use Space Grotesk with tight tracking, matching
-   * the bridge headline style. Body stays in Inter (set via
-   * --fd-font-sans above).
+   * Headlines — Space Grotesk with tight tracking. The display
+   * stack is also the body stack on vaner.ai, but headings get
+   * the heavier letter-spacing treatment.
    */
   article h1,
   article h2,
   article h3 {
-    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--display);
     letter-spacing: -0.015em;
     font-weight: 500;
+    color: var(--fg-1);
   }
 
   article h1 {
@@ -74,68 +135,92 @@
     letter-spacing: -0.01em;
   }
 
-  /*
-   * Paragraph rhythm. Fumadocs' prose default is too tight for the
-   * doc voice we want (prose-sm-ish). Bump line-height + size of
-   * <p>/<li> for readability on ≥720px screens.
-   */
+  /* Body / list rhythm. */
   article p,
   article li {
     line-height: 1.65;
+    color: var(--fg-2);
+  }
+
+  article a {
+    color: var(--amber);
+  }
+
+  /* Inline code keeps the dark surface from the brand palette. */
+  article :not(pre) > code {
+    background: var(--bg-1);
+    border: 1px solid var(--hair);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.92em;
   }
 }
 
 /*
- * Sidebar polish.
+ * Sidebar — port of the old vaner.ai/developers .toc sidebar.
  *
- * Default Fumadocs sidebar uses muted-foreground for both inactive
- * items and section group labels, which makes the structure read
- * flat. Match the bridge .toc style: section labels are uppercase
- * mono micro-type, item rows are tighter, the active row gets the
- * amber accent + a left rail.
+ * Pre-bridge `/developers` had a hand-built sidebar that read as
+ * "small monospace technical doc TOC" — not a marketing nav. Quiet
+ * vertical rule on the left, uppercase mono micro-labels for groups,
+ * 12px mono items with no bg-flash on hover. That feel matches the
+ * docs voice better than Fumadocs' default sidebar styling, so we
+ * re-skin it here.
  */
 @layer components {
-  /* Section group labels (rendered from the "---Foo---" separators
-   * in meta.json). Fumadocs gives them no special treatment by
-   * default; we lift them into uppercase mono micro-labels. */
-  #nd-sidebar [data-radix-collection-item],
-  #nd-sidebar h3 {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-fd-muted-foreground);
-    font-family: var(--font-mono), ui-monospace, monospace;
+  /* The left rail (sidebar gutter) — single hairline, no bg fill. */
+  #nd-sidebar {
+    background: transparent;
+    border-right: 1px solid var(--hair);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.2px;
   }
 
-  /* Sidebar items: tighter rows, no bg flash on hover (the dark
-   * theme's default hover-bg looks blocky). Use color shift instead. */
+  /* Section group labels — uppercase mono micro-type, faded. */
+  #nd-sidebar h3,
+  #nd-sidebar [data-radix-collection-item] {
+    font-size: 10.5px;
+    letter-spacing: 1.6px;
+    color: var(--fg-4);
+    text-transform: uppercase;
+    font-family: var(--mono);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  /* Item rows — quiet, fg-3 default, fg-1 on hover. No background
+   * flash, no rounded pill, no amber tint. Matches the .toc behavior
+   * the old /developers page had. */
   #nd-sidebar a {
-    border-radius: 6px;
-    transition: color 0.12s ease, background-color 0.12s ease;
+    color: var(--fg-3);
+    padding: 5px 0;
+    transition: color 0.12s ease;
+    border-radius: 0;
   }
   #nd-sidebar a:hover {
-    color: color-mix(in oklch, var(--vaner-amber) 70%, var(--color-fd-foreground));
-    background-color: color-mix(in oklch, var(--vaner-amber) 5%, transparent);
+    color: var(--fg-1);
+    background: transparent;
   }
   #nd-sidebar a[data-active="true"] {
-    color: var(--vaner-amber);
-    background-color: color-mix(in oklch, var(--vaner-amber) 8%, transparent);
-    border-left: 2px solid var(--vaner-amber);
-    padding-left: calc(var(--fd-sidebar-item-pl, 12px) - 2px);
+    color: var(--fg-1);
+    background: transparent;
+    font-weight: 500;
   }
 }
 
 /*
- * Fumadocs Card grid (used on landing pages): amber border + soft
- * fill on hover, matching the .dev-card style on the bridge.
+ * Fumadocs Card grid — amber border + soft fill on hover, matching
+ * the .dev-card style on vaner.ai/developers.
  */
 @layer components {
   [data-card] {
     transition: border-color 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+    background: var(--bg-1);
+    border-color: var(--hair);
   }
   [data-card]:hover {
-    border-color: color-mix(in oklch, var(--vaner-amber) 65%, var(--color-fd-border));
-    background-color: color-mix(in oklch, var(--vaner-amber) 4%, transparent);
+    border-color: color-mix(in oklch, var(--amber) 65%, var(--hair));
+    background-color: color-mix(in oklch, var(--amber) 4%, var(--bg-1));
     transform: translateY(-1px);
   }
 }
