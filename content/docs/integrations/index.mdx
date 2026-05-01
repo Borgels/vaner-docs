@@ -8,14 +8,47 @@ This section covers integration modes and tool-specific recipes.
 
 ## Default integration (recommended)
 
-- [MCP mode](/integrations/mcp): native IDE/agent integration where models pull prepared scenarios via tools.
-- [Tool-specific pages](/integrations/connect-your-client): copy/paste setup and verification by client.
+<Cards>
+  <Card
+    href="/integrations/connect-your-client"
+    title="Connect your AI client"
+    description="One command per client (Claude Code, Cursor, Codex CLI, Cline, Continue, Zed, Windsurf, Roo, VS Code, Claude Desktop). Manual-setup picker if you'd rather paste it yourself."
+  />
+  <Card
+    href="/integrations/mcp"
+    title="MCP mode"
+    description="Conceptual overview: how Vaner exposes Prepared Work and the vaner.* tool family to MCP-aware clients."
+  />
+  <Card
+    href="/integrations/client-capabilities"
+    title="Client capability matrix"
+    description="Per-client support for the four leverage layers — MCP, primer, skill, hooks."
+  />
+</Cards>
 
 ## Advanced and compatibility modes
 
-- [Context-only mode](/integrations/context-only): call `/v1/context` directly from custom frameworks.
-- [Python SDK mode](/integrations/python-sdk): use Vaner as a library inside scripts and automation.
-- [Proxy mode](/integrations/proxy): OpenAI-compatible `/v1/chat/completions` for clients that cannot use MCP.
-- [Docker](/integrations/docker): compose topology for local multi-service setups.
+<Cards>
+  <Card
+    href="/integrations/context-only"
+    title="Context-only mode"
+    description="Call /v1/context directly from custom frameworks."
+  />
+  <Card
+    href="/integrations/python-sdk"
+    title="Python SDK"
+    description="Use Vaner as a library inside scripts and automation."
+  />
+  <Card
+    href="/integrations/proxy"
+    title="Proxy mode"
+    description="OpenAI-compatible /v1/chat/completions for clients that cannot use MCP."
+  />
+  <Card
+    href="/integrations/docker"
+    title="Docker"
+    description="Compose topology for local multi-service setups."
+  />
+</Cards>
 
 If your client supports MCP, prefer MCP mode first and only use advanced modes when needed.

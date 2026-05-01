@@ -1,5 +1,29 @@
 @import 'fumadocs-ui/style.css';
 
+/*
+ * Brand alignment with vaner.ai. Matches the amber accent + display
+ * type used on the marketing site / /developers bridge so the docs
+ * read as the same product.
+ */
+:root {
+  --vaner-amber: #e0a557;
+}
+
+/*
+ * Fumadocs <Card> grid: tighter than default, amber border + soft fill
+ * on hover, matching the .dev-card style on vaner.ai/developers.
+ */
+@layer components {
+  [data-card] {
+    transition: border-color 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+  }
+  [data-card]:hover {
+    border-color: color-mix(in oklch, var(--vaner-amber) 65%, var(--color-fd-border));
+    background-color: color-mix(in oklch, var(--vaner-amber) 4%, transparent);
+    transform: translateY(-1px);
+  }
+}
+
 @layer base {
   /*
    * Keep docs content centered at normal widths, but pin the sidebar to the
