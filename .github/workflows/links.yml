@@ -21,6 +21,8 @@ jobs:
             --exclude https://github.com/Borgels/Vaner/security/policy
             --exclude https://github.com/Borgels/Vaner/tree/main/examples
             --exclude https://docs.vaner.ai/integrations/tools/claude-code-mcp
+            --exclude https://docs.vaner.ai/integrations/connect-your-client
+            --exclude https://docs.vaner.ai/supported-hardware
             --exclude https://docs.vaner.ai/scenarios
             --exclude https://docs.vaner.ai/troubleshooting
             --exclude '^https://docs\.vaner\.ai/simple-mode($|#)'
