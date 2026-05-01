@@ -14,7 +14,6 @@
     "concepts",
     "---Integrations---",
     "integrations",
-    "mcp",
     "---Reference---",
     "cli",
     "configuration",
@@ -26,10 +25,6 @@
     "security",
     "changelog",
     "---More---",
-    "human-product-proof",
-    "usage",
-    "ai-prompts",
-    "skills",
     "troubleshooting",
     "examples"
   ]

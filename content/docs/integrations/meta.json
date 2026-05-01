@@ -2,9 +2,9 @@
   "title": "Integrations",
   "pages": [
     "index",
+    "connect-your-client",
     "client-capabilities",
     "mcp",
-    "tools",
     "composer-adapter",
     "context-only",
     "python-sdk",

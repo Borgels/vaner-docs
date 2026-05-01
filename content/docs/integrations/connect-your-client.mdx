@@ -1,0 +1,86 @@
+---
+title: Connect your AI client
+description: One command per AI client (Claude Code, Cursor, Codex CLI, Cline, Continue, Zed, Windsurf, Roo, VS Code, Claude Desktop). Vaner installs every applicable layer.
+---
+
+Vaner exposes context to your AI client over [MCP](https://modelcontextprotocol.io/).
+The Vaner Desktop app installs the right wiring automatically when it
+detects a supported client. If you'd rather drive it from the CLI:
+
+```bash
+vaner launch <client>
+```
+
+Replace `<client>` with one of:
+
+| Client | Command |
+|---|---|
+| **Claude Code** | `vaner launch claude-code` |
+| **Cursor** | `vaner launch cursor` |
+| **VS Code (Copilot)** | `vaner launch vscode-copilot` |
+| **Codex CLI** | `vaner launch codex-cli` |
+| **Cline** | `vaner launch cline` |
+| **Continue** | `vaner launch continue` |
+| **Zed** | `vaner launch zed` |
+| **Windsurf** | `vaner launch windsurf` |
+| **Claude Desktop** | `vaner launch claude-desktop` |
+| **Roo Code** | `vaner launch roo` |
+
+`vaner launch` runs every applicable [leverage layer](/integrations/client-capabilities)
+in one pass — MCP server entry, primer (rules file), skill /
+workflow / prompt, and lifecycle hooks where the client supports
+them. Each layer reports its own status. Re-run any time; it's
+idempotent.
+
+> [!TIP]
+> Already running `vaner init`? It does the same thing for every
+> client it detects. `vaner launch <client>` is the per-client form.
+
+## Prefer to wire it manually?
+
+Pick your client and Vaner will print the exact MCP entry to paste:
+
+<McpClientPicker />
+
+## Verifying the integration
+
+Open your client and ask the agent something open-ended about your
+repo. If the model calls a `vaner.*` tool — `vaner.resolve`,
+`vaner.prepared_work.dashboard`, or similar — the install worked.
+
+A copy-pasteable verification phrase:
+
+> *Without searching the codebase first, check if Vaner has prepared
+> anything relevant to a recent change in this repo, and tell me which
+> `vaner.*` tool you used.*
+
+If the agent grep's the repo instead of calling Vaner, the primer
+isn't in place — try `vaner launch <client> --force`.
+
+## What gets installed per client
+
+See the full per-client matrix at
+[Client integration depth](/integrations/client-capabilities). At a
+glance:
+
+- **All clients** get the MCP server entry.
+- **Most clients** get a primer (system-instruction-like rules file)
+  so the model knows when to call Vaner.
+- **Clients with skills / workflows / slash commands** get the
+  `vaner-feedback` adapter.
+- **Clients with hooks** (Cline, Windsurf) get a prompt-submit hook
+  that pre-fetches prepared work as you type.
+- **Claude Code** and **Cursor** also get full plugins (atomic
+  install bundles via each client's marketplace) — see
+  `plugins/vaner/` and `cursor-plugins/vaner/` in the source repo.
+
+## Removing Vaner from a client
+
+```bash
+vaner clients uninstall <client>
+```
+
+Removes the MCP entry. Primer / skill / hook files written under
+`.cursor/`, `.clinerules/`, `.windsurf/`, `.roo/`, `.claude/`, etc.
+can be deleted by hand or by removing the entire per-client
+directory.
