@@ -1,26 +1,42 @@
 import type { ReactNode } from 'react';
 import { RootProvider } from 'fumadocs-ui/provider/next';
-import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
+import {
+  Instrument_Serif,
+  JetBrains_Mono,
+  Share_Tech_Mono,
+  Space_Grotesk,
+} from 'next/font/google';
 import './globals.css';
 
-// Display: Space Grotesk for headlines, matching the vaner.ai/developers
-// bridge. Body: Inter — Space Grotesk reads heavy in paragraph text on
-// dense doc pages, so we split the two roles.
-const display = Space_Grotesk({
-  subsets: ['latin'],
+// Mirror of vaner-web/app/layout.tsx — same four font families,
+// same CSS variable names, so the design system reads identically
+// on docs.vaner.ai and vaner.ai.
+
+const spaceGrotesk = Space_Grotesk({
   variable: '--font-display',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
-const body = Inter({
+const instrumentSerif = Instrument_Serif({
+  variable: '--font-brand',
+  weight: '400',
   subsets: ['latin'],
-  variable: '--font-body',
   display: 'swap',
 });
 
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
+const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  display: 'swap',
+});
+
+const shareTechMono = Share_Tech_Mono({
+  variable: '--font-term',
+  weight: '400',
+  subsets: ['latin'],
   display: 'swap',
 });
 
@@ -29,10 +45,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${display.variable} ${body.variable} ${mono.variable}`}
+      className={`dark ${spaceGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} ${shareTechMono.variable}`}
     >
       <body>
-        <RootProvider>{children}</RootProvider>
+        {/* Vaner is dark-only. Disable next-themes' light/dark toggle
+            machinery and force the dark class on <html>. */}
+        <RootProvider theme={{ enabled: false, defaultTheme: 'dark', forcedTheme: 'dark' }}>
+          {children}
+        </RootProvider>
       </body>
     </html>
   );
