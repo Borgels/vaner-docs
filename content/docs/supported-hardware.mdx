@@ -1,0 +1,106 @@
+---
+title: Supported hardware
+description: Vaner runs everywhere Ollama runs. Practical guide to which GPU, CPU, and platform combinations work, and which model size to expect on each tier.
+---
+
+Vaner uses [Ollama](https://ollama.com) as its default local runtime,
+so **Vaner runs everywhere Ollama runs**. If your machine can pull and
+run a model with `ollama run`, Vaner can use it.
+
+The defaults the Vaner Desktop app picks are tuned to fit comfortably
+on the hardware it detects. You can override the model later via
+`vaner config set backend.model <id>`.
+
+## NVIDIA GPUs
+
+Compute Capability ≥ 5.0 is supported. Most consumer cards from the
+GTX 10-series (Pascal) onward and every RTX card qualify. See the
+official [Ollama NVIDIA list](https://github.com/ollama/ollama/blob/main/docs/gpu.md#nvidia)
+for the full per-architecture matrix.
+
+| VRAM | Practical model size | Examples |
+|---|---|---|
+| 4–8 GB | up to ~4B params, Q4 | Qwen 3 4B, Gemma 4 (small) |
+| 8–16 GB | up to ~8B params, Q4 | Qwen 3.5 8B |
+| 16–24 GB | up to ~14B params, Q4 | Qwen 3-Coder Next |
+| 24 GB+ | up to ~30B params, Q4 | Qwen 3.5 / 3.6 (mid), Llama 4 Scout |
+
+Multi-GPU is supported via Ollama's default placement; Vaner doesn't
+override it. Vaner picks the highest-VRAM device when reporting the
+hardware tier.
+
+## AMD GPUs (ROCm)
+
+Vaner inherits Ollama's ROCm support on Linux. A subset of cards from
+the RX 6000-series onward work natively; older cards or unsupported
+SKUs fall back to CPU. See the official
+[Ollama AMD list](https://github.com/ollama/ollama/blob/main/docs/gpu.md#amd-radeon)
+for the canonical per-card status.
+
+| VRAM | Practical model size |
+|---|---|
+| 8–16 GB | up to ~8B params, Q4 |
+| 16–24 GB | up to ~14B params, Q4 |
+| 24 GB+ | up to ~30B params, Q4 |
+
+Windows ROCm support depends on the driver/HSA combo your card uses;
+treat as best-effort.
+
+## Apple Silicon
+
+M1 and later are fully supported via Metal. Unified memory is the
+constraint — the model has to fit in shared system RAM, with headroom
+for macOS itself.
+
+| Unified memory | Practical model size |
+|---|---|
+| 8 GB | up to ~3B params, Q4 (tight; expect swap) |
+| 16 GB | up to ~7B params, Q4 |
+| 32 GB | up to ~14B params, Q4 |
+| 64 GB+ | up to ~30B params, Q4 |
+
+The Vaner Desktop app for macOS picks defaults based on your machine's
+total memory and reserves a sensible chunk for the OS.
+
+## CPU-only
+
+Vaner runs on CPU when no supported accelerator is detected. Reasonable
+for small models (≤ 4B params, Q4); larger models thrash and you'll
+notice it.
+
+| RAM | Practical model size | Notes |
+|---|---|---|
+| 8–16 GB | up to ~3B params | Slow but usable for `vaner.suggest` / short prompts |
+| 16–32 GB | up to ~7B params | Acceptable latency for non-interactive precompute |
+| 32 GB+ | up to ~14B params | Still slower than the smallest GPU; consider an external GPU box |
+
+If you'll run on CPU, set the compute preset to `background` in
+`.vaner/config.toml` so Vaner only uses idle cycles:
+
+```toml
+[compute]
+preset = "background"
+```
+
+## Platforms
+
+| OS | Status |
+|---|---|
+| Linux (Ubuntu, Fedora, Debian, Arch) | Supported. Wayland and X11 both work — there's no Vaner-side difference. |
+| macOS 13+ | Supported (Apple Silicon native, Intel via Rosetta — Apple Silicon recommended). |
+| Windows 10/11 | Supported via the [Vaner Desktop installer](https://vaner.ai). |
+
+## What if my GPU isn't on Ollama's list?
+
+Two paths:
+
+1. **Run Vaner on a different machine.** The daemon is remote-friendly
+   — `vaner up` on a beefy box, point your AI client at its
+   loopback URL via SSH tunnel, done. See
+   [Backends](/backends) for the configuration.
+2. **Use a cloud backend.** OpenAI / Anthropic / OpenRouter all work
+   the same way through MCP. Vaner Desktop's setup wizard exposes
+   them as backend presets.
+
+Either way, the Vaner CLI and MCP surface are unchanged. The only
+thing different is which GPU does the inference.

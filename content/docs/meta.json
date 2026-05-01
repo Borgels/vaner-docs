@@ -19,6 +19,7 @@
     "cli",
     "configuration",
     "backends",
+    "supported-hardware",
     "policy-bundles",
     "hardware-tiers",
     "architecture",
