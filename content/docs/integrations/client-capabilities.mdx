@@ -100,68 +100,53 @@ What `vaner init` and the Vaner Desktop app actually write today, per layer:
 | Client | MCP | Primer | Skill | Plugin |
 |---|---|---|---|---|
 | Claude Code | ✓ | `.claude/CLAUDE.md` (+ optional `~/.claude/CLAUDE.md`) | `~/.claude/skills/vaner/vaner-feedback/SKILL.md` | ✓ Full plugin (`plugins/vaner/`) — hooks + monitor + skills |
-| Cursor | ✓ | `.cursor/rules/vaner.mdc` (`alwaysApply: true`) | `.cursor/skills/vaner/vaner-feedback/SKILL.md` | ✗ — possible (1.7+); not yet shipped |
+| Cursor | ✓ | `.cursor/rules/vaner.mdc` (`alwaysApply: true`) | `.cursor/skills/vaner/vaner-feedback/SKILL.md` | ✓ Full plugin (`cursor-plugins/vaner/`) — `sessionStart` + `beforeSubmitPrompt` hooks |
 | VS Code Copilot | ✓ | `.github/copilot-instructions.md` (block-merged) | ✗ — possible (experimental in 1.108); not yet shipped | ✗ — only an extension API exists |
-| Codex CLI | ✓ | `AGENTS.md` (block-merged) | ✗ — possible (Agent Skills standard); not yet shipped | ✗ — possible (behind `codex_hooks` flag); not yet shipped |
-| Cline | ✓ | `.clinerules` (block-merged) | ✗ — possible (Workflows); not yet shipped | ✗ — possible (8-event hooks); not yet shipped |
-| Continue | ✓ | `.continue/rules/vaner.md` (block-merged) | ✗ — possible (Prompts); not yet shipped | n/a — no hooks system |
-| Zed | ✓ | ✗ — **possible** (`.rules`, `AGENTS.md`); not yet shipped | n/a | n/a |
-| Windsurf | ✓ | ✗ — **possible** (`.windsurf/rules/`); not yet shipped | ✗ — possible (Workflows); not yet shipped | ✗ — possible (12-event hooks); not yet shipped |
+| Codex CLI | ✓ | `AGENTS.md` (block-merged) | `~/.codex/skills/vaner-feedback/SKILL.md` | ✗ — possible (behind `codex_hooks` flag); not yet shipped |
+| Cline | ✓ | `.clinerules` (block-merged) | `.clinerules/workflows/vaner-feedback.md` | `.clinerules/hooks/UserPromptSubmit` (composer-submit) |
+| Continue | ✓ | `.continue/rules/vaner.md` (block-merged) | `.continue/prompts/vaner-feedback.md` (manual `/`) | n/a — no hooks system |
+| Zed | ✓ | `.rules` (block-merged) | n/a | n/a |
+| Windsurf | ✓ | `.windsurf/rules/vaner.md` (`trigger: always_on`) | `.windsurf/workflows/vaner-feedback.md` | `.windsurf/hooks.json` (composer-submit on `user_prompt`) |
 | Claude Desktop | ✓ | n/a — no local surface | n/a — no local surface | ✗ — possible (MCPB bundle); not yet shipped |
-| Roo Code | ✓ | ✗ — **possible** (`.roo/rules/`); not yet shipped | ✗ — possible (Custom Mode or Slash Command); not yet shipped | n/a |
+| Roo Code | ✓ | `.roo/rules/vaner.md` | `.roo/commands/vaner-feedback.md` (agent-invocable via `run_slash_command`) | n/a |
 
 ## Gap analysis
 
-Three categories of gap, in priority order:
+After Phase C of the IDE/agent visibility plan, the leverage stack is
+filled in for every client where Vaner can ship today. What's left is
+gated on upstream releases or is UX-only:
 
-### High leverage, low effort — ship next
+### Awaiting upstream
 
-**Primer for Zed, Windsurf, Roo Code.** All three support primers; Vaner doesn't
-write any today. Without them the model has no instruction to use Vaner at
-all in those clients. Each is a one-file write following the same template
-Vaner already uses for the other 6 primer-supporting clients.
+**VS Code Copilot skill.** Agent Skills standard, currently experimental
+in VS Code 1.108. Will ship when the feature graduates to stable.
 
-- Zed: write to `.rules` (also picked up by other clients) or piggyback on
-  `AGENTS.md`.
-- Windsurf: `.windsurf/rules/vaner.md` with `trigger: always_on` frontmatter.
-- Roo Code: `.roo/rules/vaner.md`.
+**Codex CLI hooks.** Codex CLI exposes `SessionStart`, `UserPromptSubmit`,
+`PreToolUse`, `PermissionRequest`, `PostToolUse`, and `Stop` events behind
+a `codex_hooks = true` feature flag. Will ship when the flag goes stable.
 
-### Medium leverage, medium effort — ship after primer gaps
-
-**Codex CLI skill.** Codex CLI uses the Agent Skills open standard (same
-`SKILL.md` format as Claude Code/Cursor). Vaner's existing `vaner-feedback`
-skill should drop straight into `~/.codex/skills/` or `.codex/skills/` with
-no transformation.
-
-**VS Code Copilot skill.** Same Agent Skills standard. Currently experimental
-(VS Code 1.108+); ship when GA.
-
-**Cline / Windsurf / Continue / Roo workflows.** These four use
-manual-invocation-only "workflow" or "prompt" or "slash command" formats. Less
-auto-leverage than skills, but better than nothing — gives the user a
-`/vaner-feedback` shortcut. Each requires a per-client format adaptation
-(markdown with the right frontmatter).
-
-### High leverage, higher effort — ship deliberately
-
-**Cursor plugin.** Cursor 1.7+ has a full plugin system with 17 hook events
-(comparable to Claude Code's). A Cursor Vaner plugin would pre-fetch context
-on `beforeSubmitPrompt`, surface prepared work on `sessionStart`, and record
-feedback on `postToolUse` — equivalent leverage to the Claude Code plugin.
-
-**Codex CLI hooks.** Codex CLI ships hooks (`SessionStart`, `UserPromptSubmit`,
-`PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop`) behind a
-`codex_hooks = true` feature flag. When the flag goes stable, ship hooks.
-
-**Cline hooks (8 events) and Windsurf hooks (12 events).** Both have stable
-hook APIs. Each requires per-client script wrappers around Vaner's core
-prepare-on-prompt-submit logic. Lower priority than Cursor because the user
-base is smaller, but the leverage shape is similar.
+### UX-only, lower priority
 
 **Claude Desktop MCPB bundle.** Claude Desktop has no lifecycle hooks but
 does have one-click MCPB install bundles. A Vaner MCPB would let users
-install via double-click instead of editing `claude_desktop_config.json` by
-hand. UX win, not a leverage win.
+install via double-click instead of editing
+`claude_desktop_config.json` by hand. UX win, not a leverage win.
+
+### Genuinely not applicable
+
+**Zed skills/plugin** — Zed has no agent-callable subroutine concept and
+no AI session-lifecycle hooks for third parties. Primer-only.
+
+**Continue plugin/hooks** — Continue has no lifecycle hook system. Hub
+bundles cover plugin-style distribution but only for assistants/blocks,
+not lifecycle behaviour.
+
+**Roo plugin** — Roo Code has no documented hook API. Slash commands
+(invocable by the agent via `run_slash_command`) are the deepest layer
+Roo exposes today.
+
+**Claude Desktop primer/skill** — both are cloud-only on Claude Desktop;
+no local-disk surface for Vaner to write into.
 
 ## How this informs the verification UI
 
