@@ -28,6 +28,8 @@ jobs:
             --exclude '^https://docs\.vaner\.ai/policy-bundles($|#)'
             --exclude '^https://docs\.vaner\.ai/hardware-tiers($|#)'
             --exclude '^https://docs\.vaner\.ai/deep-run($|#)'
+            --exclude '^https://docs\.vaner\.ai/prepared-work($|#)'
+            --exclude '^https://docs\.vaner\.ai/human-product-proof($|#)'
             --exclude https://docs.vaner.ai/integrations/integration-layer
             "./**/*.md"
             "./**/*.mdx"

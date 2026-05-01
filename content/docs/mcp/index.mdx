@@ -3,19 +3,21 @@ title: Connect your AI client
 description: Install Vaner, pick a model backend, and wire up MCP for Claude Code, Cursor, VS Code, Codex, Windsurf, Zed, Continue, Cline, Roo, and Claude Desktop.
 ---
 
-Vaner exposes your repository to AI clients over the
+Vaner exposes Prepared Work and evidence-backed context to AI clients over the
 [Model Context Protocol](https://modelcontextprotocol.io/). Most clients can
 launch Vaner directly via `uvx` when `uvx` is available, so you can connect
-first and install the full CLI later only if you want it. Three steps:
+first and install the full CLI later only if you want it.
 
 > [!TIP]
 > Most users do not need manual MCP setup. Run `vaner init --path .` and Vaner
 > configures supported clients automatically. This page is mainly for custom or
 > unsupported client setups.
 
-1. Connect your client (default: `uvx` launcher, no permanent install).
+Three steps:
+
+1. Connect your client.
 2. Pick the model backend Vaner should ponder with.
-3. Use the MCP tools from your AI client.
+3. Use the Prepared Work and context tools from your AI client.
 
 ## 1. Install once, then wire clients
 
@@ -79,67 +81,103 @@ Common paths include:
 - `.cursor/skills/vaner/vaner-feedback/SKILL.md`
 - `.claude/skills/vaner/vaner-feedback/SKILL.md`
 
-This is effectively a system-prompt-level instruction for agent runtimes: after
-using Vaner scenarios, report outcomes back via `report_outcome` so ranking can
-improve over time. See [Agent Skills](/skills) for the full loop.
+This is system-prompt-level guidance for agent runtimes: after using Vaner,
+report outcomes back so ranking can improve over time. See
+[Agent Skills](/skills) for the full loop.
 
 ## Optional: bound ponder time
 
-Vaner will happily ponder forever. If you want a hard cap — per cycle or per
-session — set the compute budget below:
+Vaner can ponder continuously while it is running. If you want a hard cap per
+cycle or per session, set the compute budget below:
 
 <ComputeBudget />
 
-- `max_cycle_seconds` bounds a single precompute cycle (default `300`).
-- `max_session_minutes` bounds a continuous `vaner daemon` run (default unset).
+- `max_cycle_seconds` bounds a single precompute cycle.
+- `max_session_minutes` bounds a continuous `vaner up` / daemon run.
 
 Both are safe to leave at their defaults; set them if you want Vaner to stop
-pondering after, say, 30 minutes on battery.
+pondering after a fixed wall-clock budget.
 
 ## What Vaner's MCP server exposes
 
-When your client connects to `vaner mcp`, it gets a set of namespaced tools.
-The core surface:
+When your client connects to `vaner mcp`, it gets namespaced `vaner.*` tools.
+The current surface is grouped by user-facing purpose.
 
-- `vaner.status` — health + readiness. Use this as your smoke-test after wiring.
-- `vaner.resolve` — given a user prompt, return a prepared briefing + evidence
-  + (optionally) a speculative draft answer.
-- `vaner.suggest` — suggest likely next prompts based on workflow state.
+### Prepared Work
+
+Use these first in normal clients:
+
+- `vaner.prepared_work.dashboard` — UI-safe cards combining Prepared Work
+  artifacts and ready prediction-backed opportunities.
+- `vaner.work_products.list` — diagnostic list of Vaner-owned prepared
+  artifacts.
+- `vaner.work_products.inspect` — inspect one artifact with body, evidence,
+  warnings, and allowed actions.
+- `vaner.work_products.export` — export one artifact only when it is
+  exportable. This returns content and never edits files.
+- `vaner.work_products.dismiss` — hide one item from normal feeds.
+- `vaner.work_products.feedback` — record `useful`, `partial`, `irrelevant`,
+  or `not_useful` feedback.
+
+### Resolve and navigation
+
+- `vaner.status` — health and readiness smoke test.
+- `vaner.resolve` — resolve a user query into a briefing, evidence, and optional
+  draft.
+- `vaner.suggest` — suggest likely next prompts or work directions.
 - `vaner.search` / `vaner.expand` / `vaner.inspect` — navigate and deepen the
-  prepared scenario graph.
-- `vaner.explain` — human-readable rationale for why a resolution surfaced.
-- `vaner.feedback` — usefulness feedback (`useful`, `partial`, `wrong`,
-  `irrelevant`) so Vaner adapts.
+  scenario graph.
+- `vaner.explain` — explain why a resolution surfaced.
+- `vaner.feedback` — usefulness feedback for resolution/scenario flows.
 - `vaner.warm` — hint Vaner to precompute around specific targets.
+- `vaner.debug.trace` — diagnostic trace data for debugging.
 
-**0.8.0 adds two new tool families:**
+### Predictions and goals
 
-- `vaner.predictions.active` / `vaner.predictions.adopt` — list Vaner's
-  currently-ready next-prompt predictions and adopt one. Adopt serves the
-  prepared briefing + draft answer with `adopted_from_prediction_id` for
-  provenance, so your client can surface an answer instantly instead of
-  round-tripping to the frontier model.
-- `vaner.goals.list` / `vaner.goals.declare` / `vaner.goals.update_status` /
-  `vaner.goals.delete` — workspace-level goals that span many prompts
-  (e.g. "JWT migration"). Declared goals seed long-horizon predictions the
-  engine matures across successive cycles.
+Predictions are mostly internal machinery. Use Prepared Work for normal UI.
 
-Most tools also accept an optional `skill` field for attribution when a
-specific `SKILL.md` drove the call.
+- `vaner.predictions.active`
+- `vaner.predictions.adopt`
+- `vaner.predictions.dashboard`
+- `vaner.goals.list`
+- `vaner.goals.declare`
+- `vaner.goals.update_status`
+- `vaner.goals.delete`
 
-See [Concepts](/concepts) and [Architecture](/architecture) for the full picture.
+### Artifacts, sources, setup, and Deep-Run
+
+- `vaner.artefacts.list`
+- `vaner.artefacts.inspect`
+- `vaner.artefacts.set_status`
+- `vaner.artefacts.influence`
+- `vaner.sources.status`
+- `vaner.setup.questions`
+- `vaner.setup.recommend`
+- `vaner.setup.apply`
+- `vaner.setup.status`
+- `vaner.policy.show`
+- `vaner.deep_run.start`
+- `vaner.deep_run.stop`
+- `vaner.deep_run.status`
+- `vaner.deep_run.list`
+- `vaner.deep_run.show`
+- `vaner.deep_run.defaults`
+
+All tools are scoped to the `--path` Vaner was started with. Most tools also
+accept optional attribution fields so clients can report which skill or surface
+drove the call.
 
 ## Troubleshooting
 
-- **`vaner: command not found`** — the installer didn't add pipx's bin dir.
+- **`vaner: command not found`** — the installer did not add pipx's bin dir.
   Run `pipx ensurepath` or restart your shell.
-- **Client shows `vaner` as `failed`** — run `vaner mcp --path .` in a
-  terminal and read the error. The most common cause is a missing backend
-  key; confirm with `vaner config show`.
+- **Client shows `vaner` as failed** — run `vaner mcp --path .` in a terminal
+  and read the error. The most common cause is a missing backend key; confirm
+  with `vaner config show`.
 - **`vaner mcp` exits immediately** — your client may not be sending over
   stdio. Double-check `"type": "stdio"` in the client config.
 - **Backend not reachable** — confirm with
   `curl -s $BASE_URL/models` (OpenAI-compatible backends expose `/v1/models`).
 
-Stuck? Open an issue with `vaner diagnose --path .` output at
+Stuck? Open an issue with `vaner doctor --path .` output at
 [github.com/Borgels/vaner/issues](https://github.com/Borgels/vaner/issues).

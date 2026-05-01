@@ -10,6 +10,8 @@ Vaner defaults to a conservative posture:
 - Explicit repository scope (`vaner init --path`)
 - Exclusion patterns for sensitive files
 - Inspectable context decisions via `vaner inspect --last`
+- Non-mutating Prepared Work by default: virtual diffs and exports require
+  explicit user action and are never auto-applied to project files
 - Local retention controls via `vaner forget`
 - Skill discovery defaults to repo-local roots (`.cursor/skills/**`, `.claude/skills/**`, `skills/**`)
 - Privacy zoning for skills (`project_local` for repo paths, `external` for outside paths)

@@ -5,8 +5,8 @@ description: Connect Windsurf to Vaner over MCP for predictive, repo-grounded co
 
 [Windsurf](https://docs.windsurf.com/windsurf/cascade/mcp) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -34,7 +34,8 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Cascade pulls Vaner scenarios before drafting a plan, reducing thrash on large repos.
+- Cascade can inspect Prepared Work before drafting a plan, reducing thrash on
+  large repos.
 - Works alongside Windsurf’s built-in memory — Vaner supplies the structural context.
 - Switch repos without restarting Windsurf; Vaner scopes itself to `--path`.
 

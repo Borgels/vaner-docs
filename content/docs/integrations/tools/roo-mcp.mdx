@@ -5,8 +5,8 @@ description: Connect Roo Code to Vaner over MCP for predictive, repo-grounded co
 
 [Roo Code](https://docs.roocode.com/features/mcp/using-mcp-in-roo) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -26,7 +26,8 @@ vaner init --path .
 
 ## Verify
 
-Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run `list_scenarios`.
+Reload VS Code. Open Roo Code's MCP panel and confirm `vaner` appears; run
+`vaner.status`.
 
 If `Roo Code` reports the server as failed, run `vaner mcp --path .`
 manually in a terminal and read the error. The most common failure is a
@@ -34,7 +35,8 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Roo Code’s agent mode can call `list_scenarios`/`get_scenario` before writing diffs.
+- Roo Code's agent mode can call `vaner.prepared_work.dashboard` before writing
+  diffs.
 - Project-level `.roo/mcp.json` so repos opt in explicitly.
 - Works with Roo’s orchestration to break large changes into Vaner-informed steps.
 

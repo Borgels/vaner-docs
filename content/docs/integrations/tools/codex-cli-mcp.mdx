@@ -5,8 +5,8 @@ description: Connect Codex CLI to Vaner over MCP for predictive, repo-grounded c
 
 [Codex CLI](https://github.com/openai/codex) supports the
 [Model Context Protocol](https://modelcontextprotocol.io/) out of the box.
-Point it at `vaner mcp` and Vaner will serve scenario-ranked context to your
-agent before every prompt.
+Point it at `vaner mcp` and Vaner will serve Prepared Work and
+scenario-ranked context to your agent.
 
 > [!TIP]
 > Or just run `vaner init --path .` from your project root — it will detect and configure this client for you.
@@ -34,9 +34,10 @@ missing backend API key — confirm with `vaner config show`.
 
 ## What this unlocks
 
-- Feed Vaner context to Codex CLI sessions: `codex exec "refactor X"` can call `list_scenarios` and `get_scenario` first.
+- Feed Vaner context to Codex CLI sessions: `codex exec "refactor X"` can call
+  `vaner.prepared_work.dashboard` or `vaner.resolve` first.
 - Pin a per-repo backend in `~/.codex/config.toml` alongside the Vaner entry.
-- Pair with `vaner daemon start` to keep ponder warm between CLI invocations.
+- Pair with `vaner up --path .` to keep ponder warm between CLI invocations.
 
 ## See also
 
