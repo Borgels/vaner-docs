@@ -1,33 +1,36 @@
 @import 'fumadocs-ui/style.css';
 
 /*
- * Brand alignment with vaner.ai. Matches the amber accent + display
- * type used on the marketing site / /developers bridge so the docs
- * read as the same product.
+ * Brand alignment with vaner.ai. The marketing site uses an amber
+ * accent on a near-black surface; the docs need to read as the same
+ * product without overriding Fumadocs' light/dark + a11y machinery.
  */
 :root {
   --vaner-amber: #e0a557;
 }
 
-/*
- * Fumadocs <Card> grid: tighter than default, amber border + soft fill
- * on hover, matching the .dev-card style on vaner.ai/developers.
- */
-@layer components {
-  [data-card] {
-    transition: border-color 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
-  }
-  [data-card]:hover {
-    border-color: color-mix(in oklch, var(--vaner-amber) 65%, var(--color-fd-border));
-    background-color: color-mix(in oklch, var(--vaner-amber) 4%, transparent);
-    transform: translateY(-1px);
-  }
+/* Apply Vaner brand fonts to Fumadocs' tokens. The next/font CSS
+ * variables (--font-display, --font-mono) are set on <html> by
+ * app/layout.tsx. Falling back to Fumadocs defaults if the fonts
+ * fail to load. */
+:root {
+  --fd-font-sans: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --fd-font-mono: var(--font-mono), ui-monospace, "Menlo", monospace;
+}
+
+/* Amber accent on links + active sidebar item, consistent with the
+ * vaner.ai/developers bridge. Fumadocs uses HSL color tokens; we
+ * override the primary/accent ones to point at amber, but only at
+ * a light enough opacity to keep contrast on the dark theme. */
+:root {
+  --color-fd-primary: var(--vaner-amber);
 }
 
 @layer base {
   /*
-   * Keep docs content centered at normal widths, but pin the sidebar to the
-   * viewport edge on very wide screens (closer to docs.ollama.com behavior).
+   * Keep docs content centered at normal widths, but pin the sidebar
+   * to the viewport edge on very wide screens (closer to
+   * docs.ollama.com behavior).
    */
   @media (min-width: 1800px) {
     #nd-docs-layout {
@@ -41,12 +44,42 @@
   }
 
   /*
-   * Fumadocs sidebar footer row is full-width by default. Shrink the row that
-   * contains the theme toggle so it hugs the icon buttons + light/dark buttons.
+   * Fumadocs sidebar footer row is full-width by default. Shrink the
+   * row that contains the theme toggle so it hugs the icon buttons.
    */
   #nd-sidebar div:has(> [data-theme-toggle]) {
     width: fit-content;
     max-width: 100%;
   }
+
+  /*
+   * Display headings on doc pages use Space Grotesk with tight
+   * tracking, matching the bridge headline style.
+   */
+  article h1,
+  article h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 500;
+  }
+
+  article h1 {
+    font-size: clamp(28px, 3.2vw, 40px);
+    line-height: 1.1;
+  }
 }
 
+/*
+ * Fumadocs Card grid: amber border + soft fill on hover, matching
+ * the .dev-card style on vaner.ai/developers.
+ */
+@layer components {
+  [data-card] {
+    transition: border-color 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+  }
+  [data-card]:hover {
+    border-color: color-mix(in oklch, var(--vaner-amber) 65%, var(--color-fd-border));
+    background-color: color-mix(in oklch, var(--vaner-amber) 4%, transparent);
+    transform: translateY(-1px);
+  }
+}

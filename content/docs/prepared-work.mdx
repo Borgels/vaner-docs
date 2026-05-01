@@ -1,57 +1,116 @@
 ---
 title: Prepared Work
-description: The user-facing surface for work Vaner prepared before you asked.
+description: What Vaner produces and how to inspect it.
 ---
 
-Prepared Work is Vaner's main product surface. It combines concrete artifacts
-prepared during idle/background time with strong ready predictions, then shows
-only the small set that is useful enough to inspect.
-
-Users should not need to know whether an item came from a prediction, a
-WorkProduct loop, a virtual diff generator, or a research brief generator. The
-surface answers four questions:
+Prepared Work is Vaner's main user-facing surface. It's a small feed of
+evidence-backed cards Vaner prepared during idle time, ready to inspect when
+you ask. Each card answers four questions:
 
 - What did Vaner prepare?
 - Why did Vaner prepare it now?
 - What evidence supports it?
 - What safe action can I take?
 
+Vaner intentionally shows few, strong items. Candidate, hidden, stale, and
+superseded artefacts stay out of the feed.
+
 ## What can appear
 
-Prepared Work cards may represent:
-
-- review notes
-- bug hypotheses
-- docs drift notes
-- virtual diffs
-- research briefs
-- ready draft/prediction opportunities
-
-Vaner intentionally shows fewer, stronger items. Candidate, hidden, stale,
-dismissed, expired, and superseded artifacts stay out of the normal feed.
+- Review notes
+- Bug hypotheses
+- Docs drift notes
+- Virtual diffs
+- Research briefs
+- Ready prediction-backed drafts
 
 ## Actions
 
-Each card carries server-authoritative actions. Clients should render only the
-actions returned by Vaner:
+Each card carries server-authoritative actions. Clients render only what
+Vaner returns:
 
-- **Inspect** opens the full rationale, evidence, warnings, and preview.
-- **Export** returns Vaner-owned content, such as markdown or a patch payload.
-- **Adopt** uses a ready prediction/package as the user's current intent.
-- **Dismiss** hides the item from normal feeds.
-- **Feedback** records whether the item was useful, partial, irrelevant, or not
-  useful.
+- **Inspect.** Full rationale, evidence, warnings, preview.
+- **Export.** Vaner-owned content (markdown, patch payload).
+- **Adopt.** Use a ready prediction as your current intent.
+- **Dismiss.** Hide from the feed.
+- **Feedback.** Record useful / partial / irrelevant / wrong.
 
-Export and adopt are explicit user actions. Vaner does not silently apply
-patches or edit project files.
+Export and adopt are explicit. Vaner never silently applies patches or edits
+project files.
 
 ## Virtual diffs
 
-Virtual diffs are stored artifacts, not automatic code changes. They include
-the target files, source snapshot, rationale, evidence, and export payload.
+Patch-shaped Prepared Work. Stored, not auto-applied. They include the
+target files, source snapshot, rationale, evidence, and export payload.
 
-A virtual diff becomes stale when its target files no longer match the recorded
-snapshot. Stale virtual diffs are blocked from export until regenerated.
+A virtual diff goes stale when its target files no longer match the recorded
+snapshot. Stale diffs block export until regenerated.
+
+## Inspecting Prepared Work
+
+The cockpit is Vaner's local control surface. Start it with:
+
+```bash
+vaner up --path .
+```
+
+Default URL: `http://127.0.0.1:8473`. Same Prepared Work feed as the desktop
+app and any MCP client; UI-safe by default with a diagnostic toggle.
+
+Useful endpoints for scripted checks:
+
+- `GET /prepared-work`
+- `GET /work-products`
+- `GET /work-products/{id}/inspect`
+- `POST /work-products/{id}/export`
+
+Watch the live event stream:
+
+```bash
+vaner watch --cockpit-url http://127.0.0.1:8473
+```
+
+## Long-horizon mode
+
+`vaner deep-run start` opens a longer session biased toward
+*"what will matter tomorrow?"* instead of the daytime *"what's likely next?"*
+loop. Pairs with the [*Deep Research*](/policy-bundles#deep-research) bundle.
+
+Deep-Run prepares; it does not act. Drafts queue for human adopt / discard.
+Nothing ships, sends, or commits without an explicit confirmation.
+
+```bash
+vaner deep-run start
+vaner deep-run start --preset aggressive --duration 480 --cost-cap 5
+vaner deep-run status
+vaner deep-run stop
+```
+
+Bundle defaults pre-fill the session. See
+[Configuration](/configuration#deep-run) for the per-session knobs and
+[Policy bundles](/policy-bundles) for each bundle's `deep_run_profile`.
+
+## Goals
+
+A **goal** is a long-horizon intent in your workspace ("ship the new auth
+middleware"). Goals persist across daemon restarts and survive individual
+prompts. Each carries a status (`active` / `paused` / `abandoned` /
+`achieved`), related files, and a reconciliation state.
+
+Declare and inspect goals from any MCP-aware client:
+
+```text
+vaner.goals.list
+vaner.goals.declare
+vaner.goals.update_status
+vaner.goals.delete
+```
+
+Or browse them in the cockpit's `Goals` view.
+
+When the repo changes, Vaner reconciles each goal's linked artefacts against
+the new state. A goal whose evidence has gone stale gets demoted; one that
+gains confirming evidence gets promoted.
 
 ## HTTP and MCP
 
@@ -73,8 +132,5 @@ MCP:
 - `vaner.work_products.dismiss`
 - `vaner.work_products.feedback`
 
-The default Prepared Work dashboard hides internal lifecycle, self-evaluation,
-and raw ranking fields. Diagnostic clients can opt into diagnostic references.
-
-Before making stronger product claims, run the scripted
-[human product-proof test](/human-product-proof) against public fixtures.
+The default dashboard hides internal lifecycle and ranking fields.
+Diagnostic clients can opt in.
