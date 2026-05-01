@@ -1,0 +1,94 @@
+---
+title: Human Product-Proof Test
+description: A scripted check for whether people understand, trust, inspect, and safely act on Prepared Work.
+---
+
+The human product-proof test is a small, scripted check for Prepared Work. It is
+not a broad usability study and it does not replace automated E2E tests or
+benchmarks. Use it before making stronger public claims that Prepared Work is
+understandable, trusted, and useful in the app.
+
+Run 3 to 5 guided sessions against public fixture repos or public tasks only.
+Include at least one developer-like user. If the tested flow is not code-only,
+include at least one non-core user. A power user familiar with AI tools is
+optional.
+
+## Goals
+
+Validate whether participants can:
+
+- explain what a Prepared Work card is offering
+- decide whether a card looks useful
+- inspect the evidence behind a card
+- understand freshness and confidence labels
+- export or adopt without thinking Vaner silently changed files
+- dismiss irrelevant work or give feedback
+- distinguish a prepared suggestion from a completed change
+- trust that the card is based on real, inspectable evidence
+
+## Script
+
+Use the same script in every session:
+
+1. Start from a clean public fixture repo or public task.
+2. Show Vaner with 2 to 5 Prepared Work cards.
+3. Ask what each card appears to offer.
+4. Ask which card they would inspect first and why.
+5. Ask them to inspect one card.
+6. Ask what evidence supports the card.
+7. Ask whether they would export or adopt it.
+8. Ask what they expect export or adopt to do before clicking.
+9. Let them click export or adopt.
+10. Verify whether their expectation matched the result.
+11. Ask them to dismiss or give feedback on one bad or irrelevant card.
+12. Ask what felt unsafe, confusing, stale, or too technical.
+
+Do not explain internal terms unless the participant gets stuck. The test is
+checking the product surface, not whether the facilitator can teach it.
+
+## Measurements
+
+Record:
+
+- task completion: inspect, export/adopt, dismiss, and feedback without help
+- comprehension: whether the participant can explain the card
+- trust: whether they understand why Vaner suggested it
+- safety expectation: whether they know export/adopt does not silently mutate
+  repo files
+- actionability: whether they would actually use the artifact
+- confusion points: wording, labels, evidence, export/adopt behavior, and
+  client differences
+- false-positive pain: confidently wrong, stale, or irrelevant cards
+- time to first useful action
+
+## Gates
+
+Before making stronger Prepared Work product claims:
+
+- at least 80% of participants can explain what a Prepared Work card is
+- at least 80% can inspect evidence without help
+- at least 80% understand that export/adopt does not silently mutate repo files
+- no critical trust failures occur
+- no participant treats diagnostic or internal fields as product-facing concepts
+- serious confusion points are fixed or documented as known limitations
+
+## Non-goals
+
+Do not use this test to tune the engine broadly. Do not ask vague preference
+questions such as whether participants like it. Do not test private repos or
+private user data. Do not treat enthusiasm as proof; the useful signal is
+whether people understand, trust, and safely act on Prepared Work.
+
+## Report Template
+
+Use a short report with:
+
+- participants and context
+- exact fixture or task
+- cards shown
+- actions attempted
+- completion results
+- confusion points
+- trust or safety issues
+- wording fixes
+- whether Prepared Work is ready for stronger public claims
