@@ -2,6 +2,7 @@
   "title": "Integrations",
   "pages": [
     "index",
+    "client-capabilities",
     "mcp",
     "tools",
     "composer-adapter",
