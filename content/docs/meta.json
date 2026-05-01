@@ -2,11 +2,8 @@
   "title": "Vaner",
   "pages": [
     "index",
-    "---Get started---",
     "getting-started",
-    "---What it does---",
     "prepared-work",
-    "---Integrations---",
     "integrations",
     "---Reference---",
     "cli",
