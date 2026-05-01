@@ -90,12 +90,16 @@ em {
 
 @layer base {
   /*
-   * Wide-screen layout — sidebar pinned to viewport edge.
+   * Sidebar pinned to the LEFT edge at all widths above the
+   * mobile breakpoint, matching docs.ollama.com. Fumadocs' default
+   * centers the whole layout inside 1400px, which floats the sidebar
+   * away from the viewport edge — wrong for a docs site.
+   *
+   * Grid: [sidebar flush left] [content] [optional toc] [spacer].
    */
-  @media (min-width: 1800px) {
+  @media (min-width: 1024px) {
     #nd-docs-layout {
       grid-template-columns:
-        0
         var(--fd-sidebar-col)
         minmax(0, calc(var(--fd-layout-width, 97rem) - var(--fd-sidebar-width) - var(--fd-toc-width)))
         var(--fd-toc-width)
