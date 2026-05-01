@@ -1,0 +1,182 @@
+---
+title: Client integration depth
+description: How deeply Vaner can install into each MCP client, and what it actually does today versus what the client supports.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+Wiring Vaner as an MCP server is the *minimum* integration. To make sure the
+agent actually uses Vaner instead of just *being able to*, we install up to
+four layers per client — and clients differ wildly in what they support.
+
+This page is the source of truth for:
+
+- **The four-layer leverage stack** — what each layer does and why MCP alone is rarely enough.
+- **Per-client capability matrix** — which layers each supported client actually exposes (per their official docs, sourced 2026-05).
+- **Vaner's current install footprint** — which layers Vaner writes today, and the gaps we know about.
+
+## The four layers
+
+### Layer 1 — MCP server
+
+The technical wiring. Adds a `vaner` entry to the client's MCP server config so
+the client can call `vaner.*` tools.
+
+This is the floor. Without it, nothing else matters; with it alone, you depend
+entirely on the model's training to know it should call Vaner. Models often
+*don't*.
+
+### Layer 2 — Primer
+
+A "system-prompt-like" markdown block telling the model **when and how** to
+use Vaner. Examples:
+
+- *"Before spelunking the codebase, call `vaner.resolve` with a short
+  description of the task."*
+- *"At the end of any non-trivial work, call `vaner.feedback` with the
+  resolution_id and a rating."*
+
+Empirically: when the primer is missing, models don't reliably call
+`vaner.resolve` even when Vaner is wired. The primer is what turns
+**possible** into **actual** usage. Most clients support a per-project rules
+file (`CLAUDE.md`, `.cursor/rules/*.mdc`, `AGENTS.md`, etc.) that the model
+reads on every session.
+
+### Layer 3 — Skills (or workflows / prompts / modes)
+
+An agent-callable subroutine — usually a markdown document with metadata —
+that ships separately from the primer. Two flavors:
+
+- **Auto-loaded** (Claude Code, Cursor, Codex CLI): the model reads each
+  skill's description and decides when to invoke it. Vaner's `vaner-feedback`
+  skill is auto-loaded — the model uses it whenever it's about to record
+  feedback.
+- **User-invoked** (Cline workflows, Windsurf workflows, Continue prompts):
+  the user types `/<skill-name>` to trigger it. Less leverage, since the model
+  won't call it on its own.
+
+Some clients (Roo Code with `run_slash_command`) blur the line by letting the
+agent invoke its own slash commands.
+
+### Layer 4 — Plugins / hooks
+
+The deepest integration. A plugin bundle ships **multiple layers atomically**
+(MCP server + primer + skills + hooks + monitors) and registers code that
+runs at session lifecycle moments — `SessionStart`, `UserPromptSubmit`,
+`PreToolUse`, `PostToolUse`, `Stop`, `FileChanged`, etc.
+
+Hooks are what let Vaner do active work between turns: pre-fetch context
+when the user starts typing, surface fresh prepared work as the session
+opens, record feedback after a tool call lands. **This is the layer that
+turns Vaner from "tool the agent can call" into "engine quietly preparing
+work for the agent in the background."**
+
+Plugin-system support is the most uneven layer — some clients have rich hook
+APIs (Claude Code, Cursor 1.7+, Windsurf, Cline), some have plugins without
+hooks (Claude Desktop's MCPB), and some have neither (Zed, Continue).
+
+## Capability matrix
+
+What each client supports per layer (based on official docs as of 2026-05).
+Cells link to the doc page where the feature is described.
+
+| Client | MCP | Primer | Skills / workflows | Plugins / hooks |
+|---|---|---|---|---|
+| **[Claude Code](/integrations/tools/claude-code-mcp)** | [project + user, JSON](https://code.claude.com/docs/en/mcp) | [`CLAUDE.md`, `.claude/rules/*.md` w/ frontmatter](https://code.claude.com/docs/en/memory) | [`SKILL.md` auto-loaded](https://code.claude.com/docs/en/skills) | [Full plugin system w/ rich hooks](https://code.claude.com/docs/en/plugins) |
+| **[Cursor](/integrations/tools/cursor-mcp)** | [project + user, JSON](https://cursor.com/docs/context/mcp) | [`.cursor/rules/*.mdc` w/ `alwaysApply`](https://cursor.com/docs/context/rules) | [`SKILL.md` auto-loaded (2.4+)](https://cursor.com/docs/skills) | [Plugin system + 17 hooks (1.7+)](https://cursor.com/docs/hooks) |
+| **[VS Code Copilot](/integrations/tools/vscode-copilot-mcp)** | [workspace + user, JSON](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) | [`.github/copilot-instructions.md` + `*.instructions.md` w/ `applyTo`](https://code.visualstudio.com/docs/copilot/customization/custom-instructions) | [Agent Skills (experimental, 1.108+)](https://code.visualstudio.com/docs/copilot/customization/agent-skills) | [Extension API only — no Copilot lifecycle hooks](https://code.visualstudio.com/api/extension-guides/ai/mcp) |
+| **[Codex CLI](/integrations/tools/codex-cli-mcp)** | [user TOML, project overrides](https://github.com/openai/codex/blob/main/docs/config.md) | [`AGENTS.md` hierarchy](https://developers.openai.com/codex/guides/agents-md) | [`SKILL.md` auto-loaded](https://developers.openai.com/codex/skills) | [Plugins + hooks behind `codex_hooks` flag](https://developers.openai.com/codex/hooks) |
+| **[Cline](/integrations/tools/cline-mcp)** | [user JSON](https://docs.cline.bot/mcp/configuring-mcp-servers) | [`.clinerules/` w/ optional path-glob frontmatter](https://docs.cline.bot/features/cline-rules) | [Workflows in `.clinerules/workflows/` (manual `/` invoke)](https://docs.cline.bot/features/slash-commands/workflows) | [8-event hooks in `.clinerules/hooks/`](https://docs.cline.bot/features/hooks) |
+| **[Continue](/integrations/tools/continue-mcp)** | [`.continue/mcpServers/*.yaml`](https://docs.continue.dev/customize/deep-dives/mcp) | [`.continue/rules/*.md` w/ frontmatter](https://docs.continue.dev/customize/deep-dives/rules) | [Prompts (manual `/` invoke only)](https://docs.continue.dev/customize/deep-dives/prompts) | None — Hub bundles for distribution but no lifecycle hooks |
+| **[Zed](/integrations/tools/zed-mcp)** | [`settings.json` `context_servers`](https://zed.dev/docs/ai/mcp) | [Auto-detects `.rules`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, etc.](https://zed.dev/docs/ai/rules) | None — extensions provide slash commands but not auto-loaded skills | [Extension API; no AI session-lifecycle hooks](https://zed.dev/docs/extensions) |
+| **[Windsurf](/integrations/tools/windsurf-mcp)** | [user JSON](https://docs.windsurf.com/windsurf/cascade/mcp) | [`.windsurf/rules/*.md` w/ `trigger:` modes](https://docs.windsurf.com/windsurf/cascade/memories) | [Workflows in `.windsurf/workflows/` (manual)](https://docs.windsurf.com/windsurf/cascade/workflows) | [12-event hooks in `.windsurf/hooks.json`](https://docs.windsurf.com/windsurf/cascade/hooks) |
+| **[Claude Desktop](/integrations/tools/claude-desktop-mcp)** | [User JSON only — no per-project](https://modelcontextprotocol.io/quickstart/user) | Cloud only (claude.ai Profile/Project Instructions) | Cloud uploads only — no local-disk integration | [MCPB bundles](https://github.com/anthropics/dxt) — MCP-only, no lifecycle hooks |
+| **[Roo Code](/integrations/tools/roo-mcp)** | [Global + `.roo/mcp.json`](https://docs.roocode.com/features/mcp/using-mcp-in-roo) | [`.roo/rules/` + per-mode dirs](https://docs.roocode.com/features/custom-instructions) | [Custom Modes + Slash Commands + `run_slash_command`](https://docs.roocode.com/features/custom-modes) | None documented |
+
+## Vaner's current install footprint
+
+What `vaner init` and the Vaner Desktop app actually write today, per layer:
+
+| Client | MCP | Primer | Skill | Plugin |
+|---|---|---|---|---|
+| Claude Code | ✓ | `.claude/CLAUDE.md` (+ optional `~/.claude/CLAUDE.md`) | `~/.claude/skills/vaner/vaner-feedback/SKILL.md` | ✓ Full plugin (`plugins/vaner/`) — hooks + monitor + skills |
+| Cursor | ✓ | `.cursor/rules/vaner.mdc` (`alwaysApply: true`) | `.cursor/skills/vaner/vaner-feedback/SKILL.md` | ✗ — possible (1.7+); not yet shipped |
+| VS Code Copilot | ✓ | `.github/copilot-instructions.md` (block-merged) | ✗ — possible (experimental in 1.108); not yet shipped | ✗ — only an extension API exists |
+| Codex CLI | ✓ | `AGENTS.md` (block-merged) | ✗ — possible (Agent Skills standard); not yet shipped | ✗ — possible (behind `codex_hooks` flag); not yet shipped |
+| Cline | ✓ | `.clinerules` (block-merged) | ✗ — possible (Workflows); not yet shipped | ✗ — possible (8-event hooks); not yet shipped |
+| Continue | ✓ | `.continue/rules/vaner.md` (block-merged) | ✗ — possible (Prompts); not yet shipped | n/a — no hooks system |
+| Zed | ✓ | ✗ — **possible** (`.rules`, `AGENTS.md`); not yet shipped | n/a | n/a |
+| Windsurf | ✓ | ✗ — **possible** (`.windsurf/rules/`); not yet shipped | ✗ — possible (Workflows); not yet shipped | ✗ — possible (12-event hooks); not yet shipped |
+| Claude Desktop | ✓ | n/a — no local surface | n/a — no local surface | ✗ — possible (MCPB bundle); not yet shipped |
+| Roo Code | ✓ | ✗ — **possible** (`.roo/rules/`); not yet shipped | ✗ — possible (Custom Mode or Slash Command); not yet shipped | n/a |
+
+## Gap analysis
+
+Three categories of gap, in priority order:
+
+### High leverage, low effort — ship next
+
+**Primer for Zed, Windsurf, Roo Code.** All three support primers; Vaner doesn't
+write any today. Without them the model has no instruction to use Vaner at
+all in those clients. Each is a one-file write following the same template
+Vaner already uses for the other 6 primer-supporting clients.
+
+- Zed: write to `.rules` (also picked up by other clients) or piggyback on
+  `AGENTS.md`.
+- Windsurf: `.windsurf/rules/vaner.md` with `trigger: always_on` frontmatter.
+- Roo Code: `.roo/rules/vaner.md`.
+
+### Medium leverage, medium effort — ship after primer gaps
+
+**Codex CLI skill.** Codex CLI uses the Agent Skills open standard (same
+`SKILL.md` format as Claude Code/Cursor). Vaner's existing `vaner-feedback`
+skill should drop straight into `~/.codex/skills/` or `.codex/skills/` with
+no transformation.
+
+**VS Code Copilot skill.** Same Agent Skills standard. Currently experimental
+(VS Code 1.108+); ship when GA.
+
+**Cline / Windsurf / Continue / Roo workflows.** These four use
+manual-invocation-only "workflow" or "prompt" or "slash command" formats. Less
+auto-leverage than skills, but better than nothing — gives the user a
+`/vaner-feedback` shortcut. Each requires a per-client format adaptation
+(markdown with the right frontmatter).
+
+### High leverage, higher effort — ship deliberately
+
+**Cursor plugin.** Cursor 1.7+ has a full plugin system with 17 hook events
+(comparable to Claude Code's). A Cursor Vaner plugin would pre-fetch context
+on `beforeSubmitPrompt`, surface prepared work on `sessionStart`, and record
+feedback on `postToolUse` — equivalent leverage to the Claude Code plugin.
+
+**Codex CLI hooks.** Codex CLI ships hooks (`SessionStart`, `UserPromptSubmit`,
+`PreToolUse`, `PermissionRequest`, `PostToolUse`, `Stop`) behind a
+`codex_hooks = true` feature flag. When the flag goes stable, ship hooks.
+
+**Cline hooks (8 events) and Windsurf hooks (12 events).** Both have stable
+hook APIs. Each requires per-client script wrappers around Vaner's core
+prepare-on-prompt-submit logic. Lower priority than Cursor because the user
+base is smaller, but the leverage shape is similar.
+
+**Claude Desktop MCPB bundle.** Claude Desktop has no lifecycle hooks but
+does have one-click MCPB install bundles. A Vaner MCPB would let users
+install via double-click instead of editing `claude_desktop_config.json` by
+hand. UX win, not a leverage win.
+
+## How this informs the verification UI
+
+The desktop wizard's final "Vaner is ready" panel reports per-client status
+using this same matrix. A row goes green only when **every applicable layer
+for that client is wired** — not just MCP. A client where Vaner is in
+`mcp.json` but no primer is installed gets an amber chip, because the
+likely failure mode is "the AI can call Vaner but doesn't."
+
+See [Pass 4 plan](https://github.com/Borgels/vaner) for implementation
+details.
+
+<Callout type="info">
+This matrix is curated. When a client ships new capabilities (Cursor 2.4
+added skills; VS Code 1.108 added experimental skills; Codex shipped hooks
+behind a flag) update this page first, then file an issue against vaner to
+track the install-side work.
+</Callout>
