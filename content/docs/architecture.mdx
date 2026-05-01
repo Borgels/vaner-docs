@@ -85,12 +85,31 @@ the loop by feeding usefulness signals back into future ranking.
 ### Cockpit runtime (human controls)
 
 Cockpit endpoints and CLI commands expose status, freshness distribution, device
-configuration, and live scenario stream updates.
-
-See [Cockpit](/cockpit) for the operator view.
+configuration, and live scenario stream updates. See
+[Prepared Work](/prepared-work#inspecting-prepared-work) for the operator view.
 
 ### Optional gateway capability
 
 `vaner proxy` remains available for clients that only support OpenAI-compatible
 endpoints. It is a legacy compatibility layer, not the default integration
 path; prefer MCP-first wiring whenever your client supports MCP.
+
+## Vocabulary
+
+- **Signal**: observed event from filesystem or git state.
+- **Scenario**: candidate context branch with ranked files, evidence, and expansion metadata.
+- **Frontier**: priority queue of scenarios waiting for deeper exploration.
+- **Artefact**: precomputed context unit (summary, index, diff).
+- **Prepared Work**: user-facing card Vaner prepared before the prompt, with evidence, freshness, confidence, and safe actions.
+- **Work Product**: internal stored artifact behind some Prepared Work cards.
+- **Virtual Diff**: patch-shaped Prepared Work; never auto-applied.
+- **Prediction**: internal next-intent candidate. Strong predictions surface as Prepared Work.
+- **Context Package**: selected and compressed artefacts for a prompt.
+- **Decision Record**: persisted explanation of why Vaner picked one package over alternatives.
+- **Policy**: privacy and token-budget rules.
+- **Agent Skill**: `SKILL.md` playbook metadata used as intent prior and feedback attribution signal.
+- **Ponder Loop**: idle-time branch exploration and artifact preparation.
+- **Answer Loop**: prompt-time ranking and assembly when a client asks.
+- **Goal**: long-horizon intent persisted across daemon restarts.
+- **Reconciliation**: when a repo signal lands, Vaner checks each goal's linked artefacts against the new state and updates status.
+- **Pinned Facts**: explicit user steering directives that bias preparation without prompt injection.

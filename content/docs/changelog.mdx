@@ -34,10 +34,10 @@ _Released April 26, 2026 · [Details on GitHub](https://github.com/Borgels/vaner
 
 _Released April 25, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.6)_
 
-- feat(intent): 0.8.6 WS4 — work-style intent priors (#175) @abolsen
+- feat(intent): 0.8.6 WS4, work-style intent priors (#175) @abolsen
 - feat(0.8.6): WS5 → WS12b release content (recovery) (#186) @abolsen
-- feat(setup): 0.8.6 WS2 — hardware detection (#185) @abolsen
-- feat(setup): 0.8.6 WS1 — setup primitives + config schema (#172) @abolsen
+- feat(setup): 0.8.6 WS2, hardware detection (#185) @abolsen
+- feat(setup): 0.8.6 WS1, setup primitives + config schema (#172) @abolsen
 - fix(release): call SLSA generator by tag, not SHA (#171) @abolsen
 - @abolsen
 
@@ -45,35 +45,35 @@ _Released April 25, 2026 · [Details on GitHub](https://github.com/Borgels/vaner
 
 _Released April 25, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.5)_
 
-- feat(integrations): 0.8.5 WS2 — context-injection layer (#158) @abolsen
-- feat(integrations): 0.8.5 WS1 — guidance assets + behavior-shaping tool descriptions (#157) @abolsen
+- feat(integrations): 0.8.5 WS2, context-injection layer (#158) @abolsen
+- feat(integrations): 0.8.5 WS1, guidance assets + behavior-shaping tool descriptions (#157) @abolsen
 - docs(bench): 0.8.4 Deep-Run pipeline-validation bench writeup (#156) @abolsen
 - chore: harden 0.8.5 contract and release checks (#167) @abolsen
-- feat(mcp): 0.8.5 WS7 — MCP Apps UI bundle + ui:// resource registration (#163) @abolsen
+- feat(mcp): 0.8.5 WS7, MCP Apps UI bundle + ui:// resource registration (#163) @abolsen
 - @abolsen
 
-## v0.8.4 — Validate, then Generalize + contract crate
+## v0.8.4, Validate, then Generalize + contract crate
 
 _Released April 24, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.4)_
 
 - 0.8.4 is a **validation-and-position** release. It generalises the 0.8.3 Deep-Run maturation loop into a reusable `RefinementContext` (default-off feature flag), ships the WS4 adoption-outcome feedback log, and bundles the merged `feat/vaner-contract-crate` Rust contract crate with cross-language conformance fixtures
-- **Default-off**: `refinement.enabled` ships `False`. 0.8.3 Deep-Run behaviour preserved exactly. 0.8.5 will activate the refinement consumer alongside a production drafter — the adoption-outcome log already accumulates real data from day one so 0.8.5 has signal to consume
+- **Default-off**: `refinement.enabled` ships `False`. 0.8.3 Deep-Run behaviour preserved exactly. 0.8.5 will activate the refinement consumer alongside a production drafter, the adoption-outcome log already accumulates real data from day one so 0.8.5 has signal to consume
 - `RefinementContext` abstracts the 0.8.3 `DeepRunSession` input to `mature_one()` + `select_maturation_candidates()`, paving the way for background refinement outside Deep-Run mode
-- `_run_background_refinement_pass()` engine hook — dormant by default; enabled only when `refinement.enabled=True` AND a refinement drafter is injected
+- `_run_background_refinement_pass()` engine hook, dormant by default; enabled only when `refinement.enabled=True` AND a refinement drafter is injected
 - `RefinementConfig` with `enabled=False` default + explicit `adoption_pending_confirm_seconds` threshold
 - 0.8.3 Deep-Run call sites preserved via `RefinementContext.from_deep_run_session()`
 - ...and more on [GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.4).
 
-## v0.8.0 — persistence + goals + unified resolve + briefing + drafter
+## v0.8.0, persistence + goals + unified resolve + briefing + drafter
 
 _Released April 24, 2026 · [Details on GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.0)_
 
 - Completes the architectural cleanup on top of the Phases 1–4 foundation. Six independent work streams ship together because they share the same touch points in `engine.py` and `prediction_registry.py`
-- `PredictionRegistry` survives across precompute cycles. Signal-driven invalidation (`file_change` / `commit` / `category_shift` / `adoption`) demotes weight, clears briefings, and stales predictions only when real state has changed — no wall-clock decay. Per-path content hashes via `git hash-object` with SHA-256 fallback
+- `PredictionRegistry` survives across precompute cycles. Signal-driven invalidation (`file_change` / `commit` / `category_shift` / `adoption`) demotes weight, clears briefings, and stales predictions only when real state has changed, no wall-clock decay. Per-path content hashes via `git hash-object` with SHA-256 fallback
 - Single `Briefing` / `BriefingSection` / `BriefingAssembler` replaces three ad-hoc string-concat sites across engine + MCP. Optional tokenizer hook for real token counts
 - Single `Drafter` owns the rewrite + draft LLM templates and gate arithmetic. `_precompute_predicted_responses` routes through it; arc / pattern / history / goal-sourced predictions all drive through one path
 - `WorkspaceGoal` dataclass, branch-name parser with known-acronyms list, `workspace_goals` SQLite table. Engine seeds `PredictionSpec(source="goal")` from active goals. Four new MCP tools: `vaner.goals.{list, declare, update_status, delete}`
-- `VanerEngine.resolve_query(query, ...)` — single canonical query → Resolution entry. Consults the prediction registry for a label-match, falls back to the heuristic query path, builds Resolution via BriefingAssembler with honest \`alternatives_considered\`, \`predicted_response\`, and \`briefing_token_used\` / \`briefing_token_budget\`
+- `VanerEngine.resolve_query(query, ...)`, single canonical query → Resolution entry. Consults the prediction registry for a label-match, falls back to the heuristic query path, builds Resolution via BriefingAssembler with honest \`alternatives_considered\`, \`predicted_response\`, and \`briefing_token_used\` / \`briefing_token_budget\`
 - ...and more on [GitHub](https://github.com/Borgels/vaner/releases/tag/v0.8.0).
 
 ## v0.7.1

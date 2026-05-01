@@ -27,7 +27,7 @@ Replace `<client>` with one of:
 | **Roo Code** | `vaner launch roo` |
 
 `vaner launch` runs every applicable [leverage layer](/integrations/client-capabilities)
-in one pass — MCP server entry, primer (rules file), skill /
+in one pass, MCP server entry, primer (rules file), skill /
 workflow / prompt, and lifecycle hooks where the client supports
 them. Each layer reports its own status. Re-run any time; it's
 idempotent.
@@ -45,8 +45,8 @@ Pick your client and Vaner will print the exact MCP entry to paste:
 ## Verifying the integration
 
 Open your client and ask the agent something open-ended about your
-repo. If the model calls a `vaner.*` tool — `vaner.resolve`,
-`vaner.prepared_work.dashboard`, or similar — the install worked.
+repo. If the model calls a `vaner.*` tool, `vaner.resolve`,
+`vaner.prepared_work.dashboard`, or similar, the install worked.
 
 A copy-pasteable verification phrase:
 
@@ -55,7 +55,7 @@ A copy-pasteable verification phrase:
 > `vaner.*` tool you used.*
 
 If the agent grep's the repo instead of calling Vaner, the primer
-isn't in place — try `vaner launch <client> --force`.
+isn't in place, try `vaner launch <client> --force`.
 
 ## What gets installed per client
 
@@ -71,7 +71,7 @@ glance:
 - **Clients with hooks** (Cline, Windsurf) get a prompt-submit hook
   that pre-fetches prepared work as you type.
 - **Claude Code** and **Cursor** also get full plugins (atomic
-  install bundles via each client's marketplace) — see
+  install bundles via each client's marketplace), see
   `plugins/vaner/` and `cursor-plugins/vaner/` in the source repo.
 
 ## Removing Vaner from a client

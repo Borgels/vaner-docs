@@ -1,6 +1,6 @@
 ---
 title: ComposerAdapter
-description: Wire client composer/prompt lifecycle events into Vaner so it can prepare earlier — Live Intent Capture (Phase 1, v0.8.7).
+description: Wire client composer/prompt lifecycle events into Vaner so it can prepare earlier, Live Intent Capture (Phase 1, v0.8.7).
 ---
 
 Vaner consumes explicit composer/prompt lifecycle events from supported
@@ -52,7 +52,7 @@ daemon validates each event against the adapter's declared
 | Surface                     | Hook mechanism                                  | Level |
 |-----------------------------|-------------------------------------------------|-------|
 | Claude Code (plugin)        | `UserPromptSubmit` hook (v0.8.7 MVP)            | L0    |
-| Cursor                      | MCP tools only — no composer hook              | —     |
+| Cursor                      | MCP tools only (no composer hook)               | —     |
 | Claude Desktop              | MCP tools only                                  | —     |
 | VS Code (Copilot Chat MCP)  | MCP tools only                                  | —     |
 | Codex CLI                   | MCP tools only                                  | —     |
@@ -66,7 +66,7 @@ daemon validates each event against the adapter's declared
 The Vaner VS Code extension is **explicitly not** an adapter source.
 Vaner does not own a composer; doing so would violate the
 "Vaner is not a client" thesis. The extension surfaces prepared-package
-state from the daemon — it does not observe a user composer.
+state from the daemon, it does not observe a user composer.
 
 Other clients enter the matrix only when an explicit, documented
 hook/plugin/extension mechanism exists in the host.
@@ -112,7 +112,7 @@ A snapshot looks like (L0 example):
 ## Authoring an adapter
 
 1. **Pick a host that exposes an explicit composer/prompt lifecycle hook.**
-   If the host has no such mechanism, do not invent one — wait for the
+   If the host has no such mechanism, do not invent one, wait for the
    host to ship one.
 
 2. **Decide the honest capability level.** If the hook only fires at submit
@@ -126,7 +126,7 @@ A snapshot looks like (L0 example):
 4. **POST the snapshot.** Send to
    `http://127.0.0.1:<daemon_port>/signals/composer` (default port
    `8473`) with a short timeout (≤ 1 s recommended). On failure, fail
-   silent — never block the user's prompt.
+   silent, never block the user's prompt.
 
 5. **Cadence.** L0 adapters emit one POST per submit. L1 adapters
    debounce snapshot emission (≥ 250 ms between meaningful changes)
@@ -137,10 +137,10 @@ A snapshot looks like (L0 example):
 The [Claude Code plugin](https://github.com/Borgels/vaner/tree/main/plugins/vaner)
 ships the L0 reference adapter:
 
-- `plugins/vaner/hooks/hooks.json` — `UserPromptSubmit` hook
+- `plugins/vaner/hooks/hooks.json`, `UserPromptSubmit` hook
   registration
-- `plugins/vaner/scripts/composer-submit.sh` — shell shim
-- `plugins/vaner/scripts/composer_submit.py` — Python translator that
+- `plugins/vaner/scripts/composer-submit.sh`, shell shim
+- `plugins/vaner/scripts/composer_submit.py`, Python translator that
   reads stdin JSON, computes the hash, POSTs to the daemon
 
 ## JSON Schema
@@ -163,8 +163,8 @@ A composer-lifecycle event flows through Vaner's signal pipeline and:
 - Receives a per-WorkStyle multiplier so writers/researchers (whose
   drafts are the most intent-revealing) get a stronger boost than
   coding/general/support.
-- Stales automatically when the user clears or abandons the draft —
-  no wasted preparation on dead branches.
+- Stales automatically when the user clears or abandons the draft, so no
+  wasted preparation on dead branches.
 - Threads a `composer_event_id` through to `Resolution.composer_event_id`
   on adoption, so hit/miss telemetry attributes back to the originating
   composer event.

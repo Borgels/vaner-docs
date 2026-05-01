@@ -42,7 +42,7 @@ The `tier_for(profile)` rules are evaluated in the order shown above:
 
 - Runtime profile: `medium` (e.g. 7–13B Q4+).
 - Cycle and concurrency at the shipped defaults.
-- Bundle defaults apply unmodified — this is the "intended" tier for the shipped knobs.
+- Bundle defaults apply unmodified, this is the "intended" tier for the shipped knobs.
 - Deep-Run preset `balanced`; daytime cycles are short, overnight cycles broader.
 
 ### high_performance
@@ -64,13 +64,13 @@ vaner setup hardware       # raw HardwareProfile.detect() output
 vaner setup show           # tier + bundle + reasons
 ```
 
-The desktop apps surface the tier as a one-liner — *"This MacBook
-Pro looks Capable."* — on the Simple-Mode pane. On every wizard run
+The desktop apps surface the tier as a one-liner, *"This MacBook
+Pro looks Capable."*, on the Simple-Mode pane. On every wizard run
 the probe re-fires; nothing is cached at module level.
 
 ## Caveats
 
-- **Apple Silicon** uses unified memory — `gpu_vram_gb` is `None`
+- **Apple Silicon** uses unified memory, `gpu_vram_gb` is `None`
   rather than a number. The selector treats that as "VRAM constraint
   not applicable" and only checks RAM.
 - **Windows without `psutil`** gets a degraded probe; install

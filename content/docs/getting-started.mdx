@@ -1,31 +1,13 @@
 ---
 title: Getting Started
-description: Install Vaner and choose between Simple Mode (recommended) or Advanced Mode setup.
+description: Install Vaner, answer five questions, start the daemon.
 ---
 
-Choose how you want to set up Vaner.
+The fastest path is the [Vaner Desktop app](https://vaner.ai). It installs the
+engine, picks a local model that fits your hardware, and wires Vaner into the
+AI clients it detects. No CLI required.
 
-## Simple Mode (recommended)
-
-Five questions, no model / runtime / quantization terminology required.
-Start here if you're new to Vaner.
-
-→ [Simple Mode quickstart](/simple-mode)
-
-## Advanced Mode
-
-Full control over the engine, providers, budgets, prediction policy,
-and Deep-Run knobs. Start here if you've used Vaner before, or if you
-want to wire Vaner into a custom backend.
-
-→ [Advanced Mode reference](/advanced-mode)
-
-## Both paths share
-
-- `vaner up` to start the daemon
-- `vaner status` and `vaner doctor` to verify health
-- `vaner clients install <client>` to wire Vaner into your IDE
-- The MCP integration is the same regardless of mode
+The CLI path below is for power users, CI, and Docker.
 
 ## 1. Install
 
@@ -33,177 +15,77 @@ want to wire Vaner into a custom backend.
 curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
 ```
 
-The installer works on Linux and macOS. It auto-detects `uv` or `pipx`, asks
-before installing missing prerequisites (Python 3.11+, `uv`/`pipx`), and
-installs `vaner[mcp]` so the MCP server is ready out of the box. Pass
-`--no-mcp` to skip the MCP extra.
+Linux and macOS. Detects `uv` or `pipx`, asks before installing prerequisites
+(Python 3.11+), and installs `vaner[mcp]` so MCP is ready out of the box.
 
-On **Windows**, install via `pip` or `pipx` directly (the bash installer
-above is POSIX-only):
+Windows:
 
 ```powershell
-pip install "vaner[mcp]"   # or: pipx install "vaner[mcp]"
-vaner init
+pip install "vaner[mcp]"
 ```
 
-### Non-interactive install (CI, Dockerfiles)
+CI / Dockerfile:
 
 ```bash
 VANER_YES=1 \
 VANER_BACKEND_PRESET=openai \
 VANER_BACKEND_MODEL=gpt-4o-mini \
 VANER_BACKEND_API_KEY_ENV=OPENAI_API_KEY \
-VANER_COMPUTE_PRESET=background \
-VANER_MAX_SESSION_MINUTES=30 \
-curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
+curl -fsSL https://vaner.ai/install.sh | bash
 ```
 
-### Environment variable mirrors
+Full env-var list and source: [scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh).
 
-- `VANER_YES=1`, `VANER_DRY_RUN=1`, `VANER_VERIFY=1`
-- `VANER_BACKEND=uv|pipx`, `VANER_VERSION=<version>`
-- `VANER_NO_MODIFY_PATH=1`, `VANER_VERBOSE=1`
-- `VANER_NO_MCP=1` (skip the `[mcp]` extra)
-- `VANER_BACKEND_PRESET=<id>`, `VANER_BACKEND_URL`, `VANER_BACKEND_MODEL`, `VANER_BACKEND_API_KEY_ENV`
-- `VANER_COMPUTE_PRESET=<id>`, `VANER_MAX_SESSION_MINUTES=<minutes>`
-
-Installer source for review: [scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh).
-
-### From source
-
-```bash
-git clone https://github.com/Borgels/vaner.git
-cd vaner
-pip install '.[mcp]'
-```
-
-## 2. Initialize the repo
+## 2. Initialize
 
 ```bash
 vaner init --path .
 ```
 
-`vaner init` opens a guided wizard. By default it now chains into the
-five-question Simple-Mode flow (`vaner setup wizard`) so newcomers can
-land on a working policy bundle without learning the engine's full
-knob surface. Skip the wizard with `--non-interactive` and pick a
-bundle later via `vaner setup apply`.
+Probes your hardware, picks a sensible [policy bundle](/policy-bundles),
+configures backend + compute defaults, and detects supported AI clients on
+your machine. You confirm the client list before anything is written.
 
-The wizard:
+If you want to override the auto-picked bundle, run
+`vaner setup apply <bundle-id>` after init.
 
-- runs the Simple-Mode five questions and selects a policy bundle
-- configures backend + compute defaults
-- auto-detects supported MCP clients on your machine
-- lets you select/deselect clients before writing anything
-- safely appends only the `vaner` MCP entry (with backups)
-
-Example picker view:
-
-```text
-Step 3 of 4 — Connect MCP clients
-Detected on this system (pre-selected):
-  [x] 1  Cursor             ~/.cursor/mcp.json                              (installed)
-  [x] 2  Claude Desktop     ~/.config/Claude/claude_desktop_config.json     (installed)
-  [x] 3  Claude Code        via `claude mcp add`                            (installed)
-  [x] 4  VS Code (Copilot)  ~/.config/Code/User/mcp.json                    (installed)
-  [ ] 5  Codex CLI          codex binary not found                           (missing)
-  [ ] 6  Windsurf           ~/.codeium/windsurf/                             (missing)
-  [ ] 7  Zed                ~/.config/zed/                                   (missing)
-  [ ] 8  Continue           ~/.continue/mcpServers/vaner.yaml                (missing)
-  [ ] 9  Cline              ~/.config/Code/.../cline_mcp_settings.json       (missing)
-  [ ] 10 Roo Code           ~/.roo/mcp_settings.json                         (missing)
-  [ ] o  Other / not listed (prints a generic snippet + docs link)
-```
-
-If your client is not listed, continue anyway and use:
-
-```bash
-vaner init --clients other --path .
-```
-
-That prints a generic MCP snippet and links to [Connect your client](/integrations/mcp) for manual setup.
-
-## 3. Start Vaner
+## 3. Start
 
 ```bash
 vaner up --path .
 ```
 
-`vaner up` is the default path. It starts the background daemon and cockpit together,
-opens the cockpit URL, and keeps both processes supervised in one command.
-
-Expected startup output:
+Starts the daemon and cockpit, opens the cockpit URL, supervises both.
 
 ```text
-Vaner up
 Daemon PID: <pid>
 Cockpit PID: <pid>
 Cockpit URL: http://127.0.0.1:8473
 Health: ready
 ```
 
-Press `Ctrl+C` (or run `vaner down --path .`) when you are done.
+`Ctrl+C` or `vaner down` when done.
 
-> Vaner is local-first. No background process runs unless you start it (`vaner up`) or your MCP client invokes it.
-
-Once running, use your desktop app, cockpit, or MCP client to inspect the
-Prepared Work feed. Vaner may prepare review notes, bug hypotheses, research
-briefs, or virtual diffs, but it does not apply changes to your files
-automatically.
-
-If nothing seems to be happening, run:
+## Daily commands
 
 ```bash
-vaner doctor --path .
-```
-
-Then follow fixes in [Troubleshooting](/troubleshooting).
-
-## Core lifecycle commands
-
-```bash
-vaner init     # initialize the repo (chains into Simple-Mode wizard)
-vaner up       # start daemon + cockpit
-vaner status   # quick health summary
+vaner up       # start
+vaner status   # health summary
 vaner doctor   # detailed diagnostic
-vaner down     # stop daemon + cockpit
+vaner down     # stop
 ```
 
-### Manual connection (advanced)
+## Connect an AI client
 
-Most users should rely on `vaner init`, but manual connection is still available:
+If `vaner init` didn't detect your client, see
+[Connect your client](/integrations/connect-your-client). One command per
+client; manual MCP picker if you'd rather paste it yourself.
 
-```bash
-# Claude Code
-claude mcp add --transport stdio --scope user vaner -- vaner mcp --path .
+## What's next
 
-# Codex CLI
-codex mcp add vaner -- vaner mcp --path .
-```
-
-See [Connect your client](/integrations/mcp) for launcher variants and all supported clients.
-
-### Advanced daemon mode
-
-Use this only if you need separate process control:
-
-```bash
-vaner daemon start --no-once --path .
-vaner daemon serve-http --path .
-```
-
-### Local debugging (optional)
-
-```bash
-vaner query "where is auth enforced?" --explain --path .
-vaner inspect --last --path .
-```
-
-## Choose an integration mode (optional)
-
-Most users stay on MCP. If your tool needs another shape:
-
-- **[MCP mode](/integrations/mcp)** (default): native IDE integration.
-- **[Proxy mode](/integrations/proxy)**: OpenAI-compatible `/v1/chat/completions`.
-- **[Context-only mode](/integrations/context-only)**: `/v1/context` for agents.
-- **[Python SDK](/integrations/python-sdk)**: scripts and custom tooling.
+<Cards>
+  <Card href="/prepared-work" title="Prepared Work" description="What Vaner produces and how to inspect it." />
+  <Card href="/integrations/connect-your-client" title="Connect your client" description="Wire Vaner into your AI client." />
+  <Card href="/configuration" title="Configuration" description="Knob reference for advanced setups." />
+  <Card href="/troubleshooting" title="Troubleshooting" description="When something doesn't work." />
+</Cards>

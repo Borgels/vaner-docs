@@ -1,16 +1,15 @@
 ---
 title: Policy Bundles
-description: The seven shipped bundles — who each is for, and what it implies for compute, cloud, spend, and Deep-Run.
+description: The seven shipped bundles, who each is for, and what it implies for compute, cloud, spend, and Deep-Run.
 ---
 
-A *policy bundle* is the intermediate layer between [Simple-Mode](/simple-mode)
-answers and the engine's actual knobs. Each bundle names an
-outcome-level archetype (e.g. *"Local Balanced"*, *"Hybrid Quality"*)
-that a non-technical user can recognise, and carries the dimensions
-the engine consults — cloud posture, runtime profile, spend profile,
-latency profile, privacy profile, prediction-horizon bias, drafting
-aggressiveness, exploration ratio, persistence strength, goal
-weighting, context-injection default, and Deep-Run profile.
+A *policy bundle* is the intermediate layer between user-facing setup and
+the engine's actual knobs. Each bundle names an outcome-level archetype
+(e.g. *"Local Balanced"*, *"Hybrid Quality"*) and carries the dimensions
+the engine consults: cloud posture, runtime profile, spend profile, latency
+profile, privacy profile, prediction-horizon bias, drafting aggressiveness,
+exploration ratio, persistence strength, goal weighting, context-injection
+default, and Deep-Run profile.
 
 Bundles compose multiplicatively with Deep-Run preset overrides at
 session start. Bundles set the *baseline*; Deep-Run sessions layer
@@ -98,7 +97,7 @@ in the background. The default for the *Capable* hardware tier.
 
 **Who it's for.** Anyone fine with the engine reaching for a cloud
 model when local is genuinely insufficient. The canonical default
-when the hardware tier is *unknown* — safe middle path.
+when the hardware tier is *unknown*, safe middle path.
 
 | Dimension | Value |
 |---|---|
@@ -117,7 +116,7 @@ when the hardware tier is *unknown* — safe middle path.
 
 `id: hybrid_quality`
 
-> Reach for the best available model — local or cloud — and trade
+> Reach for the best available model, local or cloud, and trade
 > some snappiness and budget for higher answer quality.
 
 **Who it's for.** Serious work where you'd rather pay than wait.
@@ -188,13 +187,11 @@ preset.
 
 ## How a bundle is selected
 
-`vaner setup recommend` (and the wizard behind it) scores all seven
-bundles against your [Simple-Mode answers](/simple-mode) and the
-detected [hardware tier](/hardware-tiers), and returns the best
-match. The reasoning trail — *"hybrid because cloud_posture =
-hybrid; medium runtime because tier = capable; balanced Deep-Run
-because preparation = standard"* — is surfaced verbatim in the
-cockpit.
+`vaner setup recommend` scores all seven bundles against detected
+[hardware tier](/hardware-tiers) and returns the best match. The reasoning
+trail (*"hybrid because cloud_posture = hybrid; medium runtime because
+tier = capable; balanced Deep-Run because preparation = standard"*) is
+surfaced verbatim in the cockpit.
 
 To inspect or change the active bundle:
 

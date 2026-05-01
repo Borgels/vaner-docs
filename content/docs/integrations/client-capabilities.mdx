@@ -7,17 +7,17 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Wiring Vaner as an MCP server is the *minimum* integration. To make sure the
 agent actually uses Vaner instead of just *being able to*, we install up to
-four layers per client — and clients differ wildly in what they support.
+four layers per client. Clients differ wildly in what they support.
 
 This page is the source of truth for:
 
-- **The four-layer leverage stack** — what each layer does and why MCP alone is rarely enough.
-- **Per-client capability matrix** — which layers each supported client actually exposes (per their official docs, sourced 2026-05).
-- **Vaner's current install footprint** — which layers Vaner writes today, and the gaps we know about.
+- **The four-layer leverage stack**. what each layer does and why MCP alone is rarely enough.
+- **Per-client capability matrix**. which layers each supported client actually exposes (per their official docs, sourced 2026-05).
+- **Vaner's current install footprint**. which layers Vaner writes today, and the gaps we know about.
 
 ## The four layers
 
-### Layer 1 — MCP server
+### Layer 1: MCP server
 
 The technical wiring. Adds a `vaner` entry to the client's MCP server config so
 the client can call `vaner.*` tools.
@@ -26,7 +26,7 @@ This is the floor. Without it, nothing else matters; with it alone, you depend
 entirely on the model's training to know it should call Vaner. Models often
 *don't*.
 
-### Layer 2 — Primer
+### Layer 2: Primer
 
 A "system-prompt-like" markdown block telling the model **when and how** to
 use Vaner. Examples:
@@ -42,14 +42,14 @@ Empirically: when the primer is missing, models don't reliably call
 file (`CLAUDE.md`, `.cursor/rules/*.mdc`, `AGENTS.md`, etc.) that the model
 reads on every session.
 
-### Layer 3 — Skills (or workflows / prompts / modes)
+### Layer 3: Skills (or workflows / prompts / modes)
 
-An agent-callable subroutine — usually a markdown document with metadata —
-that ships separately from the primer. Two flavors:
+An agent-callable subroutine, usually a markdown document with metadata,
+shipped separately from the primer. Two flavors:
 
 - **Auto-loaded** (Claude Code, Cursor, Codex CLI): the model reads each
   skill's description and decides when to invoke it. Vaner's `vaner-feedback`
-  skill is auto-loaded — the model uses it whenever it's about to record
+  skill is auto-loaded; the model uses it whenever it's about to record
   feedback.
 - **User-invoked** (Cline workflows, Windsurf workflows, Continue prompts):
   the user types `/<skill-name>` to trigger it. Less leverage, since the model
@@ -58,12 +58,12 @@ that ships separately from the primer. Two flavors:
 Some clients (Roo Code with `run_slash_command`) blur the line by letting the
 agent invoke its own slash commands.
 
-### Layer 4 — Plugins / hooks
+### Layer 4: Plugins / hooks
 
 The deepest integration. A plugin bundle ships **multiple layers atomically**
 (MCP server + primer + skills + hooks + monitors) and registers code that
-runs at session lifecycle moments — `SessionStart`, `UserPromptSubmit`,
-`PreToolUse`, `PostToolUse`, `Stop`, `FileChanged`, etc.
+runs at session lifecycle moments (`SessionStart`, `UserPromptSubmit`,
+`PreToolUse`, `PostToolUse`, `Stop`, `FileChanged`, etc.).
 
 Hooks are what let Vaner do active work between turns: pre-fetch context
 when the user starts typing, surface fresh prepared work as the session
@@ -71,7 +71,7 @@ opens, record feedback after a tool call lands. **This is the layer that
 turns Vaner from "tool the agent can call" into "engine quietly preparing
 work for the agent in the background."**
 
-Plugin-system support is the most uneven layer — some clients have rich hook
+Plugin-system support is the most uneven layer. Some clients have rich hook
 APIs (Claude Code, Cursor 1.7+, Windsurf, Cline), some have plugins without
 hooks (Claude Desktop's MCPB), and some have neither (Zed, Continue).
 
@@ -134,25 +134,25 @@ install via double-click instead of editing
 
 ### Genuinely not applicable
 
-**Zed skills/plugin** — Zed has no agent-callable subroutine concept and
+**Zed skills/plugin**. Zed has no agent-callable subroutine concept and
 no AI session-lifecycle hooks for third parties. Primer-only.
 
-**Continue plugin/hooks** — Continue has no lifecycle hook system. Hub
+**Continue plugin/hooks**. Continue has no lifecycle hook system. Hub
 bundles cover plugin-style distribution but only for assistants/blocks,
 not lifecycle behaviour.
 
-**Roo plugin** — Roo Code has no documented hook API. Slash commands
+**Roo plugin**. Roo Code has no documented hook API. Slash commands
 (invocable by the agent via `run_slash_command`) are the deepest layer
 Roo exposes today.
 
-**Claude Desktop primer/skill** — both are cloud-only on Claude Desktop;
+**Claude Desktop primer/skill**. both are cloud-only on Claude Desktop;
 no local-disk surface for Vaner to write into.
 
 ## How this informs the verification UI
 
 The desktop wizard's final "Vaner is ready" panel reports per-client status
 using this same matrix. A row goes green only when **every applicable layer
-for that client is wired** — not just MCP. A client where Vaner is in
+for that client is wired**, not just MCP. A client where Vaner is in
 `mcp.json` but no primer is installed gets an amber chip, because the
 likely failure mode is "the AI can call Vaner but doesn't."
 

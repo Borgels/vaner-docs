@@ -79,3 +79,98 @@ vaner config set backend.model qwen3.5:35b --path .
 vaner config set gateway.routes.gpt- https://api.openai.com/v1 --path .
 vaner config edit --path .
 ```
+
+## Advanced knobs
+
+Most users get sensible defaults from the policy bundle picked at install
+time. The sections below are for custom backends, hybrid setups, and the
+prediction / Deep-Run dials.
+
+### Runtime and providers
+
+| Field | Purpose |
+|---|---|
+| `backend.local_runtime` | One of `ollama`, `llama.cpp`, `lmstudio`, `vllm`, `mlx`, `auto`. |
+| `backend.base_url` | OpenAI-compatible endpoint URL. |
+| `backend.model` | Model id served by `base_url`. |
+| `backend.api_key_env` | Env var holding the API key, if needed. |
+| `backend.cloud_provider` | Optional cloud provider id (`openai`, `anthropic`, …) for hybrid bundles. |
+| `backend.routing` | `local`, `cloud`, or `auto`. |
+
+Leave `local_runtime = "auto"` and let the hardware probe pick. Override
+`routing = "local"` to disable cloud calls without changing the cloud
+provider id.
+
+### Budgets
+
+| Field | Purpose |
+|---|---|
+| `compute.max_cycle_seconds` | Wall-clock cap per ponder cycle. Default 300s. |
+| `compute.max_session_minutes` | Total daemon session time. |
+| `compute.max_concurrent_jobs` | Parallel cycles. |
+| `budgets.daily_cost_cap` | Daily USD cap on cloud spend. |
+| `budgets.tokens.foreground` | User-facing answer cap. |
+| `budgets.tokens.background` | Idle pondering cap. |
+| `budgets.tokens.deep_run` | Explicit overnight session cap. |
+
+Set the dollar cap first, then dial cycle / job knobs to match the
+[hardware tier](/hardware-tiers).
+
+### Reasoning and drafting
+
+| Field | Purpose |
+|---|---|
+| `drafting.reasoning_mode` | `fast`, `balanced`, `deep`. |
+| `drafting.aggressiveness` | `0.7` cautious to `1.3` eager. |
+| `drafting.evidence_threshold` | Raw threshold (aggressiveness multiplies in). |
+| `drafting.contradiction_behavior` | `flag`, `defer`, `block`. |
+
+Bumping `aggressiveness` is the cheapest way to make Vaner *feel* faster,
+at the cost of more incomplete drafts.
+
+### Prediction policy
+
+| Field | Purpose |
+|---|---|
+| `prediction.horizon_bias` | Weights over `likely_next`, `long_horizon`, `finish_partials`, `balanced`. Normalised before applying. |
+| `prediction.exploration_ratio` | `-0.10` exploit to `+0.15` explore. |
+| `prediction.persistence_strength` | `0.6` decay-fast to `1.5` decay-slow. |
+| `prediction.goal_weighting` | `0.8` to `1.4`. Multiplier on goal-aligned scoring. |
+
+These four knobs interact strongly. Start from a bundle and nudge one
+axis at a time. Reference: [`catalog.py`](https://github.com/Borgels/vaner/blob/main/src/vaner/setup/catalog.py).
+
+### Deep-Run
+
+| Field | Purpose |
+|---|---|
+| `deep_run.preset` | `conservative`, `balanced`, `aggressive`. |
+| `deep_run.max_duration_minutes` | Hard cap per session. |
+| `deep_run.locality` | `local_only`, `hybrid`, `cloud_preferred`. Per-session override. |
+| `deep_run.cost_cap_usd` | Per-session cloud spend cap. |
+| `deep_run.focus` | Free-text focus hint passed to the planner. |
+| `deep_run.prefer` | Optional list of skills, scenarios, or work-styles to bias toward. |
+
+Defaults derive from the active bundle's `deep_run_profile`. Override
+per-session via the cockpit "Start Deep-Run" dialog or
+`GET /deep-run/defaults` for programmatic consumers.
+
+### Integration
+
+| Field | Purpose |
+|---|---|
+| `integration.guidance_injection` | `off`, `passive`, `active`. |
+| `integration.context_injection.mode` | `none`, `digest_only`, `adopted_package_only`, `top_match_auto_include`, `policy_hybrid`, `client_controlled`. |
+| `integration.mcp_apps_enabled` | Toggle the MCP Apps UI surface. |
+| `integration.handoff_method` | inline, attachment, resource link. |
+
+`policy_hybrid` is the right default for almost all bundles. Drop to
+`digest_only` when context windows are tight; use `client_controlled` when
+the IDE drives inclusion explicitly.
+
+## Where to set these
+
+- `.vaner/config.toml`. Persistent.
+- `vaner config set <key> <value>`. Hot-reloads the daemon.
+- `vaner config edit`. Opens the file in `$EDITOR`.
+- Cockpit Preferences → Engine. Interactive editor.

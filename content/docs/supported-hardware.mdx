@@ -49,7 +49,7 @@ treat as best-effort.
 ## Apple Silicon
 
 M1 and later are fully supported via Metal. Unified memory is the
-constraint — the model has to fit in shared system RAM, with headroom
+constraint, the model has to fit in shared system RAM, with headroom
 for macOS itself.
 
 | Unified memory | Practical model size |
@@ -95,7 +95,7 @@ preset = "background"
 Two paths:
 
 1. **Run Vaner on a different machine.** The daemon is remote-friendly
-   — `vaner up` on a beefy box, point your AI client at its
+  , `vaner up` on a beefy box, point your AI client at its
    loopback URL via SSH tunnel, done. See
    [Backends](/backends) for the configuration.
 2. **Use a cloud backend.** OpenAI / Anthropic / OpenRouter all work

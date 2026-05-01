@@ -4,14 +4,15 @@ description: Vaner is a local-first preparation engine that turns idle compute i
 ---
 
 Vaner is a **local-first preparation engine** for AI workflows. It runs beside
-your AI client, watches the project you've scoped to, and uses idle compute to
-prepare evidence-backed work — review notes, bug hypotheses, docs drift, virtual
-diffs, research briefs, and ready prediction-backed drafts — before you
-explicitly ask. When the real question arrives, your client gets the best fit
-quickly instead of starting from a cold retrieval pass.
+your AI client, watches the project you've scoped to, and uses idle compute
+to prepare evidence-backed work (review notes, bug hypotheses, docs drift,
+virtual diffs, research briefs, ready drafts) before you ask. When the real
+question arrives, your client gets the best fit quickly instead of starting
+from a cold retrieval pass.
 
-Prepared Work is non-mutating by default. Vaner can prepare a virtual diff but
-will not apply it or edit your files unless you explicitly export or adopt it.
+Prepared Work is non-mutating by default. Vaner can prepare a virtual diff
+but will not apply it or edit your files unless you explicitly export or
+adopt it.
 
 ## Install Vaner
 
@@ -20,12 +21,12 @@ will not apply it or edit your files unless you explicitly export or adopt it.
     href="https://vaner.ai"
     external
     title="Download Vaner Desktop"
-    description="Recommended for everyone. The desktop app starts the engine, picks a local model that fits your hardware, and wires Vaner into the AI clients it detects on your machine (Claude Code, Cursor, Zed, VS Code, Claude Desktop, …). No command line required."
+    description="Recommended for everyone. Starts the engine, picks a local model that fits your hardware, and wires Vaner into your AI clients. No command line required."
   />
   <Card
     href="/getting-started"
     title="Install the CLI"
-    description="For power users, CI, and Docker. One-line installer for Linux/macOS, plus pipx / uv paths. Runs the same engine the desktop app uses."
+    description="For power users, CI, and Docker. One-line installer for Linux and macOS. Same engine as the desktop app."
   />
 </Cards>
 
@@ -33,14 +34,14 @@ will not apply it or edit your files unless you explicitly export or adopt it.
 
 <Cards>
   <Card
-    href="/simple-mode"
-    title="First-run setup"
-    description="What happens after you open the app for the first time."
+    href="/getting-started"
+    title="Get started"
+    description="Install, init, run."
   />
   <Card
     href="/prepared-work"
     title="Prepared Work"
-    description="The main product surface, with examples."
+    description="What Vaner produces and how to inspect it."
   />
   <Card
     href="/integrations/connect-your-client"
@@ -48,9 +49,9 @@ will not apply it or edit your files unless you explicitly export or adopt it.
     description="Wire Vaner into Claude Code, Cursor, Zed, and 7 other clients."
   />
   <Card
-    href="/cockpit"
-    title="Cockpit"
-    description="Live pipeline view, prepared work feed, goals, predictions."
+    href="/configuration"
+    title="Configuration"
+    description="Knob reference for advanced setups."
   />
 </Cards>
 
@@ -58,9 +59,9 @@ will not apply it or edit your files unless you explicitly export or adopt it.
 
 Vaner is successful when it improves at least one of:
 
-- **answer quality** — your agent's first reply is grounded in actual evidence, not generic recall
-- **prompt-time latency** — work is prepared in advance; the agent picks it up when you ask
-- **cost per good answer** — local idle compute substitutes for cloud round-trips on the routine paths
+- **Answer quality.** Your agent's first reply is grounded in actual evidence, not generic recall.
+- **Prompt-time latency.** Work is prepared in advance; the agent picks it up when you ask.
+- **Cost per good answer.** Local idle compute substitutes for cloud round-trips on routine paths.
 
-It's model-agnostic — local Ollama, vLLM, llama.cpp, MLX, or cloud (OpenAI,
+Model-agnostic. Local Ollama, vLLM, llama.cpp, MLX, or cloud (OpenAI,
 Anthropic, OpenRouter) all work the same way through MCP.
