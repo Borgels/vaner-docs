@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="56" viewBox="0 0 220 56" aria-label="Vaner">
+  
+  <g transform="translate(4 16)">
+    <circle cx="11" cy="11" r="9" fill="none" stroke="#b299d1" stroke-width="1.4"></circle>
+    <circle cx="11" cy="11" r="4" fill="#b299d1"></circle>
+    <path d="M11 11 L18 6" stroke="#e0a557" stroke-width="0.9"></path>
+    <circle cx="18" cy="6" r="1.6" fill="#e0a557"></circle>
+  </g>
+  <text x="38" y="40" class="wm">vaner<tspan class="cur">_</tspan></text>
+</svg>

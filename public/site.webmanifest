@@ -1,0 +1,22 @@
+{
+  "name": "Vaner Docs",
+  "short_name": "Vaner Docs",
+  "description": "Product documentation for Vaner.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#2a2530",
+  "theme_color": "#2a2530",
+  "icons": [
+    {
+      "src": "/brand/favicon/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/favicon/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -56,9 +56,36 @@ export async function generateMetadata({
   const { slug } = await params;
   const page = source.getPage(slug);
   if (!page) notFound();
+  const title = `${page.data.title} | Vaner Docs`;
+  const canonical = `https://docs.vaner.ai${page.url}`;
+  const ogImage = 'https://docs.vaner.ai/brand/png/og-dark-1200x630.png';
 
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description: page.data.description,
+      type: 'article',
+      url: canonical,
+      siteName: 'Vaner Docs',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${page.data.title} - Vaner Docs`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: page.data.description,
+      images: [ogImage],
+    },
   };
 }
