@@ -5,23 +5,30 @@ description: How Vaner runs beside your AI client.
 
 Vaner runs as a small daemon next to your editor. It watches your repo,
 prepares work in the background, and serves that work to your AI client
-through MCP when you ask. The model never waits on Vaner — Vaner has the
+through MCP when you ask. The model never waits on Vaner; Vaner has the
 answer ready.
 
-## What you see
+## How you interact with Vaner
 
-- **Your AI client.** Cursor, Claude Code, Codex, Zed, etc. Calls Vaner
-  through MCP tools (`vaner.resolve`, `vaner.prepared_work.dashboard`, …)
-  to pull prepared work.
-- **The cockpit.** A local web UI at `http://127.0.0.1:8473` (started
-  with `vaner up`). Shows what Vaner has prepared, why, and what's
-  in flight. See [Prepared Work](/prepared-work#inspecting-prepared-work).
-- **The desktop app** (optional). A menu-bar / tray shell that wraps
-  the daemon, surfaces the most-recent prepared moment, and adopts
-  drafts into your active client with one click.
+Vaner is one local engine with several surfaces around it. MCP is the primary
+interface for AI agents. Desktop and Companion are the primary human controls.
 
-All three talk to the same daemon. None of them are in the model's hot
-path — they pull from a queue Vaner keeps populated.
+| Surface | Primary user | Purpose | Default? | Where documented |
+|---|---|---|---|---|
+| AI client via MCP | AI agent | Pull Prepared Work and call `vaner.*` tools from Cursor, Claude Code, Codex, Zed, and similar clients. | Yes, for agents | [MCP mode](/integrations/mcp) |
+| Desktop tray/taskbar window | Human user | Install, start/stop Vaner, see current status, and wire detected clients. | Yes, for humans | [Getting Started](/getting-started) |
+| Companion/settings thin client | Human user | Manage common settings, integrations, backend/runtime choices, and privacy posture. | Yes, through Desktop | [Configuration](/configuration) |
+| Cockpit / Web UI | Advanced user | Inspect engine state, priorities, Prepared Work, diagnostics, and live activity. | No, advanced | [Prepared Work](/prepared-work#inspecting-prepared-work) |
+| CLI | Power users / CI | Script setup, daemon control, status, doctor, logs, and config. | No | [CLI reference](/cli) |
+| Primer/rules, skills, plugins/hooks | AI agent integration | Make MCP usage reliable and client-specific by teaching clients when and how to use Vaner. | Yes, where supported | [Client integration depth](/integrations/client-capabilities) |
+| Proxy/gateway | Compatibility users | OpenAI-compatible fallback for tools that cannot call MCP directly. | No | [Proxy mode](/integrations/proxy) |
+
+Users normally do not install Vaner inside the AI client first. Vaner Desktop
+or `vaner init` configures the integration; the AI client is where the agent
+uses Vaner through MCP.
+
+All surfaces talk to the same daemon. None of them are in the model's hot path;
+they pull from a queue Vaner keeps populated.
 
 ## What Vaner does
 

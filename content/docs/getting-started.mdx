@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Install Vaner, answer five questions, start the daemon.
+description: Install Vaner Desktop, connect your AI client, and start using Prepared Work.
 ---
 
 The fastest path is the [Vaner Desktop app](https://vaner.ai). It installs the
@@ -11,21 +11,35 @@ macOS, Windows, and Linux are the same Vaner Desktop product. The macOS app
 does not have a separate feature set today; it is a native shell around the
 same Vaner engine, MCP wiring, and Ollama-first runtime.
 
-The CLI path below is for power users, CI, and Docker.
+You normally do not install Vaner inside the AI client first. Desktop configures
+the integration, then your AI client uses Vaner through MCP.
 
-## 1. Install Vaner Desktop
+## How you interact with Vaner
+
+| Surface | Primary user | Purpose | Default? | Where documented |
+|---|---|---|---|---|
+| AI client via MCP | AI agent | Pull Prepared Work and call `vaner.*` tools during a task. | Yes, for agents | [MCP mode](/integrations/mcp) |
+| Desktop tray/taskbar window | Human user | Install, start/stop Vaner, see status, and wire detected clients. | Yes, for humans | [Install Vaner Desktop](#install-vaner-desktop) |
+| Companion/settings thin client | Human user | Manage common settings, integrations, backend/runtime choices, and privacy posture. | Yes, through Desktop | [Configuration](/configuration) |
+| Cockpit / Web UI | Advanced user | Inspect engine state, priorities, Prepared Work, diagnostics, and live activity. | No, advanced | [Prepared Work](/prepared-work#inspecting-prepared-work) |
+| CLI | Power users / CI | Script setup, daemon control, status, doctor, logs, and config. | No | [Power users / CI](#power-users--ci) |
+| Primer/rules, skills, plugins/hooks | AI agent integration | Make MCP usage reliable and client-specific. | Yes, where supported | [Client integration depth](/integrations/client-capabilities) |
+| Proxy/gateway | Compatibility users | OpenAI-compatible fallback for tools that cannot call MCP directly. | No | [Proxy mode](/integrations/proxy) |
+
+## Install Vaner Desktop
 
 macOS:
 
-1. Download the macOS DMG from the
-   [Vaner Desktop release](https://github.com/Borgels/vaner-desktop/releases/latest).
+1. Download [Vaner Desktop for macOS](https://vaner.ai/download/macos).
 2. Open the `.dmg` and drag Vaner into Applications.
 3. Launch Vaner Desktop and let it install/start Ollama if needed.
 
 If macOS blocks the first launch for an unsigned 0.x build, right-click
 Vaner and choose **Open** once.
 
-## 2. CLI install
+## Power users / CI
+
+Use the CLI path for CI, Docker, SSH-only machines, or scripted setup.
 
 ```bash
 curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
@@ -52,7 +66,7 @@ curl -fsSL https://vaner.ai/install.sh | bash
 
 Full env-var list and source: [scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh).
 
-## 3. Initialize
+### Initialize
 
 ```bash
 vaner init --path .
@@ -65,7 +79,7 @@ your machine. You confirm the client list before anything is written.
 If you want to override the auto-picked bundle, run
 `vaner setup apply <bundle-id>` after init.
 
-## 4. Start
+### Start
 
 ```bash
 vaner up --path .
