@@ -3,9 +3,10 @@ title: Getting Started
 description: Install Vaner Desktop, connect your AI client, and start using Prepared Work.
 ---
 
-The fastest path is the [Vaner Desktop app](https://vaner.ai). It installs the
-engine, picks a local Ollama model that fits your hardware, and wires Vaner
-into the AI clients it detects. No CLI required.
+The fastest path is the [Vaner Desktop app](https://vaner.ai). It gives you the
+human-facing installer, setup, status, and integration controls, picks a local
+Ollama model that fits your hardware, and wires Vaner into the AI clients it
+detects.
 
 macOS, Windows, and Linux are the same Vaner Desktop product. The macOS app
 does not have a separate feature set today; it is a native shell around the
@@ -36,6 +37,20 @@ macOS:
 
 If macOS blocks the first launch for an unsigned 0.x build, right-click
 Vaner and choose **Open** once.
+
+Linux:
+
+1. Download [Vaner for Linux](https://vaner.ai/download/linux-deb).
+2. Install the `.deb`, then launch **Vaner** from your app list.
+
+The Linux desktop package is named `vaner`; the installed GUI command is
+`vaner-desktop`. The power-user CLI remains the PyPI command `vaner`. If Vaner
+ever ships the CLI through apt, that package should be named `vaner-cli`.
+
+Windows:
+
+1. Download [Vaner for Windows](https://vaner.ai/download/windows).
+2. Run the installer, then launch Vaner from the Start menu.
 
 ## Power users / CI
 
