@@ -21,7 +21,7 @@ adopt it.
     href="https://vaner.ai"
     external
     title="Download Vaner Desktop"
-    description="Recommended for everyone. Starts the engine, picks a local model that fits your hardware, and wires Vaner into your AI clients. No command line required."
+    description="Recommended for everyone on macOS, Windows, and Linux. Starts the engine, picks a local Ollama model that fits your hardware, and wires Vaner into your AI clients."
   />
   <Card
     href="/getting-started"
@@ -63,5 +63,6 @@ Vaner is successful when it improves at least one of:
 - **Prompt-time latency.** Work is prepared in advance; the agent picks it up when you ask.
 - **Cost per good answer.** Local idle compute substitutes for cloud round-trips on routine paths.
 
-Model-agnostic. Local Ollama, vLLM, llama.cpp, MLX, or cloud (OpenAI,
-Anthropic, OpenRouter) all work the same way through MCP.
+Model-agnostic. Local Ollama is the default runtime, including on Apple
+Silicon Macs. vLLM, llama.cpp-compatible servers, or cloud backends
+(OpenAI, Anthropic, OpenRouter) also work through the same MCP surface.

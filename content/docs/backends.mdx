@@ -9,14 +9,29 @@ precompute).
 
 ## Default backend (most users)
 
-Set one backend in `~/.vaner/config.toml`:
+Vaner Desktop and `vaner init` default to Ollama on localhost. That is the
+same default on macOS, Windows, and Linux.
+
+The generated local config looks like this:
 
 ```toml
 [backend]
+name = "ollama"
 base_url = "http://127.0.0.1:11434/v1"
-model = "qwen2.5-coder:32b"
-api_key_env = "OLLAMA_API_KEY"
+model = "llama3.2:3b"
+api_key_env = ""
+prefer_local = true
+```
 
+You can switch to a larger pulled Ollama model later:
+
+```bash
+vaner config set backend.model qwen3.5:8b --path .
+```
+
+Hosted backends are explicit alternatives:
+
+```toml
 [backends.openai]
 base_url = "https://api.openai.com/v1"
 model = "gpt-4o"
@@ -28,8 +43,8 @@ model = "claude-sonnet-4-20250514"
 api_key_env = "ANTHROPIC_API_KEY"
 ```
 
-Use this with MCP mode (`vaner mcp --path .`): your client calls Vaner tools and
-Vaner ponders with the configured backend.
+Use this with MCP mode (`vaner mcp --path .`): your client calls Vaner tools
+and Vaner ponders with the configured backend.
 
 ## Picking local vs hosted
 
