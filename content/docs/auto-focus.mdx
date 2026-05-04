@@ -1,0 +1,101 @@
+---
+title: Auto Focus
+description: How Vaner decides whether to work, where to work, and why.
+---
+
+Auto Focus is Vaner's daemon-owned focus layer. It keeps Vaner quiet when
+there is no useful workspace context and allows Prepared Work only when one
+eligible workspace is clearly selected.
+
+The desktop apps are control surfaces. They show daemon state and send user
+actions, but they do not decide the active workspace or scheduling policy.
+
+## Default behavior
+
+- No supported client running: Vaner is idle except cheap maintenance.
+- Supported client running, no wired workspace: Vaner stays in standby.
+- One wired active workspace: Vaner may prepare work for that workspace.
+- Multiple workspaces: Vaner chooses one only when confidence is high.
+- Ambiguity: Vaner stays in standby instead of guessing.
+- Paused workspace: no repo reads, indexing, reasoning, or Prepared Work.
+
+Vaner selects at most one proactive workspace by default. Other workspaces are
+standby, dormant, unknown, or paused.
+
+## Privacy boundary
+
+Vaner can detect supported AI clients so it knows when to stay quiet and when
+to prepare work. It only checks supported clients and Vaner integrations. It
+does not read prompts, window titles, browser tabs, clipboard, terminal
+history, terminal buffers, or arbitrary apps.
+
+Client detection is local and default-enabled. You can switch to Manual Only
+or Pause Vaner from Desktop, CLI, or MCP.
+
+## Why not working
+
+Auto Focus exposes skipped and deferred reasons everywhere:
+
+- Desktop Focus panel
+- `vaner focus status`
+- `vaner.focus.status`
+- `GET /focus`
+
+Example:
+
+```text
+Standby: Cursor is running, but no wired workspace was detected.
+Action: Connect this workspace or choose Work Here.
+```
+
+## CLI
+
+```bash
+vaner focus status
+vaner focus work-here .
+vaner focus pin .
+vaner focus pause .
+vaner focus resume .
+vaner focus pause --all
+vaner focus mode manual-only
+vaner resources status
+vaner jobs status
+```
+
+## MCP tools
+
+```text
+vaner.focus.status
+vaner.focus.work_here
+vaner.focus.pin_current_workspace
+vaner.focus.pause_current_workspace
+vaner.focus.resume_current_workspace
+vaner.focus.set_mode
+vaner.resources.status
+vaner.jobs.status
+vaner.jobs.cancel
+```
+
+## HTTP
+
+```text
+GET  /focus
+POST /focus/workspaces/{id}/work-here
+POST /focus/workspaces/{id}/pin
+POST /focus/workspaces/{id}/unpin
+POST /focus/workspaces/{id}/pause
+POST /focus/workspaces/{id}/resume
+POST /focus/pause-all
+POST /focus/mode
+GET  /resources
+GET  /jobs
+```
+
+`/resources` is read-only in this release. It exposes minimal local runtime
+and device inventory from existing Vaner config and hardware probes.
+
+## Cloud execution
+
+Auto Focus does not run proactive or background work in the cloud in this
+release. Future cloud execution, if added, will be explicit policy rather than
+silent fallback.
