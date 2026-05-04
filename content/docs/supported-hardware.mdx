@@ -7,6 +7,11 @@ Vaner uses [Ollama](https://ollama.com) as its default local runtime,
 so **Vaner runs everywhere Ollama runs**. If your machine can pull and
 run a model with `ollama run`, Vaner can use it.
 
+On macOS, Ollama officially supports
+[macOS Sonoma v14+](https://docs.ollama.com/macos) and Apple M-series
+CPUs/GPUs. Apple GPU acceleration uses
+[Metal](https://docs.ollama.com/gpu); Intel Macs run Ollama CPU-only.
+
 The defaults the Vaner Desktop app picks are tuned to fit comfortably
 on the hardware it detects. You can override the model later via
 `vaner config set backend.model <id>`.
@@ -48,9 +53,9 @@ treat as best-effort.
 
 ## Apple Silicon
 
-M1 and later are fully supported via Metal. Unified memory is the
-constraint, the model has to fit in shared system RAM, with headroom
-for macOS itself.
+M1 and later are the recommended Mac path. Ollama uses Metal for Apple GPU
+acceleration. Unified memory is the constraint: the model has to fit in
+shared system RAM, with headroom for macOS itself.
 
 | Unified memory | Practical model size |
 |---|---|
@@ -87,15 +92,15 @@ preset = "background"
 | OS | Status |
 |---|---|
 | Linux (Ubuntu, Fedora, Debian, Arch) | Supported. Wayland and X11 both work — there's no Vaner-side difference. |
-| macOS 13+ | Supported (Apple Silicon native, Intel via Rosetta — Apple Silicon recommended). |
+| macOS 14+ | Supported with Ollama as the default runtime. Apple Silicon recommended; Intel Mac is CPU-only. |
 | Windows 10/11 | Supported via the [Vaner Desktop installer](https://vaner.ai). |
 
 ## What if my GPU isn't on Ollama's list?
 
 Two paths:
 
-1. **Run Vaner on a different machine.** The daemon is remote-friendly
-  , `vaner up` on a beefy box, point your AI client at its
+1. **Run Vaner on a different machine.** The daemon is remote-friendly:
+   `vaner up` on a beefy box, point your AI client at its
    loopback URL via SSH tunnel, done. See
    [Backends](/backends) for the configuration.
 2. **Use a cloud backend.** OpenAI / Anthropic / OpenRouter all work

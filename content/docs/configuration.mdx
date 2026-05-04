@@ -9,9 +9,11 @@ Vaner reads configuration from `.vaner/config.toml`.
 
 ```toml
 [backend]
+name = "ollama"
 base_url = "http://127.0.0.1:11434/v1"
-model = "qwen2.5-coder:32b"
-api_key_env = "OLLAMA_API_KEY"
+model = "llama3.2:3b"
+api_key_env = ""
+prefer_local = true
 
 [mcp]
 transport = "stdio"

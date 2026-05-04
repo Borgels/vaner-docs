@@ -4,12 +4,28 @@ description: Install Vaner, answer five questions, start the daemon.
 ---
 
 The fastest path is the [Vaner Desktop app](https://vaner.ai). It installs the
-engine, picks a local model that fits your hardware, and wires Vaner into the
-AI clients it detects. No CLI required.
+engine, picks a local Ollama model that fits your hardware, and wires Vaner
+into the AI clients it detects. No CLI required.
+
+macOS, Windows, and Linux are the same Vaner Desktop product. The macOS app
+does not have a separate feature set today; it is a native shell around the
+same Vaner engine, MCP wiring, and Ollama-first runtime.
 
 The CLI path below is for power users, CI, and Docker.
 
-## 1. Install
+## 1. Install Vaner Desktop
+
+macOS:
+
+1. Download the macOS DMG from the
+   [Vaner Desktop release](https://github.com/Borgels/vaner-desktop/releases/latest).
+2. Open the `.dmg` and drag Vaner into Applications.
+3. Launch Vaner Desktop and let it install/start Ollama if needed.
+
+If macOS blocks the first launch for an unsigned 0.x build, right-click
+Vaner and choose **Open** once.
+
+## 2. CLI install
 
 ```bash
 curl -fsSL --proto '=https' --tlsv1.2 https://vaner.ai/install.sh | bash
@@ -36,7 +52,7 @@ curl -fsSL https://vaner.ai/install.sh | bash
 
 Full env-var list and source: [scripts/install.sh](https://github.com/Borgels/vaner/blob/main/scripts/install.sh).
 
-## 2. Initialize
+## 3. Initialize
 
 ```bash
 vaner init --path .
@@ -49,7 +65,7 @@ your machine. You confirm the client list before anything is written.
 If you want to override the auto-picked bundle, run
 `vaner setup apply <bundle-id>` after init.
 
-## 3. Start
+## 4. Start
 
 ```bash
 vaner up --path .

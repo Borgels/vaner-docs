@@ -126,6 +126,11 @@ Confirm your configured model matches a pulled model in Ollama:
 - `.vaner/config.toml` -> `[backend].model`
 - `http://127.0.0.1:11434/api/tags` -> includes the same model name
 
+On macOS, install Ollama from [ollama.com/download](https://ollama.com/download)
+or let Vaner Desktop offer to install it. Apple Silicon Macs use Ollama's
+Metal acceleration automatically; Intel Macs are CPU-only, so use a smaller
+model if first-run checks are slow.
+
 ## CLI says daemon is stopped but doctor is green
 
 `vaner status` and `vaner doctor` now use the same runtime snapshot source. If they disagree, restart with:
